@@ -268,3 +268,16 @@ QLabel#dissectFinal {
     color: #B3401F;
     margin-top: 10px;
 }
+
+QPushButton#templateBtn {
+    color: #1a1712;
+    border-bottom: 1px solid rgba(26,23,18,0.4);
+    font-size: 14px;
+    padding: 10px 8px;
+    margin-top: 6px;
+}
+
+QPushButton#templateBtn:hover {
+    color: #B3401F;
+    border-bottom-color: #B3401F;
+}

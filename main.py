@@ -1242,6 +1242,13 @@ class MainWindow(QMainWindow):
         self.dissect_btn.clicked.connect(self._show_dissect)
         left_layout.addWidget(self.dissect_btn)
 
+        # 算法模板导航：从拆题主界面进入，查看算法信息/C++模板
+        self.template_btn = QPushButton("算法模板", left)
+        self.template_btn.setObjectName("templateBtn")
+        self.template_btn.setToolTip("查看算法信息与 C++ 模板")
+        self.template_btn.clicked.connect(self._show_templates)
+        left_layout.addWidget(self.template_btn)
+
         # 信息论导论入口：常驻一个小按钮，不占太多空间
         self.info_btn = QPushButton("导论", left)
         self.info_btn.setObjectName("infoBtn")
@@ -1404,9 +1411,17 @@ class MainWindow(QMainWindow):
         self.right_layout.addWidget(page, 1)
 
     def _show_dissect(self):
+        self.tier_list.setVisible(False)
         self._clear_right()
-        page = DissectPage(on_back=lambda: self.tier_list.setCurrentRow(0), parent=self)
+        page = DissectPage(on_back=self._show_templates, parent=self)
         self.right_layout.addWidget(page, 1)
+
+    def _show_templates(self):
+        self.tier_list.setVisible(True)
+        if self.tier_list.currentRow() < 0:
+            self.tier_list.setCurrentRow(0)
+        else:
+            self._on_tier_changed(self.tier_list.currentRow())
 
     def _clear_right(self):
         while self.right_layout.count():
