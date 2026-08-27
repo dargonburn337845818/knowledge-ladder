@@ -19,6 +19,7 @@ from PySide6.QtWidgets import (
     QDialog,
     QFrame,
     QHBoxLayout,
+    QInputDialog,
     QLabel,
     QListWidget,
     QListWidgetItem,
@@ -1596,13 +1597,77 @@ class MainWindow(QMainWindow):
 
     def _choose_wallpaper(self):
         from PySide6.QtWidgets import QFileDialog
-        path, _ = QFileDialog.getOpenFileName(
-            self, "选择壁纸图片", "", "图片文件 (*.png *.jpg *.jpeg *.bmp *.webp)"
-        )
-        if path:
-            self.store.set_wallpaper(path)
-            self._apply_wallpaper()
-            QMessageBox.information(self, "壁纸已设置", "玻璃拟态面板会透出所选壁纸。")
+
+        # 自动找 Steam Wallpaper Engine 本地壁纸库
+        def detect_we_roots():
+            candidates = []
+            pf86 = os.environ.get("ProgramFiles(x86)", r"C:\Program Files (x86)")
+            pf64 = os.environ.get("ProgramFiles", r"C:\Program Files")
+            candidates.append(os.path.join(pf86, "Steam", "steamapps", "workshop", "content", "431960"))
+            candidates.append(os.path.join(pf64, "Steam", "steamapps", "workshop", "content", "431960"))
+            candidates.append(os.path.expandvars(r"%LOCALAPPDATA%\Steam\steamapps\workshop\content\431960"))
+            return [p for p in candidates if os.path.isdir(p)]
+
+        roots = detect_we_roots()
+        if not roots:
+            root = QFileDialog.getExistingDirectory(
+                self,
+                "未找到 Wallpaper Engine 壁纸目录，请选择 workshop/content/431960 文件夹",
+                "",
+            )
+            if not root:
+                return
+            roots = [root]
+
+        items = []
+        for root in roots:
+            try:
+                for name in os.listdir(root):
+                    d = os.path.join(root, name)
+                    if not os.path.isdir(d):
+                        continue
+                    candidate = None
+                    for fn in ("preview.jpg", "preview.png", "preview.webp"):
+                        p2 = os.path.join(d, fn)
+                        if os.path.isfile(p2):
+                            candidate = p2
+                            break
+                    if not candidate:
+                        for ext in (".jpg", ".jpeg", ".png", ".webp", ".bmp", ".gif"):
+                            try:
+                                matches = [os.path.join(d, f) for f in os.listdir(d) if f.lower().endswith(ext)]
+                            except OSError:
+                                matches = []
+                            if matches:
+                                candidate = matches[0]
+                                break
+                    if candidate:
+                        label = f"{name}  ({os.path.basename(candidate)})"
+                        items.append((label, candidate))
+            except OSError:
+                continue
+
+        if not items:
+            QMessageBox.information(
+                self,
+                "未找到可用壁纸",
+                "该目录下没有找到 preview 或图片文件。\nWallpaper Engine 本地壁纸一般位于：\nworkshop/content/431960/<壁纸id>/",
+            )
+            return
+
+        labels = [x[0] for x in items]
+        choice, ok = QInputDialog.getItem(self, "选择 Wallpaper Engine 壁纸", "壁纸：", labels, 0, False)
+        if ok and choice:
+            for label, path in items:
+                if label == choice:
+                    self.store.set_wallpaper(path)
+                    self._apply_wallpaper()
+                    QMessageBox.information(
+                        self,
+                        "壁纸已设置",
+                        f"已使用 Wallpaper Engine 壁纸：\n{choice}\n\n当前使用预览图/静态图；动态视频壁纸需要后续媒体播放支持。",
+                    )
+                    break
 
     def _toggle_style(self):
         new_mode = STYLE_LIGHT if self.store.style_mode == STYLE_DARK else STYLE_DARK
