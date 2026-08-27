@@ -621,3 +621,24 @@ body.theme-editorial .close-btn {
   border: none;
   color: #1A1712;
 }
+
+/* Fix: Editorial 模式下仍残留玻璃白色文字 */
+body.theme-editorial .node-value,
+body.theme-editorial .think-card .think-q,
+body.theme-editorial .think-final,
+body.theme-editorial .explain-sheet,
+body.theme-editorial .explain-body {
+  color: #1A1712;
+}
+
+body.theme-editorial .diagram-arrow {
+  color: rgba(26, 23, 18, 0.4);
+}
+
+body.theme-editorial .explain-body .eg {
+  color: rgba(26, 23, 18, 0.6);
+}
+
+body.theme-editorial .explain-title {
+  color: #B3401F;
+}
