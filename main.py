@@ -10,7 +10,7 @@ import json
 import os
 import sys
 
-from PySide6.QtCore import QEasingCurve, QPropertyAnimation, QSize, Qt, QStandardPaths
+from PySide6.QtCore import QEasingCurve, QPropertyAnimation, QSize, Qt, QStandardPaths, QUrl
 from PySide6.QtGui import QColor, QFont, QGuiApplication, QIcon, QPainter, QPixmap
 from PySide6.QtWidgets import (
     QApplication,
@@ -52,6 +52,13 @@ from info_framework import (
     TOPOLOGIES,
     get_alg_info,
 )
+try:
+    from PySide6.QtMultimedia import QAudioOutput, QMediaPlayer
+    from PySide6.QtMultimediaWidgets import QVideoWidget
+    HAS_MEDIA = True
+except ImportError:
+    HAS_MEDIA = False
+
 from knowledge_data import ALGORITHMS, ALGORITHM_BY_NAME
 from tiers_data import TIERS
 
@@ -1585,6 +1592,11 @@ class MainWindow(QMainWindow):
 
     def _apply_wallpaper(self):
         path = (self.store.wallpaper or "").strip()
+        if path and HAS_MEDIA and path.lower().endswith((".mp4", ".webm", ".mov", ".m4v")):
+            self.centralWidget().setStyleSheet("#appShell { background: #060A13; }")
+            self._setup_video_wallpaper(path)
+            return
+        self._clear_video_wallpaper()
         if path:
             style = (
                 '#appShell { background-image: url("'
@@ -1594,6 +1606,41 @@ class MainWindow(QMainWindow):
             self.centralWidget().setStyleSheet(style)
         else:
             self.centralWidget().setStyleSheet("#appShell { background: #0B1322; }")
+
+    def _setup_video_wallpaper(self, path: str):
+        self._clear_video_wallpaper()
+        if not HAS_MEDIA:
+            return
+        video = QVideoWidget(self.centralWidget())
+        video.setObjectName("wallpaperVideo")
+        video.setGeometry(self.centralWidget().rect())
+        video.lower()
+        media = QMediaPlayer(self)
+        audio = QAudioOutput(self)
+        audio.setVolume(0)
+        media.setAudioOutput(audio)
+        media.setVideoOutput(video)
+        media.setSource(QUrl.fromLocalFile(path))
+        def replay(status):
+            if status == QMediaPlayer.MediaStatus.EndOfMedia:
+                media.setPosition(0)
+                media.play()
+        media.mediaStatusChanged.connect(replay)
+        media.play()
+        self._video_player = media
+        self._video_widget = video
+
+    def _clear_video_wallpaper(self):
+        for attr in ("_video_player", "_video_widget"):
+            obj = getattr(self, attr, None)
+            if obj is not None:
+                try:
+                    if attr == "_video_player":
+                        obj.stop()
+                    obj.deleteLater()
+                except Exception:
+                    pass
+                setattr(self, attr, None)
 
     def _choose_wallpaper(self):
         from PySide6.QtWidgets import QFileDialog
@@ -1641,8 +1688,19 @@ class MainWindow(QMainWindow):
                             if matches:
                                 candidate = matches[0]
                                 break
+                    if not candidate:
+                        for ext in (".mp4", ".webm", ".mov", ".m4v"):
+                            try:
+                                matches = [os.path.join(d, f) for f in os.listdir(d) if f.lower().endswith(ext)]
+                            except OSError:
+                                matches = []
+                            if matches:
+                                candidate = matches[0]
+                                break
                     if candidate:
-                        label = f"{name}  ({os.path.basename(candidate)})"
+                        is_video = candidate.lower().endswith((".mp4", ".webm", ".mov", ".m4v"))
+                        kind = "动态视频" if is_video else "预览/静态图"
+                        label = f"{name}  ({kind}: {os.path.basename(candidate)})"
                         items.append((label, candidate))
             except OSError:
                 continue
@@ -1665,7 +1723,7 @@ class MainWindow(QMainWindow):
                     QMessageBox.information(
                         self,
                         "壁纸已设置",
-                        f"已使用 Wallpaper Engine 壁纸：\n{choice}\n\n当前使用预览图/静态图；动态视频壁纸需要后续媒体播放支持。",
+                        f"已使用 Wallpaper Engine 壁纸：\n{choice}\n\n动态视频壁纸会在桌面端播放；静态图作为玻璃背景显示。",
                     )
                     break
 
