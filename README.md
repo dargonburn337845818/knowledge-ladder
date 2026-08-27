@@ -58,7 +58,8 @@ docs/style-parallax-editorial.md
 - 启动即拆题，与移动端一致
 - 左侧「算法模板」进入算法信息与 C++ 模板
 - 保留 8 档难度、掌握进度、信息论微缩模块
-- 同一套 Parallax Editorial 视觉
+- 同一套玻璃拟态视觉
+- 支持连接 Steam Wallpaper Engine：壁纸按钮自动扫描本地壁纸库，可选壁纸作为背景
 
 ---
 
