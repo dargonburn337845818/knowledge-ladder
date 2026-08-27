@@ -1,23 +1,17 @@
 # -*- coding: utf-8 -*-
-"""Wallpaper Engine 高清导出工具（NVENC 硬件录制，无需 OBS）
+"""Wallpaper Engine 高清导出工具（NVENC，无需 OBS）
 
-流程：
-1. 用 Wallpaper Engine 命令行把壁纸以指定分辨率打开成独立窗口
-2. 用 ffmpeg gdigrab 录制该窗口
-3. 使用 NVIDIA NVENC (h264_nvenc) 硬件编码，输出高清 MP4
-4. 关闭 Wallpaper Engine 窗口
-
-用法（Windows，需要 ffmpeg 带 NVENC 且 NVIDIA 驱动支持）：
-    python export_we_wallpaper.py ^
-        --wallpaper "D:\\steam\\steamapps\\workshop\\content\\431960\\2898117474\\project.json" ^
-        --width 1920 --height 1080 --seconds 15 --output output.mp4
+支持两种用法：
+1. 命令行：
+   WallpaperExport.exe --wallpaper "...\\project.json" --width 1920 --height 1080 --seconds 15
+2. 无参数 / 带 --gui：打开图形界面，选择壁纸后点导出
 """
-
 import argparse
 import os
 import subprocess
 import sys
 import time
+
 
 def find_we_exe():
     candidates = [
@@ -30,12 +24,12 @@ def find_we_exe():
     for p in candidates:
         if os.path.isfile(p):
             return p
-    # 尝试从 PATH 找
     for exe in ("wallpaper64.exe", "wallpaper32.exe"):
         path = subprocess.run(["where", exe], capture_output=True, text=True)
         if path.returncode == 0 and path.stdout.strip():
             return path.stdout.strip().splitlines()[0]
     return None
+
 
 def run_we(we_exe, args, check=True):
     cmd = [we_exe, "-control"] + args
@@ -45,71 +39,152 @@ def run_we(we_exe, args, check=True):
     else:
         subprocess.run(cmd)
 
-def main():
-    ap = argparse.ArgumentParser(description="Wallpaper Engine 高清导出（NVENC）")
-    ap.add_argument("--wallpaper", required=True, help="Wallpaper 的 project.json / scene.pkg / 视频文件路径")
-    ap.add_argument("--width", type=int, default=1920)
-    ap.add_argument("--height", type=int, default=1080)
-    ap.add_argument("--seconds", type=int, default=15)
-    ap.add_argument("--framerate", type=int, default=60)
-    ap.add_argument("--output", default=os.path.join(r"D:\\wallpaper-vedio", "wallpaper_hd.mp4"))
-    ap.add_argument("--window-name", default="WE_HD_Export")
-    args = ap.parse_args()
 
+def export_wallpaper(wallpaper, width=1920, height=1080, seconds=15,
+                     framerate=60, output=r"D:\wallpaper-vedio\wallpaper_hd.mp4",
+                     window_name="WE_HD_Export"):
     we_exe = find_we_exe()
     if not we_exe:
-        print("错误：找不到 wallpaper32.exe / wallpaper64.exe")
-        sys.exit(1)
+        raise RuntimeError("找不到 wallpaper32.exe / wallpaper64.exe，请确认 Wallpaper Engine 已安装")
+    if not os.path.isfile(wallpaper):
+        raise FileNotFoundError(f"壁纸文件不存在：{wallpaper}")
 
-    if not os.path.isfile(args.wallpaper):
-        print(f"错误：壁纸文件不存在：{args.wallpaper}")
-        sys.exit(1)
-
-    out_dir = os.path.dirname(os.path.abspath(args.output))
+    out_dir = os.path.dirname(os.path.abspath(output))
     if out_dir:
         os.makedirs(out_dir, exist_ok=True)
 
-    # 打开壁纸窗口
     run_we(we_exe, [
         "openWallpaper",
-        "-file", args.wallpaper,
-        "-playInWindow", args.window_name,
-        "-width", str(args.width),
-        "-height", str(args.height),
+        "-file", wallpaper,
+        "-playInWindow", window_name,
+        "-width", str(width),
+        "-height", str(height),
         "-x", "0", "-y", "0",
     ], check=False)
 
-    print(f"等待 Wallpaper Engine 启动并渲染 3 秒…")
+    print("等待 Wallpaper Engine 渲染 3 秒…")
     time.sleep(3)
 
     ffmpeg_cmd = [
         "ffmpeg", "-y",
         "-f", "gdigrab",
-        "-framerate", str(args.framerate),
-        "-i", f"title={args.window_name}",
+        "-framerate", str(framerate),
+        "-i", f"title={window_name}",
         "-c:v", "h264_nvenc",
         "-preset", "p5",
-        "-t", str(args.seconds),
+        "-t", str(seconds),
         "-pix_fmt", "yuv420p",
         "-movflags", "+faststart",
-        args.output,
+        output,
     ]
     print(">>", " ".join(ffmpeg_cmd))
     try:
         subprocess.run(ffmpeg_cmd, check=True)
     except FileNotFoundError:
-        print("错误：未找到 ffmpeg。请安装带 NVENC 的 ffmpeg，并确保在 PATH 中。")
-        run_we(we_exe, ["closeWallpaper", "-location", args.window_name], check=False)
-        sys.exit(1)
-    except subprocess.CalledProcessError:
-        print("错误：ffmpeg 录制失败，可能窗口名未匹配或 NVIDIA NVENC 不可用。")
-        run_we(we_exe, ["closeWallpaper", "-location", args.window_name], check=False)
+        run_we(we_exe, ["closeWallpaper", "-location", window_name], check=False)
+        raise RuntimeError("未找到 ffmpeg，请安装带 NVENC 的 ffmpeg 并加入 PATH")
+    except subprocess.CalledProcessError as e:
+        run_we(we_exe, ["closeWallpaper", "-location", window_name], check=False)
+        raise RuntimeError(f"ffmpeg 录制失败：{e}")
+
+    run_we(we_exe, ["closeWallpaper", "-location", window_name], check=False)
+    return output
+
+
+def run_gui():
+    import tkinter as tk
+    from tkinter import filedialog, messagebox, ttk
+
+    root = tk.Tk()
+    root.title("Wallpaper Engine 高清导出 (NVENC)")
+    root.geometry("520x300")
+    root.resizable(False, False)
+
+    wallpaper_var = tk.StringVar()
+    width_var = tk.StringVar(value="1920")
+    height_var = tk.StringVar(value="1080")
+    seconds_var = tk.StringVar(value="15")
+    output_var = tk.StringVar(value=r"D:\wallpaper-vedio\wallpaper_hd.mp4")
+
+    def browse():
+        path = filedialog.askopenfilename(
+            title="选择 Wallpaper Engine 壁纸",
+            filetypes=[("Wallpaper", "*.json *.pkg *.mp4 *.webm *.mov"), ("所有文件", "*.*")]
+        )
+        if path:
+            wallpaper_var.set(path)
+
+    ttk.Label(root, text="壁纸文件 (project.json / scene.pkg / 视频):").pack(anchor="w", padx=16, pady=(16, 4))
+    row = tk.Frame(root)
+    row.pack(fill="x", padx=16)
+    tk.Entry(row, textvariable=wallpaper_var).pack(side="left", fill="x", expand=True)
+    tk.Button(row, text="浏览", command=browse).pack(side="left", padx=6)
+
+    form = tk.Frame(root)
+    form.pack(fill="x", padx=16, pady=10)
+    tk.Label(form, text="宽").grid(row=0, column=0, padx=4, pady=4)
+    tk.Entry(form, textvariable=width_var, width=10).grid(row=0, column=1, padx=4)
+    tk.Label(form, text="高").grid(row=0, column=2, padx=4)
+    tk.Entry(form, textvariable=height_var, width=10).grid(row=0, column=3, padx=4)
+    tk.Label(form, text="秒").grid(row=1, column=0, padx=4, pady=4)
+    tk.Entry(form, textvariable=seconds_var, width=10).grid(row=1, column=1, padx=4)
+
+    ttk.Label(root, text="输出目录: D:\\wallpaper-vedio").pack(anchor="w", padx=16, pady=8)
+
+    status = ttk.Label(root, text="", foreground="#666")
+    status.pack(pady=6)
+
+    def do_export():
+        wallpaper = wallpaper_var.get().strip()
+        if not wallpaper:
+            messagebox.showwarning("提示", "请先选择壁纸文件")
+            return
+        try:
+            width = int(width_var.get())
+            height = int(height_var.get())
+            seconds = int(seconds_var.get())
+        except ValueError:
+            messagebox.showerror("错误", "宽/高/秒数必须是数字")
+            return
+        status.config(text="导出中…请稍候")
+        root.update()
+        try:
+            out = export_wallpaper(wallpaper, width, height, seconds, output=output_var.get())
+            status.config(text=f"完成：{out}")
+            messagebox.showinfo("完成", f"已导出：\n{out}")
+        except Exception as e:
+            status.config(text=f"失败：{e}")
+            messagebox.showerror("失败", str(e))
+
+    tk.Button(root, text="开始导出", command=do_export, bg="#3B5BDB", fg="white",
+              font=("Segoe UI", 12, "bold")).pack(pady=12, ipadx=20, ipady=4)
+
+    root.mainloop()
+
+
+def main():
+    if len(sys.argv) == 1 or "--gui" in sys.argv:
+        run_gui()
+        return
+
+    ap = argparse.ArgumentParser(description="Wallpaper Engine 高清导出（NVENC）")
+    ap.add_argument("--wallpaper", required=True, help="Wallpaper 的 project.json / scene.pkg / 视频路径")
+    ap.add_argument("--width", type=int, default=1920)
+    ap.add_argument("--height", type=int, default=1080)
+    ap.add_argument("--seconds", type=int, default=15)
+    ap.add_argument("--framerate", type=int, default=60)
+    ap.add_argument("--output", default=r"D:\wallpaper-vedio\wallpaper_hd.mp4")
+    ap.add_argument("--window-name", default="WE_HD_Export")
+    args = ap.parse_args()
+
+    try:
+        out = export_wallpaper(args.wallpaper, args.width, args.height, args.seconds,
+                               args.framerate, args.output, args.window_name)
+        print(f"完成：{out}")
+    except Exception as e:
+        print(f"错误：{e}", file=sys.stderr)
         sys.exit(1)
 
-    # 关闭窗口
-    run_we(we_exe, ["closeWallpaper", "-location", args.window_name], check=False)
-
-    print(f"完成：{args.output}（{args.width}x{args.height}，{args.seconds}s，NVENC）")
 
 if __name__ == "__main__":
     main()
