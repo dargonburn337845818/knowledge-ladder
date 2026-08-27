@@ -11,7 +11,7 @@ import os
 import sys
 
 from PySide6.QtCore import QEasingCurve, QPropertyAnimation, QSize, Qt, QStandardPaths, QUrl
-from PySide6.QtGui import QColor, QFont, QGuiApplication, QIcon, QPainter, QPixmap
+from PySide6.QtGui import QColor, QFont, QGuiApplication, QIcon, QMovie, QPainter, QPixmap
 from PySide6.QtWidgets import (
     QApplication,
     QCheckBox,
@@ -1592,7 +1592,12 @@ class MainWindow(QMainWindow):
 
     def _apply_wallpaper(self):
         path = (self.store.wallpaper or "").strip()
-        if path and HAS_MEDIA and path.lower().endswith((".mp4", ".webm", ".mov", ".m4v")):
+        lower = path.lower()
+        if path and lower.endswith(".gif"):
+            self.centralWidget().setStyleSheet("#appShell { background: #1B1D22; }")
+            self._setup_gif_wallpaper(path)
+            return
+        if path and HAS_MEDIA and lower.endswith((".mp4", ".webm", ".mov", ".m4v")):
             self.centralWidget().setStyleSheet("#appShell { background: #060A13; }")
             self._setup_video_wallpaper(path)
             return
@@ -1606,6 +1611,20 @@ class MainWindow(QMainWindow):
             self.centralWidget().setStyleSheet(style)
         else:
             self.centralWidget().setStyleSheet("#appShell { background: #0B1322; }")
+
+    def _setup_gif_wallpaper(self, path: str):
+        self._clear_video_wallpaper()
+        label = QLabel(self.centralWidget())
+        label.setObjectName("wallpaperGif")
+        label.setScaledContents(True)
+        label.setGeometry(self.centralWidget().rect())
+        movie = QMovie(path)
+        movie.setCacheMode(QMovie.CacheMode.CacheAll)
+        label.setMovie(movie)
+        label.lower()
+        movie.start()
+        self._gif_label = label
+        self._gif_movie = movie
 
     def _setup_video_wallpaper(self, path: str):
         self._clear_video_wallpaper()
@@ -1631,11 +1650,13 @@ class MainWindow(QMainWindow):
         self._video_widget = video
 
     def _clear_video_wallpaper(self):
-        for attr in ("_video_player", "_video_widget"):
+        for attr in ("_video_player", "_video_widget", "_gif_movie", "_gif_label"):
             obj = getattr(self, attr, None)
             if obj is not None:
                 try:
                     if attr == "_video_player":
+                        obj.stop()
+                    if attr == "_gif_movie":
                         obj.stop()
                     obj.deleteLater()
                 except Exception:
@@ -1674,7 +1695,7 @@ class MainWindow(QMainWindow):
                     if not os.path.isdir(d):
                         continue
                     candidate = None
-                    for fn in ("preview.jpg", "preview.png", "preview.webp"):
+                    for fn in ("preview.gif", "preview.jpg", "preview.png", "preview.webp"):
                         p2 = os.path.join(d, fn)
                         if os.path.isfile(p2):
                             candidate = p2
@@ -1698,8 +1719,10 @@ class MainWindow(QMainWindow):
                                 candidate = matches[0]
                                 break
                     if candidate:
-                        is_video = candidate.lower().endswith((".mp4", ".webm", ".mov", ".m4v"))
-                        kind = "动态视频" if is_video else "预览/静态图"
+                        lower = candidate.lower()
+                        is_video = lower.endswith((".mp4", ".webm", ".mov", ".m4v"))
+                        is_gif = lower.endswith(".gif")
+                        kind = "动态视频" if is_video else ("动态预览GIF" if is_gif else "预览/静态图")
                         label = f"{name}  ({kind}: {os.path.basename(candidate)})"
                         items.append((label, candidate))
             except OSError:
