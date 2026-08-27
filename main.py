@@ -132,6 +132,7 @@ class ProgressStore:
         self.mastered: dict[str, bool] = {}
         self.style_mode = STYLE_DARK
         self.animation_level = ANIM_LIGHT
+        self.wallpaper = ""
         self.load()
 
     def load(self):
@@ -149,6 +150,7 @@ class ProgressStore:
             self.animation_level = data.get("animation_level", ANIM_LIGHT)
             if self.animation_level not in (ANIM_OFF, ANIM_LIGHT, ANIM_SMOOTH):
                 self.animation_level = ANIM_LIGHT
+            self.wallpaper = data.get("wallpaper", "")
         except (OSError, ValueError):
             self.mastered = {}
             self.style_mode = STYLE_DARK
@@ -159,6 +161,7 @@ class ProgressStore:
             "mastered": self.mastered,
             "style_mode": self.style_mode,
             "animation_level": self.animation_level,
+            "wallpaper": self.wallpaper,
             "updatedAt": "",
         }
         try:
@@ -173,6 +176,10 @@ class ProgressStore:
 
     def set_animation_level(self, level: str):
         self.animation_level = level
+        self.save()
+
+    def set_wallpaper(self, path: str):
+        self.wallpaper = path
         self.save()
 
     def is_mastered(self, tag_id: str) -> bool:
@@ -1348,6 +1355,13 @@ class MainWindow(QMainWindow):
         self.template_btn.clicked.connect(self._show_templates)
         left_layout.addWidget(self.template_btn)
 
+        # 壁纸：桌面端玻璃拟态可链接本地 wallpaper 图片
+        self.wallpaper_btn = QPushButton("壁纸", left)
+        self.wallpaper_btn.setObjectName("wallpaperBtn")
+        self.wallpaper_btn.setToolTip("选择壁纸图片：选择后玻璃面板会透出背景；留空则为内置夜景")
+        self.wallpaper_btn.clicked.connect(self._choose_wallpaper)
+        left_layout.addWidget(self.wallpaper_btn)
+
         # 信息论导论入口：常驻一个小按钮，不占太多空间
         self.info_btn = QPushButton("导论", left)
         self.info_btn.setObjectName("infoBtn")
@@ -1397,6 +1411,7 @@ class MainWindow(QMainWindow):
         self._populate_tier_list()
         self._update_global_progress()
         self._apply_style(self.store.style_mode)
+        self._apply_wallpaper()
         self._update_maximized_mode()
         self._show_dissect()
 
@@ -1566,6 +1581,28 @@ class MainWindow(QMainWindow):
     def _show_guide(self):
         dlg = InfoMiniDialog(self)
         dlg.exec()
+
+    def _apply_wallpaper(self):
+        path = (self.store.wallpaper or "").strip()
+        if path:
+            style = (
+                '#appShell { background-image: url("'
+                + path.replace("\\", "/")
+                + '"); background-repeat: no-repeat; background-position: center; background-color: #0B1322; }'
+            )
+            self.centralWidget().setStyleSheet(style)
+        else:
+            self.centralWidget().setStyleSheet("#appShell { background: #0B1322; }")
+
+    def _choose_wallpaper(self):
+        from PySide6.QtWidgets import QFileDialog
+        path, _ = QFileDialog.getOpenFileName(
+            self, "选择壁纸图片", "", "图片文件 (*.png *.jpg *.jpeg *.bmp *.webp)"
+        )
+        if path:
+            self.store.set_wallpaper(path)
+            self._apply_wallpaper()
+            QMessageBox.information(self, "壁纸已设置", "玻璃拟态面板会透出所选壁纸。")
 
     def _toggle_style(self):
         new_mode = STYLE_LIGHT if self.store.style_mode == STYLE_DARK else STYLE_DARK
