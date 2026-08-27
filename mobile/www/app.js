@@ -1,4 +1,4 @@
-/* 拆题工具：只做一件事 —— 快速拆题，给出方向 */
+/* 拆题 + 进度：快速拆题，也能勾选掌握、看简洁算法信息 */
 (function () {
   const D = window.KNOWLEDGE_DATA;
   const algMap = {};
@@ -20,6 +20,9 @@
     "基线/暴力": "没有明显压缩"
   };
 
+  let currentView = "dissect";
+  let openTiers = {};
+
   function esc(s) {
     return String(s == null ? "" : s)
       .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
@@ -29,6 +32,21 @@
   function saveMastered() { localStorage.setItem(STORAGE_KEY, JSON.stringify(mastered)); }
   function isMastered(id) { return !!mastered[id]; }
   function setMastered(id, value) { mastered[id] = value; saveMastered(); }
+
+  function unique(arr) {
+    const seen = new Set(), out = [];
+    for (const x of arr) if (x && !seen.has(x)) { seen.add(x); out.push(x); }
+    return out;
+  }
+
+  function aggregateTagInfo(tag) {
+    const ops = [];
+    (tag.algorithms || []).forEach(name => {
+      const a = algMap[name];
+      if (a && a.info) ops.push(...(a.info.ops || []));
+    });
+    return { ops: unique(ops) };
+  }
 
   function totalTags() {
     return (D.tiers || []).reduce((sum, t) => sum + (t.tags || []).length, 0);
@@ -45,16 +63,12 @@
     (D.infoOps || []).forEach(op => counts[op] = 0);
     (D.tiers || []).forEach(t => (t.tags || []).forEach(tag => {
       if (!isMastered(tag.id)) return;
-      const ops = [];
-      (tag.algorithms || []).forEach(name => {
-        const a = algMap[name];
-        if (a && a.info) ops.push(...(a.info.ops || []));
-      });
-      [].concat.apply([], [ops]).forEach(op => { if (counts[op] !== undefined) counts[op]++; });
+      aggregateTagInfo(tag).ops.forEach(op => { if (counts[op] !== undefined) counts[op]++; });
     }));
     return counts;
   }
 
+  // ---------- 拆题页 ----------
   function renderTop() {
     const el = document.getElementById("homeProgress");
     if (el) {
@@ -128,7 +142,7 @@
 
   let ans = {};
 
-  function render() {
+  function renderDissect() {
     renderTop();
 
     const wizard = document.getElementById("dissectWizard");
@@ -150,7 +164,7 @@
     wizard.querySelectorAll(".option-chip").forEach(btn => {
       btn.addEventListener("click", () => {
         ans[btn.dataset.step] = btn.dataset.value;
-        render();
+        renderDissect();
       });
     });
 
@@ -228,11 +242,148 @@
     box.classList.remove("hidden");
   }
 
+  // ---------- 进度页 ----------
+  function renderTiers() {
+    const list = document.getElementById("tierList");
+    if (!list) return;
+    list.innerHTML = (D.tiers || []).map(tier => {
+      const tags = tier.tags || [];
+      const total = tags.length;
+      const done = tags.filter(t => isMastered(t.id)).length;
+      const open = openTiers[tier.id];
+      return `
+        <div class="tier-card ${open ? "open" : ""}">
+          <button class="tier-head" data-tier="${tier.id}">
+            <span class="tier-dot" style="background:${tier.color || "#6c8cff"}"></span>
+            <span class="tier-head-text">
+              <span class="tier-name">${esc(tier.name)}</span>
+              <div class="tier-range">${esc(tier.range || "")} · ${esc(tier.phase_name || "")}</div>
+            </span>
+            <span class="tier-arrow">▶</span>
+          </button>
+          <div class="tier-progress"><div style="width:${total ? Math.round(done*100/total) : 0}%"></div></div>
+          <div class="tier-body" style="display:${open ? "block" : "none"}">
+            ${tags.map(tagRowHtml).join("")}
+          </div>
+        </div>
+      `;
+    }).join("");
+    bindTierEvents();
+  }
+
+  function tagRowHtml(tag) {
+    const agg = aggregateTagInfo(tag);
+    const badges = agg.ops.map(op => {
+      const c = (D.infoOpColors || {})[op] || "#6c8cff";
+      return `<span class="badge" style="color:${c};border-color:${c}55;background:${c}18;">${esc(op)}</span>`;
+    }).join("");
+    const hasAlgs = (tag.algorithms || []).length > 0;
+    return `
+      <div class="tag-row ${isMastered(tag.id) ? "mastered" : ""}">
+        <div class="tag-top">
+          <input type="checkbox" class="tag-check" ${isMastered(tag.id) ? "checked" : ""} data-tag-id="${esc(tag.id)}">
+          <div style="min-width:0;flex:1;">
+            <div class="tag-name">${esc(tag.name)}</div>
+            <div class="tag-desc">${esc(tag.desc || "")}</div>
+          </div>
+        </div>
+        ${badges ? `<div class="tag-badges">${badges}</div>` : ""}
+        ${hasAlgs ? `<div class="tag-actions"><button class="tag-btn" data-info="${esc(tag.id)}">信息</button></div>` : ""}
+      </div>
+    `;
+  }
+
+  function bindTierEvents() {
+    document.querySelectorAll(".tier-head").forEach(btn => {
+      btn.addEventListener("click", () => {
+        openTiers[Number(btn.dataset.tier)] = !openTiers[Number(btn.dataset.tier)];
+        renderTiers();
+      });
+    });
+    document.querySelectorAll(".tag-check").forEach(cb => {
+      cb.addEventListener("change", () => {
+        setMastered(cb.dataset.tagId, cb.checked);
+        const row = cb.closest(".tag-row");
+        if (row) row.classList.toggle("mastered", cb.checked);
+        renderTop();
+        renderTiers();
+      });
+    });
+    document.querySelectorAll("[data-info]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const tag = findTagById(btn.dataset.info);
+        if (tag) showTagInfo(tag);
+      });
+    });
+  }
+
+  function findTagById(id) {
+    for (const t of D.tiers || []) {
+      for (const tag of t.tags || []) {
+        if (tag.id === id) return tag;
+      }
+    }
+    return null;
+  }
+
+  // ---------- 简洁信息弹窗（无 C++ 模板） ----------
+  const modal = document.getElementById("modal");
+  const modalTitle = document.getElementById("modalTitle");
+  const modalBody = document.getElementById("modalBody");
+
+  function showModal(title, html) {
+    modalTitle.textContent = title;
+    modalBody.innerHTML = html;
+    modal.classList.remove("hidden");
+  }
+
+  function hideModal() {
+    modal.classList.add("hidden");
+    modalBody.innerHTML = "";
+  }
+
+  function showTagInfo(tag) {
+    const names = tag.algorithms || [];
+    if (!names.length) return;
+    const html = names.map(name => {
+      const a = algMap[name];
+      if (!a) return "";
+      const info = a.info || {};
+      return `
+        <div style="border:1px solid var(--border);border-radius:12px;padding:10px;margin-bottom:10px;">
+          <div style="font-weight:700;">${esc(a.name)}</div>
+          <div class="info-line">${esc((info.ops || []).join(" / "))} · ${esc(info.topology || "")} · ${esc(info.dynamic || "")}</div>
+          <div class="why-line">${esc(info.why || "")}</div>
+          <p style="font-size:12px;color:var(--text-dim);margin-top:4px;">${esc(a.intro || "")}</p>
+          <p style="font-size:12px;color:var(--text-dim);">复杂度：${esc(a.complexity || "")}</p>
+        </div>
+      `;
+    }).join("");
+    showModal(tag.name, html);
+  }
+
+  // ---------- tabs ----------
+  document.querySelectorAll(".tab-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      currentView = btn.dataset.view;
+      document.querySelectorAll(".tab-btn").forEach(b => b.classList.toggle("active", b === btn));
+      document.querySelectorAll(".view").forEach(v => v.classList.toggle("active", v.id === currentView + "-view"));
+      if (currentView === "dissect") renderDissect();
+      if (currentView === "tiers") renderTiers();
+    });
+  });
+
+  document.getElementById("modalClose").addEventListener("click", hideModal);
+  document.getElementById("modalMask").addEventListener("click", hideModal);
+
+  // ---------- PWA ----------
   if ("serviceWorker" in navigator) {
     window.addEventListener("load", () => {
       navigator.serviceWorker.register("sw.js").catch(() => {});
     });
   }
 
-  render();
+  // ---------- init ----------
+  renderDissect();
+  renderTiers();
 })();
