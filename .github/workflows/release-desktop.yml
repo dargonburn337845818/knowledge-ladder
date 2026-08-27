@@ -28,7 +28,7 @@ jobs:
 
       - name: Build EXE
         run: |
-          pyinstaller --noconfirm --onefile --windowed --name KnowledgeLadder --collect-all PySide6 main.py
+          pyinstaller --noconfirm --onefile --windowed --name KnowledgeLadder --collect-all PySide6 --add-data "style.qss;." --add-data "style_mac.qss;." main.py
 
       - name: Upload EXE artifact
         uses: actions/upload-artifact@v4
