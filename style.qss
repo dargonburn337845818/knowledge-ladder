@@ -1,59 +1,60 @@
-/* Parallax Editorial 桌面端主题 */
+/* Nocturne Glassmorphism — 桌面端近似主题（Qt 不支持真背景模糊） */
 * {
     font-family: "Georgia", "Songti SC", serif;
-    color: #1a1712;
-}
-
-QWidget {
-    background: #F5F0E6;
+    color: #FFFFFF;
 }
 
 QMainWindow, QWidget#appShell, QWidget#appBody, QWidget#rightContainer {
-    background: #F5F0E6;
+    background: #0B1322;
 }
 
 QFrame#titleBar {
-    background: #F5F0E6;
-    border-bottom: 1px solid rgba(26,23,18,0.2);
+    background: #0B1322;
+    border-bottom: 1px solid rgba(255,255,255,0.15);
 }
 
 QFrame#sidebar {
-    background: #EBE3D3;
-    border-right: 1px solid rgba(26,23,18,0.2);
+    background: #0E1828;
+    border-right: 1px solid rgba(255,255,255,0.15);
 }
 
 QLabel#appTitle, QLabel#winTitle {
-    color: #1a1712;
     background: transparent;
-    font-family: "Fraunces", "Georgia", serif;
+    color: #FFFFFF;
+    font-family: Georgia, serif;
 }
 
 QPushButton {
-    background: transparent;
-    border: none;
-    border-bottom: 1px solid rgba(26,23,18,0.2);
-    color: #1a1712;
-    padding: 8px 10px;
-    font-family: "Georgia", serif;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 14px;
+    color: #FFFFFF;
+    padding: 8px 14px;
+    font-family: Georgia, serif;
     font-size: 14px;
 }
 
 QPushButton:hover {
-    color: #B3401F;
-    border-bottom-color: #B3401F;
+    background: rgba(255,255,255,0.16);
+    border-color: rgba(255,255,255,0.3);
 }
 
 QPushButton:pressed {
-    color: #B3401F;
+    background: rgba(255,255,255,0.10);
 }
 
-QPushButton#dissectBtn, QPushButton#infoBtn {
-    color: #B3401F;
-    border-bottom: 1px solid #B3401F;
-    font-size: 15px;
-    font-weight: 400;
-    padding: 10px 8px;
-    margin-top: 6px;
+QPushButton#dissectBtn, QPushButton#infoBtn, QPushButton#templateBtn {
+    background: rgba(255,255,255,0.06);
+    border-radius: 16px;
+    color: #F3DCA8;
+    border: 1px solid rgba(228,184,99,0.35);
+    margin-top: 8px;
+    font-size: 14px;
+}
+
+QPushButton#dissectBtn:hover, QPushButton#infoBtn:hover, QPushButton#templateBtn:hover {
+    background: rgba(228,184,99,0.12);
+    border-color: rgba(228,184,99,0.55);
 }
 
 QListWidget#tierList {
@@ -63,120 +64,137 @@ QListWidget#tierList {
 }
 
 QListWidget#tierList::item {
-    border-bottom: 1px solid rgba(26,23,18,0.2);
-    padding: 10px 6px;
-    color: #1a1712;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 14px;
+    padding: 10px 8px;
+    margin: 4px 2px;
+    color: #FFFFFF;
 }
 
 QListWidget#tierList::item:hover {
-    color: #B3401F;
+    background: rgba(255,255,255,0.12);
+    border-color: rgba(255,255,255,0.3);
 }
 
 QListWidget#tierList::item:selected {
-    color: #B3401F;
-    background: transparent;
-    border-bottom: 1px solid #B3401F;
+    background: rgba(228,184,99,0.14);
+    border: 1px solid rgba(228,184,99,0.5);
+    color: #F3DCA8;
 }
 
 QProgressBar#tierProgress {
-    background: rgba(26,23,18,0.1);
+    background: rgba(255,255,255,0.08);
     border: none;
-    color: #B3401F;
-    height: 5px;
+    border-radius: 8px;
+    color: #E4B863;
+    height: 6px;
 }
 
 QProgressBar#tierProgress::chunk {
-    background: #B3401F;
+    background: #E4B863;
+    border-radius: 8px;
 }
 
 QLabel#phaseLabel {
-    font-size: 14px;
-    color: rgba(26,23,18,0.7);
+    color: rgba(255,255,255,0.6);
+    font-size: 13px;
     font-style: italic;
 }
 
 QLabel#tagName {
-    font-family: "Fraunces", "Georgia", serif;
+    font-family: Georgia, serif;
     font-size: 16px;
-    color: #1a1712;
+    color: #FFFFFF;
 }
 
 QLabel#tagDesc {
+    color: rgba(255,255,255,0.6);
     font-size: 12px;
-    color: rgba(26,23,18,0.6);
 }
 
 QFrame#tagRow {
-    background: transparent;
-    border-bottom: 1px solid rgba(26,23,18,0.2);
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 16px;
+    margin: 4px 0;
 }
 
 QLabel#infoBadge, QLabel#infoBadgeTopo, QLabel#infoBadgeDyn {
-    color: #B3401F;
-    background: transparent;
-    border-bottom: 1px solid #B3401F;
+    background: rgba(228,184,99,0.12);
+    border: 1px solid rgba(228,184,99,0.35);
+    border-radius: 10px;
+    color: #F3DCA8;
     font-size: 10px;
-    padding: 2px 4px;
+    padding: 3px 8px;
 }
 
 QPushButton#infoFilterBtn {
-    border-bottom: 1px solid transparent;
-    padding: 6px 10px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 12px;
+    padding: 6px 12px;
+    color: rgba(255,255,255,0.8);
     font-size: 12px;
 }
 
 QPushButton#infoFilterBtn:checked {
-    color: #B3401F;
-    border-bottom: 1px solid #B3401F;
+    background: rgba(228,184,99,0.14);
+    border-color: rgba(228,184,99,0.5);
+    color: #F3DCA8;
 }
 
 QDialog {
-    background: #F5F0E6;
+    background: #0B1322;
 }
 
 QLabel#pathLabel, QLabel#complexityLabel {
-    color: rgba(26,23,18,0.6);
+    color: rgba(255,255,255,0.6);
     font-size: 12px;
 }
 
 QLabel#algName, QLabel#modalTitle {
-    font-family: "Fraunces", "Georgia", serif;
+    font-family: Georgia, serif;
     font-size: 20px;
+    color: #F3DCA8;
 }
 
 QLabel#infoText {
-    color: #B3401F;
+    color: #E4B863;
     font-size: 13px;
 }
 
 QLabel#infoWhy {
-    color: rgba(26,23,18,0.7);
+    color: rgba(255,255,255,0.7);
     font-size: 13px;
 }
 
 QPlainTextEdit#codeView {
-    background: #EBE3D3;
-    color: #1a1712;
-    border: 1px solid rgba(26,23,18,0.2);
+    background: #0E1828;
+    color: #FFFFFF;
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 12px;
     font-family: "Courier New", monospace;
 }
 
 QTextBrowser#guideBrowser {
-    background: #F5F0E6;
-    color: #1a1712;
-    border: 1px solid rgba(26,23,18,0.2);
+    background: #0E1828;
+    color: #FFFFFF;
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 16px;
 }
 
 QCheckBox::indicator {
     width: 16px;
     height: 16px;
-    border: 1px solid rgba(26,23,18,0.4);
-    background: #F5F0E6;
+    border: 1px solid rgba(255,255,255,0.4);
+    border-radius: 6px;
+    background: rgba(255,255,255,0.08);
 }
 
 QCheckBox::indicator:checked {
-    background: #B3401F;
-    border-color: #B3401F;
+    background: #E4B863;
+    border-color: #E4B863;
 }
 
 QScrollArea {
@@ -186,104 +204,104 @@ QScrollArea {
 
 /* 拆题页 */
 QLabel#dissectStep {
-    color: #B3401F;
+    color: #E4B863;
     font-size: 14px;
     letter-spacing: 2px;
 }
 
 QPushButton#dissectBack, QPushButton#dissectRestart {
-    border-bottom: 1px solid #1a1712;
-    color: #1a1712;
-    font-size: 13px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.18);
+    border-radius: 14px;
+    color: #FFFFFF;
 }
 
 QLabel#dissectTitle {
-    font-family: "Fraunces", "Georgia", serif;
+    font-family: Georgia, serif;
     font-size: 34px;
-    color: #1a1712;
+    color: #FFFFFF;
 }
 
 QLabel#dissectHint {
-    color: rgba(26,23,18,0.6);
+    color: rgba(255,255,255,0.6);
     font-style: italic;
     font-size: 14px;
 }
 
 QPushButton#dissectOption {
-    background: transparent;
-    border: none;
-    border-bottom: 1px solid rgba(26,23,18,0.2);
-    color: #1a1712;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 18px;
+    color: #FFFFFF;
     text-align: left;
     font-size: 16px;
-    padding: 12px 4px;
+    padding: 14px 18px;
+    margin: 4px 0;
 }
 
 QPushButton#dissectOption:hover {
-    color: #B3401F;
-    border-bottom-color: #B3401F;
+    background: rgba(255,255,255,0.14);
+    border-color: rgba(255,255,255,0.35);
 }
 
 QLabel#dissectResultTitle, QLabel#dissectThinkingTitle {
-    font-family: "Fraunces", "Georgia", serif;
+    font-family: Georgia, serif;
     font-size: 28px;
-    color: #1a1712;
-    border-top: 1px solid rgba(26,23,18,0.2);
-    padding-top: 16px;
+    color: #F3DCA8;
 }
 
 QLabel#dissectNode {
     font-size: 16px;
-    border-bottom: 1px solid rgba(26,23,18,0.2);
-    padding: 8px 2px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 16px;
+    padding: 12px 16px;
+    margin: 4px 0;
 }
 
 QPushButton#dissectOps {
-    color: #B3401F;
-    border-bottom: 1px solid #B3401F;
+    background: rgba(228,184,99,0.12);
+    border: 1px solid rgba(228,184,99,0.4);
+    border-radius: 16px;
+    color: #F3DCA8;
     text-align: left;
     font-size: 15px;
+    padding: 12px 16px;
 }
 
 QPushButton#dissectNext {
-    border-top: 1px solid #1a1712;
-    border-bottom: 1px solid #1a1712;
-    color: #1a1712;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 18px;
+    color: #FFFFFF;
     font-size: 16px;
+    padding: 14px;
     margin-top: 12px;
 }
 
 QLabel#dissectThinkCard {
-    border-top: 1px solid rgba(26,23,18,0.2);
-    padding-top: 12px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 18px;
+    padding: 14px 16px;
     font-size: 15px;
-    color: rgba(26,23,18,0.85);
+    color: rgba(255,255,255,0.85);
     line-height: 1.7;
+    margin: 6px 0;
 }
 
 QLabel#dissectFinal {
-    border-top: 1px solid #1a1712;
-    padding-top: 12px;
+    background: rgba(228,184,99,0.10);
+    border: 1px solid rgba(228,184,99,0.35);
+    border-radius: 18px;
+    padding: 14px 16px;
     font-size: 17px;
-    color: #B3401F;
+    color: #F3DCA8;
     margin-top: 10px;
 }
 
-QPushButton#templateBtn {
-    color: #1a1712;
-    border-bottom: 1px solid rgba(26,23,18,0.4);
-    font-size: 14px;
-    padding: 10px 8px;
-    margin-top: 6px;
-}
-
-QPushButton#templateBtn:hover {
-    color: #B3401F;
-    border-bottom-color: #B3401F;
-}
-
 QLabel#miniNote {
-    color: rgba(26,23,18,0.6);
+    color: rgba(255,255,255,0.6);
     font-size: 12px;
     font-style: italic;
     padding: 6px 4px;
