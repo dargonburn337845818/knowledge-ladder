@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>拆题引导 · 桌面端玻璃拟态预览</title>
+  <style>
+    :root {
+      --bg: #0B1322;
+      --glass: rgba(255,255,255,0.08);
+      --glass-hover: rgba(255,255,255,0.14);
+      --border: rgba(255,255,255,0.15);
+      --border-hover: rgba(255,255,255,0.3);
+      --text: #fff;
+      --muted: rgba(255,255,255,0.6);
+      --gold: #E4B863;
+      --gold-bright: #F3DCA8;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      min-height: 100%;
+      background:
+        radial-gradient(560px 560px at 85% 8%, rgba(124,156,196,0.28), transparent 65%),
+        radial-gradient(520px 520px at 8% 92%, rgba(51,81,122,0.35), transparent 65%),
+        radial-gradient(420px 420px at 50% 40%, rgba(228,184,99,0.10), transparent 60%),
+        linear-gradient(160deg, #0B1322, #060A13);
+      color: var(--text);
+      font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+    }
+    body::after {
+      content: ""; position: fixed; inset: 0; pointer-events: none; opacity: 0.025;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    }
+    .app {
+      display: flex; min-height: 100vh; max-width: 1200px; margin: 0 auto; padding: 18px;
+    }
+    .rail {
+      width: 190px; flex-shrink: 0; display: flex; flex-direction: column; gap: 8px; padding: 14px 10px;
+    }
+    .rail-btn {
+      background: var(--glass); border: 1px solid var(--border); border-radius: 18px;
+      color: var(--muted); padding: 14px 16px; font-size: 14px; font-weight: 600; cursor: pointer;
+      backdrop-filter: blur(40px) saturate(180%); -webkit-backdrop-filter: blur(40px) saturate(180%);
+      box-shadow: 0 8px 24px rgba(3,7,18,0.45), inset 0 1px 0 rgba(255,255,255,0.18);
+      transition: all 0.5s cubic-bezier(0.16,1,0.3,1);
+    }
+    .rail-btn.active {
+      background: var(--glass-hover); border-color: var(--border-hover); color: var(--gold-bright);
+    }
+    .rail-btn:hover { transform: translateY(-2px); }
+    .main {
+      flex: 1; padding: 20px 26px;
+    }
+    .glass {
+      background: var(--glass); border: 1px solid var(--border); border-radius: 28px;
+      backdrop-filter: blur(50px) saturate(180%); -webkit-backdrop-filter: blur(50px) saturate(180%);
+      box-shadow: 0 16px 40px rgba(3,7,18,0.5), inset 0 1px 0 rgba(255,255,255,0.22), inset 0 -1px 0 rgba(2,6,16,0.35);
+      padding: 30px;
+      position: relative; overflow: hidden;
+    }
+    .glass::before {
+      content: ""; position: absolute; inset: 0;
+      background: linear-gradient(to bottom, rgba(255,255,255,0.12), transparent 55%);
+    }
+    .top { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 22px; }
+    .title { font-family: Georgia, serif; font-size: 30px; font-weight: 600; }
+    .step { color: var(--gold); font-size: 13px; letter-spacing: 2px; }
+    .hint { color: var(--muted); font-size: 14px; font-style: italic; margin-bottom: 22px; }
+    .options { display: flex; flex-direction: column; gap: 12px; position: relative; }
+    .option {
+      background: rgba(255,255,255,0.06); border: 1px solid var(--border); border-radius: 20px;
+      color: var(--text); padding: 14px 16px; font-size: 16px; font-weight: 600;
+      box-shadow: 0 8px 24px rgba(3,7,18,0.35), inset 0 1px 0 rgba(255,255,255,0.18);
+      transition: all 0.5s cubic-bezier(0.16,1,0.3,1); cursor: pointer;
+    }
+    .option small { display: block; color: var(--muted); font-size: 12px; font-weight: 400; margin-top: 3px; }
+    .option:hover { background: var(--glass-hover); border-color: var(--border-hover); transform: translateY(-2px); }
+    .side-note {
+      margin-top: 18px; color: var(--muted); font-size: 12px; font-style: italic;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="rail">
+      <div class="rail-btn active">拆题</div>
+      <div class="rail-btn">算法模板</div>
+      <div class="rail-btn">导论</div>
+      <div style="flex:1;"></div>
+      <div class="side-note">Parallax? No — Glass.</div>
+    </aside>
+    <main class="main">
+      <div class="glass">
+        <div class="top">
+          <div class="title">数据形状？</div>
+          <div class="step">1 / 4</div>
+        </div>
+        <div class="hint">先看数据长在哪里</div>
+        <div class="options">
+          <div class="option">线性 <small>数组 / 字符串 / 区间</small></div>
+          <div class="option">树 / 图 <small>树 / 图 / 网络 / 依赖</small></div>
+          <div class="option">数学对象 <small>数字 / 集合 / 异或</small></div>
+        </div>
+        <div class="side-note">桌面端预览：启动即拆题，左侧算法模板导航进入信息与 C++ 模板。</div>
+      </div>
+    </main>
+  </div>
+</body>
+</html>
