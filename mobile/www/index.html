@@ -22,6 +22,7 @@
 
     <nav class="tabs">
       <button class="tab-btn active" data-view="home">首页</button>
+      <button class="tab-btn" data-view="dissect">拆题</button>
       <button class="tab-btn" data-view="tiers">阶梯</button>
     </nav>
 
@@ -38,12 +39,22 @@
       <div class="section-title">四阶段地图</div>
       <div id="phaseList" class="phase-list"></div>
 
-      <div class="section-title">解剖四步</div>
+      <div class="section-title">拆题四步</div>
       <div id="anatomyList" class="anatomy-list"></div>
 
       <div class="note-card">
         提示：当前是移动端网页版，进度保存在本机；后续可用 Capacitor 打包成 APK。
       </div>
+    </main>
+
+    <main id="dissect-view" class="view">
+      <div class="section-title">拆解题目四步</div>
+      <p class="guide-note">在不能写代码时，用这几步把题目拆成“信息论方向”。按顺序点选，最后会给出建议。</p>
+      <div id="dissectWizard"></div>
+      <div id="dissectResult" class="result-card hidden"></div>
+
+      <div class="section-title">n 规模速查</div>
+      <div id="nScaleCard" class="nscale-card"></div>
     </main>
 
     <main id="tiers-view" class="view">

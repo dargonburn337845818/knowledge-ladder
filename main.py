@@ -678,12 +678,12 @@ def tier_item_text(tier, store) -> str:
 
 
 class InfoGuideDialog(QDialog):
-    """信息论导论：四操作、四阶段、解剖四步、量纲速查。"""
+    """信息论导论：四操作、四阶段、拆题四步、数据规模速查。"""
 
     def __init__(self, parent=None, store=None):
         super().__init__(parent)
         self.store = store
-        self.setWindowTitle("信息论导论 / 解剖四步")
+        self.setWindowTitle("信息论导论 / 拆题四步")
         self.resize(860, 680)
         layout = QVBoxLayout(self)
         layout.setContentsMargins(16, 16, 16, 16)
@@ -772,13 +772,13 @@ class InfoGuideDialog(QDialog):
 {''.join(phase_rows)}
 </table>
 
-<h3 style="color:#82a0ff;">三、解剖四步</h3>
+<h3 style="color:#82a0ff;">三、拆题四步</h3>
 <table border="1" cellspacing="0" cellpadding="6" style="border-collapse:collapse;width:100%;">
 <tr><th>步骤</th><th>问题</th><th>选项</th><th>产出</th></tr>
 {''.join(anatomy_rows)}
 </table>
 
-<h3 style="color:#82a0ff;">四、量纲速查（约束匕首）</h3>
+<h3 style="color:#82a0ff;">四、数据规模速查</h3>
 <table border="1" cellspacing="0" cellpadding="6" style="border-collapse:collapse;width:100%;">
 <tr><th>n</th><th>允许复杂度</th><th>常走的路</th></tr>
 <tr><td>≤20</td><td>指数 / 状压</td><td>直接枚举子集、TSP、位运算</td></tr>
@@ -988,7 +988,7 @@ class MainWindow(QMainWindow):
         # 信息论导论入口：常驻一个小按钮，不占太多空间
         self.info_btn = QPushButton("导论", left)
         self.info_btn.setObjectName("infoBtn")
-        self.info_btn.setToolTip("打开信息论总纲：四操作 / 四阶段 / 解剖四步")
+        self.info_btn.setToolTip("打开信息论总纲：四操作 / 四阶段 / 拆题四步")
         self.info_btn.clicked.connect(self._show_guide)
         left_layout.addWidget(self.info_btn)
 
