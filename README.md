@@ -17,7 +17,8 @@
   - 第 6 档：2200 – 2400（红名冲刺）
   - 第 7 档：2400 – 2800（红→黑红）
   - 第 8 档：2800 – 3500+（黑红→传说）
-- 🧭 信息论总纲：左侧「导论」按钮可打开四操作 / 四阶段 / 解剖四步速查表
+- 🧭 信息论总纲：左侧「导论」按钮可打开四操作 / 四阶段 / 拆题四步速查表
+- 🎯 桌面端沿用移动端 Parallax Editorial 设计：启动即拆题，左侧「算法模板」进入算法信息与 C++ 模板
 - 📱 移动端：`mobile/` 提供 PWA 网页版 + Capacitor APK 打包入口（APK 需本机 Android Studio 或 GitHub Actions 构建）
 - 🏷 每个知识点行显示「编码压缩 / 传播松弛 / 剪枝决策 / 变换域映射」信息论徽章，可跨档位按操作过滤
 - ✅ 每个知识点可勾选「已掌握」，进度自动保存
@@ -89,7 +90,7 @@ knowledge-ladder/
 ├── main.py               # 程序入口（PySide6 GUI）
 ├── mobile/               # 移动端 PWA + Capacitor 打包工程
 ├── export_mobile_data.py # 导出移动端 data.js
-├── info_framework.py     # 信息论标签：四操作 / 拓扑 / 动静 / 阶段 / 解剖四步
+├── info_framework.py     # 信息论标签：四操作 / 拓扑 / 动静 / 阶段 / 拆题四步
 ├── knowledge_data.py     # 自动生成：120 个算法节点（简介/复杂度/C++ 模板）
 ├── tier8_thoughts.py     # 第 8 档高阶思维模式库（可展开详情）
 ├── tiers_data.py         # 8 档难度阶梯数据
