@@ -798,6 +798,256 @@ class InfoGuideDialog(QDialog):
 """
 
 
+class DissectPage(QWidget):
+    """桌面端拆题引导页：四步拆题 + 结果图 + 引导式思考。"""
+
+    STEPS = [
+        {
+            "key": "shape", "title": "数据形状？", "hint": "先看数据长在哪里",
+            "options": [
+                ("linear", "线性", "数组 / 字符串 / 区间"),
+                ("graph", "树 / 图", "树 / 图 / 网络 / 依赖"),
+                ("algebra", "数学对象", "数字 / 集合 / 异或"),
+            ],
+        },
+        {
+            "key": "dynamic", "title": "数据会变吗？", "hint": "运行过程中是否修改",
+            "options": [
+                ("static", "静态", "只读，可预处理"),
+                ("dynamic", "动态", "需要实时维护"),
+            ],
+        },
+        {
+            "key": "metric", "title": "运算规则？", "hint": "信息如何合并",
+            "options": [
+                ("sum", "加法 / 最值", "路径 / 区间和"),
+                ("xor", "异或", "线性基"),
+                ("conv", "卷积 / 计数", "FFT / 组合"),
+                ("bool", "可行性", "连通 / 匹配 / 2-SAT"),
+                ("number", "数论 / 模", "gcd / 同余"),
+                ("geom", "几何", "凸包 / 距离"),
+            ],
+        },
+        {
+            "key": "scale", "title": "n 多大？", "hint": "决定复杂度级别",
+            "options": [
+                ("n20", "≤ 20", "状压 / 枚举"),
+                ("n100", "≤ 100", "O(n³) / 区间DP"),
+                ("n5000", "≤ 5000", "O(n²) / 简单DP"),
+                ("n1e5", "≤ 1e5", "O(n log n)"),
+                ("n1e9", "≤ 1e9", "公式 / 矩阵"),
+            ],
+        },
+    ]
+
+    LABELS = {
+        "shape": "数据形状",
+        "dynamic": "是否变化",
+        "metric": "运算规则",
+        "scale": "数据规模",
+    }
+
+    OP_INFO = {
+        "编码压缩": ("先想能不能把重复信息压掉，把慢查询变成快查询。", "前缀和、哈希、线性基、SAM、可持久化"),
+        "传播松弛": ("信息按依赖关系一层层传，走到哪算到哪。", "BFS / DP、Dijkstra、树形DP、线段树"),
+        "剪枝决策": ("先排除不可能成为答案的候选，别全部试一遍。", "二分、双指针、单调栈、凸包、斜率优化、最小割"),
+        "变换域映射": ("换个角度看题，原本纠缠的东西会变简单。", "FFT、矩阵快速幂、差分、对偶、生成函数"),
+        "基线/暴力": ("暂时看不出破绽，就先按最直接的方式做。", "暴力枚举、模拟、构造"),
+    }
+
+    def __init__(self, on_back=None, parent=None):
+        super().__init__(parent)
+        self.on_back = on_back
+        self.step_index = 0
+        self.ans = {}
+        self.mode = "question"
+        self.setObjectName("dissectPage")
+        self._build()
+
+    def _build(self):
+        self.root = QVBoxLayout(self)
+        self.root.setContentsMargins(28, 24, 28, 28)
+        self.root.setSpacing(12)
+
+        head = QHBoxLayout()
+        head.setSpacing(12)
+        self.back_btn = QPushButton("‹ 返回")
+        self.back_btn.setObjectName("dissectBack")
+        self.back_btn.clicked.connect(self._go_back)
+        head.addWidget(self.back_btn)
+        self.step_label = QLabel("1 / 4")
+        self.step_label.setObjectName("dissectStep")
+        self.step_label.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
+        head.addWidget(self.step_label, 1)
+        self.root.addLayout(head)
+
+        self.content = QWidget()
+        self.content.setObjectName("dissectContent")
+        self.content_layout = QVBoxLayout(self.content)
+        self.content_layout.setContentsMargins(0, 20, 0, 0)
+        self.content_layout.setSpacing(10)
+        self.root.addWidget(self.content, 1)
+
+        self._render()
+
+    def _clear_content(self):
+        while self.content_layout.count():
+            item = self.content_layout.takeAt(0)
+            w = item.widget()
+            if w is not None:
+                w.deleteLater()
+
+    def _render(self):
+        self._clear_content()
+        if self.mode == "question":
+            self._render_question()
+        elif self.mode == "result":
+            self._render_result()
+        else:
+            self._render_thinking()
+
+    def _render_question(self):
+        self.step_label.setText(f"{self.step_index + 1} / {len(self.STEPS)}")
+        step = self.STEPS[self.step_index]
+        title = QLabel(step["title"])
+        title.setObjectName("dissectTitle")
+        self.content_layout.addWidget(title)
+        hint = QLabel(step["hint"])
+        hint.setObjectName("dissectHint")
+        self.content_layout.addWidget(hint)
+        for value, label, desc in step["options"]:
+            btn = QPushButton(f"{label}    {desc}")
+            btn.setObjectName("dissectOption")
+            btn.clicked.connect(lambda checked=False, v=value: self._choose(v))
+            self.content_layout.addWidget(btn)
+        self.content_layout.addStretch(1)
+
+    def _choose(self, value):
+        step = self.STEPS[self.step_index]
+        self.ans[step["key"]] = value
+        self.step_index += 1
+        if self.step_index >= len(self.STEPS):
+            self.mode = "result"
+        else:
+            self.mode = "question"
+        self._render()
+
+    def _render_result(self):
+        self.step_label.setText("")
+        title = QLabel("拆解过程")
+        title.setObjectName("dissectResultTitle")
+        self.content_layout.addWidget(title)
+
+        for step in self.STEPS:
+            value = self.ans.get(step["key"], "")
+            label = dict(step["options"]).get(value, value)
+            line = QLabel(f"{self.LABELS[step['key']]}  ·  {label}")
+            line.setObjectName("dissectNode")
+            self.content_layout.addWidget(line)
+
+        ops = self._recommend()
+        ops_btn = QPushButton("建议方向：" + " / ".join(ops))
+        ops_btn.setObjectName("dissectOps")
+        ops_btn.clicked.connect(lambda: self._show_ops(ops))
+        self.content_layout.addWidget(ops_btn)
+
+        next_btn = QPushButton("下一步 → 引导式思考")
+        next_btn.setObjectName("dissectNext")
+        next_btn.clicked.connect(self._go_thinking)
+        self.content_layout.addWidget(next_btn)
+
+        restart = QPushButton("下一题")
+        restart.setObjectName("dissectRestart")
+        restart.clicked.connect(self._reset)
+        self.content_layout.addWidget(restart)
+        self.content_layout.addStretch(1)
+
+    def _render_thinking(self):
+        self.step_label.setText("")
+        title = QLabel("引导式思考")
+        title.setObjectName("dissectThinkingTitle")
+        self.content_layout.addWidget(title)
+
+        texts = {
+            "shape": "先确认数据形状，决定信息沿着什么结构传播。",
+            "dynamic": "确定静态还是动态，决定能不能预处理。",
+            "metric": "确定运算规则，决定该用哪类数学工具。",
+            "scale": "用数据规模卡住复杂度，排除不可能的做法。",
+        }
+        for step in self.STEPS:
+            value = self.ans.get(step["key"], "")
+            label = dict(step["options"]).get(value, value)
+            card = QLabel(f"{self.LABELS[step['key']]}：{label}\n{texts[step['key']]}")
+            card.setObjectName("dissectThinkCard")
+            self.content_layout.addWidget(card)
+
+        ops = self._recommend()
+        final = QLabel("建议方向：" + " / ".join(ops))
+        final.setObjectName("dissectFinal")
+        self.content_layout.addWidget(final)
+
+        back = QPushButton("‹ 返回结果")
+        back.setObjectName("dissectBack")
+        back.clicked.connect(self._back_to_result)
+        self.content_layout.addWidget(back)
+        restart = QPushButton("下一题")
+        restart.setObjectName("dissectRestart")
+        restart.clicked.connect(self._reset)
+        self.content_layout.addWidget(restart)
+        self.content_layout.addStretch(1)
+
+    def _recommend(self):
+        ops = set()
+        if self.ans.get("metric") == "conv": ops.add("变换域映射")
+        if self.ans.get("metric") == "xor": ops.update(["编码压缩", "变换域映射"])
+        if self.ans.get("metric") == "number": ops.add("变换域映射")
+        if self.ans.get("scale") == "n20": ops.update(["编码压缩", "基线/暴力"])
+        if self.ans.get("scale") == "n100": ops.add("传播松弛")
+        if self.ans.get("scale") == "n5000": ops.update(["传播松弛", "剪枝决策"])
+        if self.ans.get("scale") == "n1e5": ops.update(["剪枝决策", "编码压缩"])
+        if self.ans.get("scale") == "n1e9": ops.add("变换域映射")
+        if self.ans.get("shape") == "graph": ops.update(["传播松弛", "剪枝决策"])
+        if self.ans.get("shape") == "linear": ops.add("编码压缩")
+        if self.ans.get("dynamic") == "dynamic": ops.add("传播松弛")
+        if self.ans.get("dynamic") == "static": ops.add("编码压缩")
+        if not ops: ops.add("剪枝决策")
+        order = ["编码压缩", "传播松弛", "剪枝决策", "变换域映射", "基线/暴力"]
+        return [op for op in order if op in ops]
+
+    def _show_ops(self, ops):
+        text = "\n\n".join(f"{op}\n{info[0]}\n例：{info[1]}" for op in ops if op in self.OP_INFO for info in [self.OP_INFO[op]])
+        QMessageBox.information(self, "建议方向", text)
+
+    def _go_thinking(self):
+        self.mode = "thinking"
+        self._render()
+
+    def _back_to_result(self):
+        self.mode = "result"
+        self._render()
+
+    def _go_back(self):
+        if self.mode == "thinking":
+            self.mode = "result"
+            self._render()
+        elif self.mode == "result":
+            self._reset()
+        elif self.step_index > 0:
+            self.step_index -= 1
+            step = self.STEPS[self.step_index]
+            self.ans.pop(step["key"], None)
+            self.mode = "question"
+            self._render()
+        elif self.on_back:
+            self.on_back()
+
+    def _reset(self):
+        self.ans = {}
+        self.step_index = 0
+        self.mode = "question"
+        self._render()
+
+
 class ResizeHandle(QFrame):
     """无边框窗口的边缘/角落调整手柄。"""
 
@@ -985,6 +1235,13 @@ class MainWindow(QMainWindow):
         self.tier_list.currentRowChanged.connect(self._on_tier_changed)
         left_layout.addWidget(self.tier_list, 1)
 
+        # 拆题主入口：桌面端也以“拆题引导”为主
+        self.dissect_btn = QPushButton("拆题", left)
+        self.dissect_btn.setObjectName("dissectBtn")
+        self.dissect_btn.setToolTip("打开拆题引导：四步拆解 + 引导式思考")
+        self.dissect_btn.clicked.connect(self._show_dissect)
+        left_layout.addWidget(self.dissect_btn)
+
         # 信息论导论入口：常驻一个小按钮，不占太多空间
         self.info_btn = QPushButton("导论", left)
         self.info_btn.setObjectName("infoBtn")
@@ -1035,8 +1292,7 @@ class MainWindow(QMainWindow):
         self._update_global_progress()
         self._apply_style(self.store.style_mode)
         self._update_maximized_mode()
-        if self.tier_list.count() > 0:
-            self.tier_list.setCurrentRow(0)
+        self._show_dissect()
 
     def _install_resize_handles(self):
         central = self.centralWidget()
@@ -1145,6 +1401,11 @@ class MainWindow(QMainWindow):
         tier = TIERS[row]
         self._clear_right()
         page = TierPage(tier, self.store, self._update_global_progress)
+        self.right_layout.addWidget(page, 1)
+
+    def _show_dissect(self):
+        self._clear_right()
+        page = DissectPage(on_back=lambda: self.tier_list.setCurrentRow(0), parent=self)
         self.right_layout.addWidget(page, 1)
 
     def _clear_right(self):

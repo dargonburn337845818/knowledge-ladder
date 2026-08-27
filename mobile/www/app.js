@@ -1,185 +1,135 @@
-/* 拆题 + 进度：快速拆题，也能勾选掌握、看简洁算法信息 */
+/* 拆题引导：入口即四步，建议可点解，下一步进入引导式思考 */
 (function () {
-  const D = window.KNOWLEDGE_DATA;
-  const algMap = {};
-  (D.algorithms || []).forEach(a => { algMap[a.name] = a; });
-
-  const STORAGE_KEY = "kl_mobile_mastered_v1";
-  let mastered = {};
-  try {
-    mastered = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
-  } catch (e) {
-    mastered = {};
-  }
-
-  const OP_DESC = {
-    "编码压缩": "减少冗余",
-    "传播松弛": "扩散信息",
-    "剪枝决策": "缩小搜索",
-    "变换域映射": "换个角度",
-    "基线/暴力": "没有明显压缩"
-  };
-
-  let currentView = "dissect";
-  let openTiers = {};
-
-  function esc(s) {
-    return String(s == null ? "" : s)
-      .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
-  }
-
-  function saveMastered() { localStorage.setItem(STORAGE_KEY, JSON.stringify(mastered)); }
-  function isMastered(id) { return !!mastered[id]; }
-  function setMastered(id, value) { mastered[id] = value; saveMastered(); }
-
-  function unique(arr) {
-    const seen = new Set(), out = [];
-    for (const x of arr) if (x && !seen.has(x)) { seen.add(x); out.push(x); }
-    return out;
-  }
-
-  function aggregateTagInfo(tag) {
-    const ops = [];
-    (tag.algorithms || []).forEach(name => {
-      const a = algMap[name];
-      if (a && a.info) ops.push(...(a.info.ops || []));
-    });
-    return { ops: unique(ops) };
-  }
-
-  function totalTags() {
-    return (D.tiers || []).reduce((sum, t) => sum + (t.tags || []).length, 0);
-  }
-
-  function masteredCount() {
-    let c = 0;
-    (D.tiers || []).forEach(t => (t.tags || []).forEach(tag => { if (isMastered(tag.id)) c++; }));
-    return c;
-  }
-
-  function opCoverage() {
-    const counts = {};
-    (D.infoOps || []).forEach(op => counts[op] = 0);
-    (D.tiers || []).forEach(t => (t.tags || []).forEach(tag => {
-      if (!isMastered(tag.id)) return;
-      aggregateTagInfo(tag).ops.forEach(op => { if (counts[op] !== undefined) counts[op]++; });
-    }));
-    return counts;
-  }
-
-  // ---------- 拆题页 ----------
-  function renderTop() {
-    const el = document.getElementById("homeProgress");
-    if (el) {
-      const total = totalTags(), done = masteredCount();
-      el.textContent = `总进度：${done} / ${total}`;
-    }
-    const box = document.getElementById("opOverview");
-    if (box) {
-      const counts = {};
-      (D.infoOps || []).forEach(op => counts[op] = 0);
-      (D.algorithms || []).forEach(a => {
-        (a.info && a.info.ops || []).forEach(op => { if (counts[op] !== undefined) counts[op]++; });
-      });
-      const learned = opCoverage();
-      box.innerHTML = (D.infoOps || []).map(op => `
-        <div class="op-card">
-          <div class="op-name" style="color:${(D.infoOpColors || {})[op] || "#6c8cff"}">${esc(op)}</div>
-          <div class="op-desc">${esc(OP_DESC[op] || "")}</div>
-          <div class="op-count">已掌握 ${learned[op] || 0}</div>
-        </div>
-      `).join("");
-    }
-  }
-
-  const DISSECT_STEPS = [
+  const STEPS = [
     {
-      key: "shape", title: "1. 数据形状", hint: "数据长在什么结构上？",
+      key: "shape", title: "数据形状？", hint: "先看数据长在哪里",
       options: [
-        { value: "linear", label: "线性", desc: "数组、字符串、区间" },
-        { value: "graph", label: "树 / 图", desc: "树、图、网络、依赖" },
-        { value: "algebra", label: "数学对象", desc: "数字、集合、异或、多项式" }
+        { value: "linear", label: "线性", desc: "数组 / 字符串 / 区间" },
+        { value: "graph", label: "树 / 图", desc: "树 / 图 / 网络 / 依赖" },
+        { value: "algebra", label: "数学对象", desc: "数字 / 集合 / 异或" }
       ]
     },
     {
-      key: "dynamic", title: "2. 数据是否变化", hint: "运行过程中会修改吗？",
+      key: "dynamic", title: "数据会变吗？", hint: "运行过程中是否修改",
       options: [
         { value: "static", label: "静态", desc: "只读，可预处理" },
-        { value: "dynamic", label: "动态", desc: "要实时维护" }
+        { value: "dynamic", label: "动态", desc: "需要实时维护" }
       ]
     },
     {
-      key: "metric", title: "3. 运算规则", hint: "合并信息用什么规则？",
+      key: "metric", title: "运算规则？", hint: "信息如何合并",
       options: [
-        { value: "sum", label: "加法 / 最值", desc: "路径、区间和" },
+        { value: "sum", label: "加法 / 最值", desc: "路径 / 区间和" },
         { value: "xor", label: "异或", desc: "线性基" },
-        { value: "conv", label: "卷积 / 计数", desc: "FFT、组合" },
-        { value: "bool", label: "可行性", desc: "连通、匹配、2-SAT" },
-        { value: "number", label: "数论 / 模", desc: "gcd、同余" },
-        { value: "geom", label: "几何", desc: "凸包、距离" }
+        { value: "conv", label: "卷积 / 计数", desc: "FFT / 组合" },
+        { value: "bool", label: "可行性", desc: "连通 / 匹配 / 2-SAT" },
+        { value: "number", label: "数论 / 模", desc: "gcd / 同余" },
+        { value: "geom", label: "几何", desc: "凸包 / 距离" }
       ]
     },
     {
-      key: "scale", title: "4. 数据规模", hint: "n 大概多大？",
+      key: "scale", title: "n 多大？", hint: "决定复杂度级别",
       options: [
         { value: "n20", label: "≤ 20", desc: "状压 / 枚举" },
         { value: "n100", label: "≤ 100", desc: "O(n³) / 区间DP" },
         { value: "n5000", label: "≤ 5000", desc: "O(n²) / 简单DP" },
-        { value: "n1e5", label: "≤ 1e5", desc: "O(n log n) / 数据结构" },
+        { value: "n1e5", label: "≤ 1e5", desc: "O(n log n)" },
         { value: "n1e9", label: "≤ 1e9", desc: "公式 / 矩阵" }
       ]
     }
   ];
 
-  const N_SCALE = [
-    ["≤ 20", "状压 / 枚举", "状态少，直接 2^n 级暴力。"],
-    ["≤ 100", "O(n³)", "区间 DP、Floyd、矩阵乘法。"],
-    ["≤ 5000", "O(n²)", "两层 DP，再看单调性剪枝。"],
-    ["≤ 1e5", "O(n log n)", "排序、二分、堆、线段树、分治。"],
-    ["≤ 1e9", "对数 / 公式", "公式、矩阵快速幂、找循环节。"]
-  ];
+  const LABELS = {
+    shape: "数据形状",
+    dynamic: "是否变化",
+    metric: "运算规则",
+    scale: "数据规模"
+  };
 
+  const OP_INFO = {
+    "编码压缩": {
+      human: "先想能不能把重复信息压掉，把慢查询变成快查询。",
+      examples: "前缀和、哈希、线性基、SAM、可持久化",
+      question: "能不能预处理？重复的信息是不是只需要存一份？"
+    },
+    "传播松弛": {
+      human: "信息按依赖关系一层层传，走到哪算到哪。",
+      examples: "BFS / DP、Dijkstra、树形DP、线段树",
+      question: "能不能按顺序把状态推过去？后面会不会用到前面的结果？"
+    },
+    "剪枝决策": {
+      human: "先排除不可能成为答案的候选，别全部试一遍。",
+      examples: "二分、双指针、单调栈、凸包、斜率优化、最小割",
+      question: "有没有单调性？能不能一次性排除一大批选项？"
+    },
+    "变换域映射": {
+      human: "换个角度看题，原本纠缠的东西会变简单。",
+      examples: "FFT、矩阵快速幂、差分、对偶、生成函数",
+      question: "能不能把问题换个坐标系？比如时域变频域、静态变动态？"
+    },
+    "基线/暴力": {
+      human: "暂时看不出破绽，就先按最直接的方式做。",
+      examples: "暴力枚举、模拟、构造",
+      question: "数据够小吗？先写一个能过的朴素版再说？"
+    }
+  };
+
+  let index = 0;
   let ans = {};
 
-  function renderDissect() {
-    renderTop();
+  const stage = document.getElementById("stage");
+  const stepCount = document.getElementById("stepCount");
 
-    const wizard = document.getElementById("dissectWizard");
-    wizard.innerHTML = DISSECT_STEPS.map(step => `
-      <div class="wizard-step">
-        <div class="wizard-step-title">${esc(step.title)}</div>
-        <div class="wizard-step-hint">${esc(step.hint)}</div>
-        <div class="wizard-options">
-          ${step.options.map(opt => `
-            <button class="option-chip ${ans[step.key] === opt.value ? "active" : ""}"
-              data-step="${step.key}" data-value="${opt.value}">
-              ${esc(opt.label)} ${esc(opt.desc)}
-            </button>
-          `).join("")}
-        </div>
-      </div>
-    `).join("");
-
-    wizard.querySelectorAll(".option-chip").forEach(btn => {
-      btn.addEventListener("click", () => {
-        ans[btn.dataset.step] = btn.dataset.value;
-        renderDissect();
-      });
-    });
-
-    const nbox = document.getElementById("nScaleCard");
-    nbox.innerHTML = N_SCALE.map(row => `
-      <div class="nscale-row">
-        <div class="nscale-label">${esc(row[0])}</div>
-        <div class="nscale-text"><b>${esc(row[1])}</b>：${esc(row[2])}</div>
-      </div>
-    `).join("");
-
-    updateResult();
+  function valueLabel(step, value) {
+    const opt = step.options.find(o => o.value === value);
+    return opt ? opt.label : value;
   }
 
-  function recommendOps() {
+  function renderQuestion() {
+    stepCount.style.display = "";
+    stepCount.textContent = `${index + 1} / ${STEPS.length}`;
+    const step = STEPS[index];
+    const nextStep = STEPS[index + 1];
+    const prevLabel = index > 0 ? valueLabel(STEPS[index - 1], ans[STEPS[index - 1].key]) : null;
+
+    stage.innerHTML = `
+      <div class="stack">
+        <div class="card back">
+          <div class="card-title">引导思考</div>
+          <div class="card-hint">只回答一个问题</div>
+          <div style="color:var(--muted);font-size:13px;">不背名词，跟着走。</div>
+        </div>
+        <div class="card mid">
+          <div class="card-title">${nextStep ? nextStep.title : "建议方向"}</div>
+          <div class="card-hint">${nextStep ? "下一步" : "完成"}</div>
+        </div>
+        <div class="card front">
+          <div class="card-title">${step.title}</div>
+          <div class="card-hint">${step.hint}</div>
+          <div class="options">
+            ${step.options.map(opt => `
+              <button class="option" data-value="${opt.value}">
+                ${opt.label}
+                <small>${opt.desc}</small>
+              </button>
+            `).join("")}
+          </div>
+          ${prevLabel ? `<div style="margin-top:14px;color:var(--muted);font-size:12px;">上一步：${prevLabel}</div>` : ""}
+        </div>
+      </div>
+    `;
+
+    stage.querySelectorAll(".option").forEach(btn => {
+      btn.addEventListener("click", () => {
+        ans[step.key] = btn.dataset.value;
+        index++;
+        if (index < STEPS.length) renderQuestion();
+        else renderResult();
+      });
+    });
+  }
+
+  function recommend() {
     const ops = new Set();
     if (ans.metric === "conv") ops.add("变换域映射");
     if (ans.metric === "xor") { ops.add("编码压缩"); ops.add("变换域映射"); }
@@ -194,196 +144,193 @@
     if (ans.dynamic === "dynamic") ops.add("传播松弛");
     if (ans.dynamic === "static") ops.add("编码压缩");
     if (!ops.size) ops.add("剪枝决策");
-    return (D.infoOps || []).filter(op => ops.has(op));
+    return ["编码压缩", "传播松弛", "剪枝决策", "变换域映射", "基线/暴力"].filter(op => ops.has(op));
   }
 
-  function nextHints() {
+  function hints() {
     const map = {
-      shape_linear: "序列题先想双指针、前缀和、区间 DP。",
-      shape_graph: "图/树题先想连通性、最短路、树形 DP。",
-      shape_algebra: "代数题先想线性基、同余、生成函数。",
-      dynamic_dynamic: "实时修改：线段树、树状数组、平衡树。",
-      dynamic_static: "可离线：前缀和、ST 表、莫队。",
-      metric_sum: "加法/最值通常走 DP 或最短路。",
-      metric_xor: "异或题优先线性基。",
-      metric_conv: "卷积/计数优先 FFT / NTT。",
-      metric_bool: "可行性优先并查集、二分图、2-SAT。",
-      metric_number: "数论先看 gcd、逆元、同余、质因子。",
-      metric_geom: "几何先看凸包、叉积、极角排序。",
-      scale_n20: "优先状压、搜索、暴力。",
-      scale_n100: "O(n³) 或区间 DP 可行。",
-      scale_n5000: "O(n²) DP，再找单调性剪枝。",
-      scale_n1e5: "必须 O(n log n)：排序/二分/线段树/分治。",
-      scale_n1e9: "不要循环：公式、矩阵快速幂、找循环节。"
+      shape_linear: "如果是序列题，先试着用双指针、前缀和或区间DP来切。",
+      shape_graph: "图或树题，先想连通性、最短路、树形DP这三条路。",
+      shape_algebra: "抽象数学题，优先考虑线性基、同余、生成函数。",
+      dynamic_dynamic: "数据会改，优先想到线段树、树状数组、平衡树。",
+      dynamic_static: "数据不变，可以先预处理：前缀和、ST表、莫队。",
+      metric_sum: "加法或最值，通常就是DP或最短路。",
+      metric_xor: "异或类，优先线性基，别先想最短路。",
+      metric_conv: "卷积或计数，直接往FFT/NTT想。",
+      metric_bool: "只问能不能，就往并查集、二分图、2-SAT想。",
+      metric_number: "数论相关，先看gcd、逆元、同余、质因子。",
+      metric_geom: "几何题，先想凸包、叉积、极角排序。",
+      scale_n20: "n很小，直接考虑状压、搜索、暴力都能过。",
+      scale_n100: "n到100，O(n³)或区间DP是安全选择。",
+      scale_n5000: "n到5000，可以写O(n²)DP，再找单调性优化。",
+      scale_n1e5: "n到1e5，必须O(n log n)：排序、二分、线段树、分治。",
+      scale_n1e9: "n到1e9，别循环，直接找公式、矩阵快速幂、循环节。"
     };
-    const hints = [];
-    Object.keys(ans).forEach(k => {
-      const key = k + "_" + ans[k];
-      if (map[key]) hints.push(map[key]);
-    });
-    return hints;
+    return STEPS.map(s => map[s.key + "_" + ans[s.key]]).filter(Boolean);
   }
 
-  function updateResult() {
-    const box = document.getElementById("dissectResult");
-    const done = DISSECT_STEPS.every(s => ans[s.key]);
-    if (!done) { box.classList.add("hidden"); box.innerHTML = ""; return; }
-    const ops = recommendOps();
-    box.innerHTML = `
-      <div class="result-title">建议方向</div>
-      <div class="result-ops">
-        ${ops.map(op => {
-          const c = (D.infoOpColors || {})[op] || "#6c8cff";
-          return `<span class="badge" style="color:${c};border-color:${c}55;background:${c}18;">${esc(op)}</span>`;
-        }).join("")}
-      </div>
-      ${nextHints().map(h => `<div class="result-line">· ${esc(h)}</div>`).join("")}
-    `;
-    box.classList.remove("hidden");
-  }
+  const opClass = { "编码压缩": "c1", "传播松弛": "c2", "剪枝决策": "c3", "变换域映射": "c4" };
 
-  // ---------- 进度页 ----------
-  function renderTiers() {
-    const list = document.getElementById("tierList");
-    if (!list) return;
-    list.innerHTML = (D.tiers || []).map(tier => {
-      const tags = tier.tags || [];
-      const total = tags.length;
-      const done = tags.filter(t => isMastered(t.id)).length;
-      const open = openTiers[tier.id];
-      return `
-        <div class="tier-card ${open ? "open" : ""}">
-          <button class="tier-head" data-tier="${tier.id}">
-            <span class="tier-dot" style="background:${tier.color || "#6c8cff"}"></span>
-            <span class="tier-head-text">
-              <span class="tier-name">${esc(tier.name)}</span>
-              <div class="tier-range">${esc(tier.range || "")} · ${esc(tier.phase_name || "")}</div>
-            </span>
-            <span class="tier-arrow">▶</span>
-          </button>
-          <div class="tier-progress"><div style="width:${total ? Math.round(done*100/total) : 0}%"></div></div>
-          <div class="tier-body" style="display:${open ? "block" : "none"}">
-            ${tags.map(tagRowHtml).join("")}
+  function renderResult() {
+    stepCount.style.display = "none";
+    const ops = recommend();
+    const next = hints();
+    stage.innerHTML = `
+      <div class="diagram">
+        ${STEPS.map((s, i) => `
+          <div class="diagram-node">
+            <div class="node-label">${LABELS[s.key]}</div>
+            <div class="node-value">${valueLabel(s, ans[s.key])}</div>
           </div>
+          ${i < STEPS.length - 1 ? '<div class="diagram-arrow">↓</div>' : ""}
+        `).join("")}
+        <div class="diagram-arrow">↓</div>
+        <div class="diagram-node">
+          <div class="node-label">建议方向</div>
+          <div class="ops-row">
+            ${ops.map(op => `<span class="op-pill ${opClass[op] || "c1"} clickable" data-op="${op}">${op}</span>`).join("")}
+          </div>
+          <div class="go-hint">点操作看解释</div>
         </div>
-      `;
-    }).join("");
-    bindTierEvents();
+        <div class="diagram-arrow">↓</div>
+        <button class="diagram-node clickable" id="nextBtn" style="width:100%;text-align:left;">
+          <div class="node-label">下一步</div>
+          <ul class="next-list">
+            ${next.slice(0, 3).map(h => `<li>· ${h}</li>`).join("")}
+          </ul>
+          <div class="go-hint">点这里进入引导式思考 →</div>
+        </button>
+      </div>
+      <button class="restart-btn" id="restart">下一题</button>
+    `;
+
+    stage.querySelectorAll("[data-op]").forEach(p => {
+      p.addEventListener("click", () => showExplain(p.dataset.op));
+    });
+    document.getElementById("nextBtn").addEventListener("click", renderThinking);
+    document.getElementById("restart").addEventListener("click", () => {
+      index = 0;
+      ans = {};
+      renderQuestion();
+    });
   }
 
-  function tagRowHtml(tag) {
-    const agg = aggregateTagInfo(tag);
-    const badges = agg.ops.map(op => {
-      const c = (D.infoOpColors || {})[op] || "#6c8cff";
-      return `<span class="badge" style="color:${c};border-color:${c}55;background:${c}18;">${esc(op)}</span>`;
-    }).join("");
-    const hasAlgs = (tag.algorithms || []).length > 0;
-    return `
-      <div class="tag-row ${isMastered(tag.id) ? "mastered" : ""}">
-        <div class="tag-top">
-          <input type="checkbox" class="tag-check" ${isMastered(tag.id) ? "checked" : ""} data-tag-id="${esc(tag.id)}">
-          <div style="min-width:0;flex:1;">
-            <div class="tag-name">${esc(tag.name)}</div>
-            <div class="tag-desc">${esc(tag.desc || "")}</div>
-          </div>
+  function renderThinking() {
+    stepCount.style.display = "none";
+    const ops = recommend();
+    const next = hints();
+    const shapeText = {
+      linear: "你的数据是线性的。做题时先问：能不能用双指针、前缀和、区间DP？",
+      graph: "你的数据长在树或图上。先问：能不能转成最短路、树形DP、连通性问题？",
+      algebra: "你的数据是抽象数学对象。先问：能不能用线性基、同余、生成函数解决？"
+    }[ans.shape];
+    const dynText = {
+      static: "数据不变，说明可以花时间预处理，查询就能快。",
+      dynamic: "数据会变，说明要维护一个能实时更新的结构。"
+    }[ans.dynamic];
+    const metricText = {
+      sum: "运算规则是加法/最值，通常走 DP 或最短路。",
+      xor: "运算规则是异或，优先想到线性基。",
+      conv: "运算规则是卷积/计数，直接想到 FFT / NTT。",
+      bool: "只问能不能，想到并查集、二分图、2-SAT。",
+      number: "数论相关，想到 gcd、逆元、同余、质因子。",
+      geom: "几何相关，想到凸包、叉积、极角排序。"
+    }[ans.metric];
+    const scaleText = {
+      n20: "规模很小，别犹豫，状压/搜索/暴力都先试。",
+      n100: "规模到100，O(n³) 或区间DP 是安全选择。",
+      n5000: "规模到5000，先写 O(n²) DP，再看能不能单调优化。",
+      n1e5: "规模到1e5，必须 O(n log n)：排序、二分、线段树、分治。",
+      n1e9: "规模到1e9，别枚举，直接找公式、矩阵快速幂、循环节。"
+    }[ans.scale];
+
+    const cards = [
+      { step: "形状", q: LABELS.shape, a: shapeText },
+      { step: "变动", q: LABELS.dynamic, a: dynText },
+      { step: "规则", q: LABELS.metric, a: metricText },
+      { step: "规模", q: LABELS.scale, a: scaleText }
+    ];
+
+    stage.innerHTML = `
+      <div class="thinking-view">
+        <div class="think-head">
+          <button class="think-back" id="thinkBack">‹ 返回</button>
+          <div class="think-title">引导式思考</div>
         </div>
-        ${badges ? `<div class="tag-badges">${badges}</div>` : ""}
-        ${hasAlgs ? `<div class="tag-actions"><button class="tag-btn" data-info="${esc(tag.id)}">信息</button></div>` : ""}
+        ${cards.map(c => `
+          <div class="think-card">
+            <div class="think-step">${c.step}</div>
+            <div class="think-q">${c.q}</div>
+            <div class="think-a">${c.a}</div>
+          </div>
+        `).join("")}
+        <div class="think-final">
+          <div class="think-step">建议方向</div>
+          <div class="ops-row">
+            ${ops.map(op => `<span class="op-pill ${opClass[op] || "c1"} clickable" data-op="${op}">${op}</span>`).join("")}
+          </div>
+          <ul class="next-list" style="color:#fff;margin-top:10px;">
+            ${next.map(h => `<li>· ${h}</li>`).join("")}
+          </ul>
+        </div>
+        <button class="restart-btn" id="thinkRestart">下一题</button>
       </div>
     `;
-  }
 
-  function bindTierEvents() {
-    document.querySelectorAll(".tier-head").forEach(btn => {
-      btn.addEventListener("click", () => {
-        openTiers[Number(btn.dataset.tier)] = !openTiers[Number(btn.dataset.tier)];
-        renderTiers();
-      });
+    document.getElementById("thinkBack").addEventListener("click", renderResult);
+    document.getElementById("thinkRestart").addEventListener("click", () => {
+      index = 0;
+      ans = {};
+      renderQuestion();
     });
-    document.querySelectorAll(".tag-check").forEach(cb => {
-      cb.addEventListener("change", () => {
-        setMastered(cb.dataset.tagId, cb.checked);
-        const row = cb.closest(".tag-row");
-        if (row) row.classList.toggle("mastered", cb.checked);
-        renderTop();
-        renderTiers();
-      });
-    });
-    document.querySelectorAll("[data-info]").forEach(btn => {
-      btn.addEventListener("click", () => {
-        const tag = findTagById(btn.dataset.info);
-        if (tag) showTagInfo(tag);
-      });
+    stage.querySelectorAll("[data-op]").forEach(p => {
+      p.addEventListener("click", () => showExplain(p.dataset.op));
     });
   }
 
-  function findTagById(id) {
-    for (const t of D.tiers || []) {
-      for (const tag of t.tags || []) {
-        if (tag.id === id) return tag;
-      }
-    }
-    return null;
+  // ---------- operation explanation modal ----------
+  const explainModal = document.getElementById("explainModal");
+  const explainTitle = document.getElementById("explainTitle");
+  const explainBody = document.getElementById("explainBody");
+
+  function showExplain(op) {
+    const info = OP_INFO[op];
+    if (!info) return;
+    explainTitle.textContent = op;
+    explainBody.innerHTML = `
+      <p>${info.human}</p>
+      <div class="eg">
+        <b>常见例子：</b>${info.examples}<br><br>
+        <b>你可以问自己：</b>${info.question}
+      </div>
+    `;
+    explainModal.classList.remove("hidden");
   }
 
-  // ---------- 简洁信息弹窗（无 C++ 模板） ----------
-  const modal = document.getElementById("modal");
-  const modalTitle = document.getElementById("modalTitle");
-  const modalBody = document.getElementById("modalBody");
-
-  function showModal(title, html) {
-    modalTitle.textContent = title;
-    modalBody.innerHTML = html;
-    modal.classList.remove("hidden");
+  function hideExplain() {
+    explainModal.classList.add("hidden");
   }
 
-  function hideModal() {
-    modal.classList.add("hidden");
-    modalBody.innerHTML = "";
-  }
+  document.getElementById("explainClose").addEventListener("click", hideExplain);
+  document.getElementById("explainMask").addEventListener("click", hideExplain);
 
-  function showTagInfo(tag) {
-    const names = tag.algorithms || [];
-    if (!names.length) return;
-    const html = names.map(name => {
-      const a = algMap[name];
-      if (!a) return "";
-      const info = a.info || {};
-      return `
-        <div style="border:1px solid var(--border);border-radius:12px;padding:10px;margin-bottom:10px;">
-          <div style="font-weight:700;">${esc(a.name)}</div>
-          <div class="info-line">${esc((info.ops || []).join(" / "))} · ${esc(info.topology || "")} · ${esc(info.dynamic || "")}</div>
-          <div class="why-line">${esc(info.why || "")}</div>
-          <p style="font-size:12px;color:var(--text-dim);margin-top:4px;">${esc(a.intro || "")}</p>
-          <p style="font-size:12px;color:var(--text-dim);">复杂度：${esc(a.complexity || "")}</p>
-        </div>
-      `;
-    }).join("");
-    showModal(tag.name, html);
-  }
-
-  // ---------- tabs ----------
-  document.querySelectorAll(".tab-btn").forEach(btn => {
-    btn.addEventListener("click", () => {
-      currentView = btn.dataset.view;
-      document.querySelectorAll(".tab-btn").forEach(b => b.classList.toggle("active", b === btn));
-      document.querySelectorAll(".view").forEach(v => v.classList.toggle("active", v.id === currentView + "-view"));
-      if (currentView === "dissect") renderDissect();
-      if (currentView === "tiers") renderTiers();
-    });
-  });
-
-  document.getElementById("modalClose").addEventListener("click", hideModal);
-  document.getElementById("modalMask").addEventListener("click", hideModal);
-
-  // ---------- PWA ----------
-  if ("serviceWorker" in navigator) {
-    window.addEventListener("load", () => {
-      navigator.serviceWorker.register("sw.js").catch(() => {});
-    });
-  }
-
-  // ---------- init ----------
-  renderDissect();
-  renderTiers();
+  renderQuestion();
 })();
+
+/* ---------- parallax editorial rAF ---------- */
+let peTicking = false;
+function peOnScroll() {
+  if (peTicking) return;
+  peTicking = true;
+  requestAnimationFrame(() => {
+    const y = window.scrollY || 0;
+    document.querySelectorAll("[data-parallax]").forEach(el => {
+      const rate = parseFloat(el.dataset.parallax || "0");
+      el.style.setProperty("--pe-y", `${-y * rate}px`);
+    });
+    peTicking = false;
+  });
+}
+window.addEventListener("scroll", peOnScroll, { passive: true });
+window.addEventListener("resize", peOnScroll);
+peOnScroll();
