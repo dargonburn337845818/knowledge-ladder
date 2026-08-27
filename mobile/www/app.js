@@ -314,6 +314,19 @@
   document.getElementById("explainClose").addEventListener("click", hideExplain);
   document.getElementById("explainMask").addEventListener("click", hideExplain);
 
+  // ---------- 风格切换：玻璃拟态 / 旧 Editorial ----------
+  const THEME_KEY = "kl_mobile_theme";
+  const themeToggle = document.getElementById("themeToggle");
+  if (themeToggle) {
+    if (localStorage.getItem(THEME_KEY) === "editorial") {
+      document.body.classList.add("theme-editorial");
+    }
+    themeToggle.addEventListener("click", () => {
+      const on = document.body.classList.toggle("theme-editorial");
+      localStorage.setItem(THEME_KEY, on ? "editorial" : "glass");
+    });
+  }
+
   renderQuestion();
 })();
 
