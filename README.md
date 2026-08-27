@@ -133,6 +133,10 @@ build_windows.bat
 
 ## Release
 
+- 打 tag 自动构建 **Android APK**
+- 打 tag 自动构建 **Windows 桌面 EXE**（KnowledgeLadder.exe）
+- Windows EXE 可直接下载使用，无需源码构建
+
 在 `main` 分支打 tag：
 
 ```bash
