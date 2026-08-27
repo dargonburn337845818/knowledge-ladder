@@ -52,7 +52,7 @@ def main():
     ap.add_argument("--height", type=int, default=1080)
     ap.add_argument("--seconds", type=int, default=15)
     ap.add_argument("--framerate", type=int, default=60)
-    ap.add_argument("--output", default="wallpaper_hd.mp4")
+    ap.add_argument("--output", default=os.path.join(r"D:\\wallpaper-vedio", "wallpaper_hd.mp4"))
     ap.add_argument("--window-name", default="WE_HD_Export")
     args = ap.parse_args()
 
@@ -64,6 +64,10 @@ def main():
     if not os.path.isfile(args.wallpaper):
         print(f"错误：壁纸文件不存在：{args.wallpaper}")
         sys.exit(1)
+
+    out_dir = os.path.dirname(os.path.abspath(args.output))
+    if out_dir:
+        os.makedirs(out_dir, exist_ok=True)
 
     # 打开壁纸窗口
     run_we(we_exe, [
