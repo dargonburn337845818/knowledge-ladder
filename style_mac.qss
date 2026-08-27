@@ -281,3 +281,10 @@ QPushButton#templateBtn:hover {
     color: #B3401F;
     border-bottom-color: #B3401F;
 }
+
+QLabel#miniNote {
+    color: rgba(26,23,18,0.6);
+    font-size: 12px;
+    font-style: italic;
+    padding: 6px 4px;
+}
