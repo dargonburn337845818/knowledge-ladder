@@ -3,7 +3,7 @@
 > 不背模板，练拆题。
 > 移动端：打开就拆题，四步引导，不给代码。
 > 桌面端：同一设计，多一个「算法模板」导航。
-> 视觉：Parallax Editorial（暖纸、墨黑、砖红、衬线）。
+> 视觉：移动端 Parallax Editorial；桌面端 DeskBox 深色亚克力（轻薄玻璃拟态）。
 
 ---
 
@@ -28,7 +28,7 @@
 
 ## 风格
 
-**Parallax Editorial（视差杂志风）**
+**移动端：Parallax Editorial（视差杂志风）**
 
 - 暖纸底色 `#F5F0E6`
 - 墨黑正文 `#1A1712`
@@ -40,6 +40,14 @@
 ```text
 docs/style-parallax-editorial.md
 ```
+
+**桌面端：DeskBox 深色亚克力（轻薄玻璃拟态）**
+
+- 深色渐变底层 `#1B1D22 → #0F1115`
+- 半透明丙烯面板 + 金色强调 `#E4B863 / #F3DCA8`
+- 左侧导航固定在左上，紧凑 8 档列表
+- 支持本地 `mp4 / webm / mov / m4v`、GIF、图片壁纸
+- 有壁纸时面板透出壁纸，无壁纸时恢复默认亚克力
 
 ---
 
@@ -56,10 +64,12 @@ docs/style-parallax-editorial.md
 ### 桌面端（Python / PySide6）
 
 - 启动即拆题，与移动端一致
-- 左侧「算法模板」进入算法信息与 C++ 模板
+- 四步拆题完成后显示流程图与建议方向，可点击查看解释
+- 左侧左上集中导航：拆题 / 算法模板 / 壁纸 / 导论
+- 算法模板进入算法信息与 C++ 模板，8 档紧凑列表
 - 保留 8 档难度、掌握进度、信息论微缩模块
-- 同一套玻璃拟态视觉
-- 支持连接 Steam Wallpaper Engine：壁纸按钮自动扫描本地壁纸库，可选壁纸作为背景
+- 深色亚克力 + 壁纸透出模式
+- 支持本地 `mp4 / webm / mov / m4v`、GIF、图片壁纸，也可扫描 Steam Wallpaper Engine 本地壁纸库
 
 ---
 
@@ -126,7 +136,7 @@ build_windows.bat
 ├── .github/workflows/
 │   ├── build-apk.yml          # 自动构建 APK
 │   └── release.yml            # 打 tag 发 Release
-└── style.qss                  # 桌面端 Parallax Editorial 主题
+└── style.qss                  # 桌面端 DeskBox 深色亚克力主题
 ```
 
 ---
