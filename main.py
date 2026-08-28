@@ -76,6 +76,70 @@ ANIM_LIGHT = "light"
 ANIM_SMOOTH = "smooth"
 ANIM_NAMES = {ANIM_OFF: "关闭", ANIM_LIGHT: "轻量", ANIM_SMOOTH: "流畅"}
 
+# 与 ACM Workflow 的壁纸模式一致：
+# 没有壁纸时是默认亚克力；有壁纸时面板只保留一层薄雾，透出下方视频/图片壁纸。
+WALLPAPER_QSS = """
+/* ===== 壁纸模式：轻薄亚克力，让壁纸透出来 ===== */
+QWidget#appBody, QWidget#rightContainer {
+    background: transparent;
+}
+
+QFrame#titleBar {
+    background: rgba(0, 0, 0, 0.18);
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+QWidget#sidebar {
+    background: rgba(0, 0, 0, 0.14);
+    border-right: 1px solid rgba(255,255,255,0.05);
+}
+
+QPushButton {
+    background: rgba(0, 0, 0, 0.24);
+    border: 1px solid rgba(255,255,255,0.10);
+    color: rgba(255,255,255,0.92);
+}
+
+QPushButton#dissectNext,
+QPushButton#dissectRestart,
+QPushButton#next {
+    background: rgba(228, 184, 99, 0.12);
+    border: 1px solid rgba(228, 184, 99, 0.35);
+    color: #F3DCA8;
+}
+
+QListWidget#tierList::item {
+    background: rgba(0, 0, 0, 0.18);
+    border: 1px solid rgba(255,255,255,0.06);
+}
+
+QListWidget#tierList::item:selected {
+    background: rgba(228, 184, 99, 0.14);
+    border-color: rgba(228, 184, 99, 0.4);
+    color: #F3DCA8;
+}
+
+QFrame#tagRow,
+QLabel#dissectNode,
+QLabel#dissectThinkCard {
+    background: rgba(0, 0, 0, 0.18);
+    border: 1px solid rgba(255,255,255,0.06);
+}
+
+QFrame#dissectAcrylic {
+    background: rgba(0, 0, 0, 0.16);
+    border: 1px solid rgba(255,255,255,0.05);
+}
+
+QWidget#dissectContent {
+    background: transparent;
+}
+
+QDialog {
+    background: rgba(12, 14, 18, 0.92);
+}
+"""
+
 
 def _unique_in_order(values, order=None):
     """去重并尽量按 order 排序，保持界面标签稳定。"""
@@ -1335,13 +1399,15 @@ class MainWindow(QMainWindow):
         splitter.setChildrenCollapsible(False)
         body_layout.addWidget(splitter)
 
-        # 左侧档位列表：极简导航，只留颜色 + 数字
+        # 左侧档位列表：极简导航，只留颜色 + 数字；宽度可拖动缩放
         left = QWidget()
         left.setObjectName("sidebar")
-        left.setFixedWidth(180)
+        left.setMinimumWidth(120)
+        left.setMaximumWidth(280)
+        left.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Expanding)
         left_layout = QVBoxLayout(left)
-        left_layout.setContentsMargins(6, 6, 6, 6)
-        left_layout.setSpacing(4)
+        left_layout.setContentsMargins(8, 8, 8, 8)
+        left_layout.setSpacing(6)
 
         app_title = QLabel("CF 难度阶梯", left)
         app_title.setObjectName("appTitle")
@@ -1375,7 +1441,7 @@ class MainWindow(QMainWindow):
         # 壁纸：桌面端玻璃拟态可链接本地 wallpaper 图片
         self.wallpaper_btn = QPushButton("壁纸", left)
         self.wallpaper_btn.setObjectName("wallpaperBtn")
-        self.wallpaper_btn.setToolTip("选择壁纸图片：选择后玻璃面板会透出背景；留空则为内置夜景")
+        self.wallpaper_btn.setToolTip("选择壁纸：支持 mp4 / webm / mov / m4v 视频、GIF 与图片；有壁纸时透出背景，清除后恢复默认亚克力")
         self.wallpaper_btn.clicked.connect(self._choose_wallpaper)
         left_layout.addWidget(self.wallpaper_btn)
 
@@ -1420,7 +1486,9 @@ class MainWindow(QMainWindow):
         self.right_layout.setSpacing(0)
         splitter.addWidget(self.right_container)
 
-        splitter.setSizes([240, 840])
+        splitter.setStretchFactor(0, 0)
+        splitter.setStretchFactor(1, 1)
+        splitter.setSizes([190, 890])
 
         self._install_resize_handles()
         self._update_window_effect()
@@ -1503,8 +1571,18 @@ class MainWindow(QMainWindow):
         super().resizeEvent(event)
         if hasattr(self, "_resize_handles"):
             self._layout_resize_handles()
+        self._layout_wallpaper_layer()
         if hasattr(self, "root_layout") and hasattr(self, "title_bar"):
             self._update_maximized_mode()
+
+    def _layout_wallpaper_layer(self):
+        if not hasattr(self, "centralWidget"):
+            return
+        rect = self.centralWidget().rect()
+        for attr in ("_video_widget", "_gif_label", "_image_label"):
+            layer = getattr(self, attr, None)
+            if layer is not None:
+                layer.setGeometry(rect)
 
     def _update_window_effect(self):
         # 扁平简约：不使用窗口阴影，避免四边出现多余暗角
@@ -1516,7 +1594,7 @@ class MainWindow(QMainWindow):
             item.setText(tier_item_text(tier, self.store))
             item.setIcon(make_tier_icon(tier["color"]))
             item.setData(Qt.ItemDataRole.UserRole, tier["id"])
-            item.setSizeHint(QSize(76, 44))
+            item.setSizeHint(QSize(120, 42))
             total = len(tier["tags"])
             done = sum(1 for t in tier["tags"] if self.store.is_mastered(t["id"]))
             phase_line = tier.get("phase_name", "")
@@ -1591,7 +1669,10 @@ class MainWindow(QMainWindow):
             qss_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "style_mac.qss")
         else:
             qss_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "style.qss")
-        QApplication.instance().setStyleSheet(load_qss(qss_path))
+        qss = load_qss(qss_path)
+        if self.store.wallpaper:
+            qss += "\n" + WALLPAPER_QSS
+        QApplication.instance().setStyleSheet(qss)
         self.style_btn.setText(f"风格：{STYLE_NAMES[mode]}")
         self.style_btn.setToolTip("点击切换 深色现代 / 浅色现代 风格")
 
@@ -1602,24 +1683,36 @@ class MainWindow(QMainWindow):
     def _apply_wallpaper(self):
         path = (self.store.wallpaper or "").strip()
         lower = path.lower()
-        if path and lower.endswith(".gif"):
-            self.centralWidget().setStyleSheet("#appShell { background: #1B1D22; }")
-            self._setup_gif_wallpaper(path)
-            return
-        if path and HAS_MEDIA and lower.endswith((".mp4", ".webm", ".mov", ".m4v")):
-            self.centralWidget().setStyleSheet("#appShell { background: #060A13; }")
-            self._setup_video_wallpaper(path)
-            return
         self._clear_video_wallpaper()
-        if path:
+        if path and lower.endswith(".gif"):
+            self._setup_gif_wallpaper(path)
+        elif path and HAS_MEDIA and lower.endswith((".mp4", ".webm", ".mov", ".m4v")):
+            self._setup_video_wallpaper(path)
+        elif path:
+            self._setup_image_wallpaper(path)
+        # 重新应用样式：有壁纸时叠加“壁纸模式”亚克力，没壁纸时恢复默认亚克力
+        self._apply_style(self.store.style_mode)
+
+    def _setup_image_wallpaper(self, path: str):
+        self._clear_video_wallpaper()
+        pm = QPixmap(path)
+        if pm.isNull():
+            # 图片加载失败时回退到 QSS 背景，避免无背景
             style = (
                 '#appShell { background-image: url("'
                 + path.replace("\\", "/")
-                + '"); background-repeat: no-repeat; background-position: center; background-color: #0B1322; }'
+                + '"); background-repeat: no-repeat; background-position: center; background-color: transparent; }'
             )
             self.centralWidget().setStyleSheet(style)
-        else:
-            self.centralWidget().setStyleSheet("#appShell { background: #0B1322; }")
+            return
+        label = QLabel(self.centralWidget())
+        label.setObjectName("wallpaperImage")
+        label.setScaledContents(True)
+        label.setGeometry(self.centralWidget().rect())
+        label.setPixmap(pm)
+        label.lower()
+        label.show()
+        self._image_label = label
 
     def _setup_gif_wallpaper(self, path: str):
         self._clear_video_wallpaper()
@@ -1659,7 +1752,7 @@ class MainWindow(QMainWindow):
         self._video_widget = video
 
     def _clear_video_wallpaper(self):
-        for attr in ("_video_player", "_video_widget", "_gif_movie", "_gif_label"):
+        for attr in ("_video_player", "_video_widget", "_gif_movie", "_gif_label", "_image_label"):
             obj = getattr(self, attr, None)
             if obj is not None:
                 try:
@@ -1671,9 +1764,18 @@ class MainWindow(QMainWindow):
                 except Exception:
                     pass
                 setattr(self, attr, None)
+        # 清除之前可能残留的内联背景样式，交回默认 QSS 亚克力
+        self.centralWidget().setStyleSheet("")
 
     def _choose_wallpaper(self):
         from PySide6.QtWidgets import QFileDialog
+
+        LOCAL_TAG = "__local__"
+        WEDIR_TAG = "__wedir__"
+        CLEAR_TAG = "__clear__"
+        LOCAL_LABEL = "📁 选择本地视频 / 图片 / GIF…"
+        WEDIR_LABEL = "📂 选择 Wallpaper Engine 壁纸目录…"
+        CLEAR_LABEL = "✕ 清除壁纸（恢复默认亚克力）"
 
         # 自动找 Steam Wallpaper Engine 本地壁纸库
         def detect_we_roots():
@@ -1685,69 +1787,93 @@ class MainWindow(QMainWindow):
             candidates.append(os.path.expandvars(r"%LOCALAPPDATA%\Steam\steamapps\workshop\content\431960"))
             return [p for p in candidates if os.path.isdir(p)]
 
-        roots = detect_we_roots()
-        if not roots:
-            root = QFileDialog.getExistingDirectory(
-                self,
-                "未找到 Wallpaper Engine 壁纸目录，请选择 workshop/content/431960 文件夹",
-                "",
-            )
-            if not root:
-                return
-            roots = [root]
+        def scan_wallpapers(roots):
+            out = []
+            for root in roots:
+                try:
+                    for name in os.listdir(root):
+                        d = os.path.join(root, name)
+                        if not os.path.isdir(d):
+                            continue
+                        candidate = None
+                        for fn in ("preview.gif", "preview.jpg", "preview.png", "preview.webp"):
+                            p2 = os.path.join(d, fn)
+                            if os.path.isfile(p2):
+                                candidate = p2
+                                break
+                        if not candidate:
+                            for ext in (".jpg", ".jpeg", ".png", ".webp", ".bmp", ".gif"):
+                                try:
+                                    matches = [os.path.join(d, f) for f in os.listdir(d) if f.lower().endswith(ext)]
+                                except OSError:
+                                    matches = []
+                                if matches:
+                                    candidate = matches[0]
+                                    break
+                        if not candidate:
+                            for ext in (".mp4", ".webm", ".mov", ".m4v"):
+                                try:
+                                    matches = [os.path.join(d, f) for f in os.listdir(d) if f.lower().endswith(ext)]
+                                except OSError:
+                                    matches = []
+                                if matches:
+                                    candidate = matches[0]
+                                    break
+                        if candidate:
+                            lower = candidate.lower()
+                            is_video = lower.endswith((".mp4", ".webm", ".mov", ".m4v"))
+                            is_gif = lower.endswith(".gif")
+                            kind = "动态视频" if is_video else ("动态预览GIF" if is_gif else "预览/静态图")
+                            label = f"{name}  ({kind}: {os.path.basename(candidate)})"
+                            out.append((label, candidate))
+                except OSError:
+                    continue
+            return out
 
-        items = []
-        for root in roots:
-            try:
-                for name in os.listdir(root):
-                    d = os.path.join(root, name)
-                    if not os.path.isdir(d):
-                        continue
-                    candidate = None
-                    for fn in ("preview.gif", "preview.jpg", "preview.png", "preview.webp"):
-                        p2 = os.path.join(d, fn)
-                        if os.path.isfile(p2):
-                            candidate = p2
-                            break
-                    if not candidate:
-                        for ext in (".jpg", ".jpeg", ".png", ".webp", ".bmp", ".gif"):
-                            try:
-                                matches = [os.path.join(d, f) for f in os.listdir(d) if f.lower().endswith(ext)]
-                            except OSError:
-                                matches = []
-                            if matches:
-                                candidate = matches[0]
-                                break
-                    if not candidate:
-                        for ext in (".mp4", ".webm", ".mov", ".m4v"):
-                            try:
-                                matches = [os.path.join(d, f) for f in os.listdir(d) if f.lower().endswith(ext)]
-                            except OSError:
-                                matches = []
-                            if matches:
-                                candidate = matches[0]
-                                break
-                    if candidate:
-                        lower = candidate.lower()
-                        is_video = lower.endswith((".mp4", ".webm", ".mov", ".m4v"))
-                        is_gif = lower.endswith(".gif")
-                        kind = "动态视频" if is_video else ("动态预览GIF" if is_gif else "预览/静态图")
-                        label = f"{name}  ({kind}: {os.path.basename(candidate)})"
-                        items.append((label, candidate))
-            except OSError:
+        roots = detect_we_roots()
+        while True:
+            items = [(LOCAL_LABEL, LOCAL_TAG)]
+            if self.store.wallpaper:
+                items.insert(0, (CLEAR_LABEL, CLEAR_TAG))
+            items.extend(scan_wallpapers(roots))
+            if not roots:
+                items.append((WEDIR_LABEL, WEDIR_TAG))
+
+            labels = [x[0] for x in items]
+            default_index = 1 if self.store.wallpaper else 0
+            choice, ok = QInputDialog.getItem(self, "选择壁纸", "壁纸（支持 mp4 / webm / mov / m4v / gif / 图片）：", labels, default_index, False)
+            if not ok:
+                return
+
+            if choice == CLEAR_LABEL:
+                self.store.set_wallpaper("")
+                self._apply_wallpaper()
+                return
+
+            if choice == LOCAL_LABEL:
+                path, _ = QFileDialog.getOpenFileName(
+                    self,
+                    "选择壁纸文件",
+                    "",
+                    "壁纸 (*.mp4 *.webm *.mov *.m4v *.gif *.jpg *.jpeg *.png *.webp *.bmp);;"
+                    "视频 (*.mp4 *.webm *.mov *.m4v);;图片 (*.jpg *.jpeg *.png *.webp *.bmp);;GIF (*.gif)",
+                )
+                if path:
+                    self.store.set_wallpaper(path)
+                    self._apply_wallpaper()
+                return
+
+            if choice == WEDIR_LABEL:
+                root = QFileDialog.getExistingDirectory(
+                    self,
+                    "选择 Wallpaper Engine 壁纸目录",
+                    "",
+                )
+                if not root:
+                    continue
+                roots = [root]
                 continue
 
-        if not items:
-            QMessageBox.information(
-                self,
-                "未找到可用壁纸",
-                "该目录下没有找到 preview 或图片文件。\nWallpaper Engine 本地壁纸一般位于：\nworkshop/content/431960/<壁纸id>/",
-            )
-            return
-
-        labels = [x[0] for x in items]
-        choice, ok = QInputDialog.getItem(self, "选择 Wallpaper Engine 壁纸", "壁纸：", labels, 0, False)
-        if ok and choice:
             for label, path in items:
                 if label == choice:
                     self.store.set_wallpaper(path)
@@ -1755,9 +1881,9 @@ class MainWindow(QMainWindow):
                     QMessageBox.information(
                         self,
                         "壁纸已设置",
-                        f"已使用 Wallpaper Engine 壁纸：\n{choice}\n\n动态视频壁纸会在桌面端播放；静态图作为玻璃背景显示。",
+                        f"已使用壁纸：\n{choice}\n\n动态视频壁纸会在桌面端播放；静态图作为玻璃背景显示。",
                     )
-                    break
+                    return
 
     def _toggle_style(self):
         new_mode = STYLE_LIGHT if self.store.style_mode == STYLE_DARK else STYLE_DARK

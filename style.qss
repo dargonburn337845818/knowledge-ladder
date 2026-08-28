@@ -4,17 +4,26 @@
     color: #F5F6F8;
 }
 
-QMainWindow, QWidget#appShell, QWidget#appBody, QWidget#rightContainer {
+QMainWindow {
     background: #131519;
 }
 
+/* 默认亚克力：外壳用暗色渐变做底层，内容层保持透明，面板用半透明材质 */
+QWidget#appShell {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #1D2026, stop:0.5 #15171C, stop:1 #0F1115);
+}
+
+QWidget#appBody, QWidget#rightContainer {
+    background: transparent;
+}
+
 QFrame#titleBar {
-    background: rgba(18,20,24,0.85);
+    background: rgba(18,20,24,0.82);
     border-bottom: 1px solid rgba(255,255,255,0.06);
 }
 
-QFrame#sidebar {
-    background: rgba(18,20,24,0.75);
+QWidget#sidebar {
+    background: rgba(18,20,24,0.72);
     border-right: 1px solid rgba(255,255,255,0.06);
 }
 
@@ -41,7 +50,7 @@ QPushButton#next {
     color: #F3DCA8;
 }
 
-QPushButton#dissectBtn, QPushButton#infoBtn, QPushButton#templateBtn {
+QPushButton#dissectBtn, QPushButton#infoBtn, QPushButton#templateBtn, QPushButton#wallpaperBtn {
     background: rgba(30,33,38,0.7);
     border: 1px solid rgba(255,255,255,0.08);
     border-radius: 8px;
@@ -154,4 +163,9 @@ QFrame#dissectAcrylic {
 
 QWidget#dissectContent {
     background: transparent;
+}
+
+QScrollArea {
+    background: transparent;
+    border: none;
 }
