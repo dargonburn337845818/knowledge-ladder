@@ -10,7 +10,7 @@ import json
 import os
 import sys
 
-from PySide6.QtCore import QEasingCurve, QPropertyAnimation, QRectF, QSize, Qt, QStandardPaths, QUrl
+from PySide6.QtCore import QEasingCurve, QPropertyAnimation, QRectF, QSize, QSizeF, Qt, QStandardPaths, QUrl
 from PySide6.QtGui import QColor, QFont, QGuiApplication, QIcon, QMovie, QPainter, QPixmap
 from PySide6.QtWidgets import (
     QApplication,
@@ -18,6 +18,8 @@ from PySide6.QtWidgets import (
     QComboBox,
     QDialog,
     QFrame,
+    QGraphicsScene,
+    QGraphicsView,
     QHBoxLayout,
     QInputDialog,
     QLabel,
@@ -54,6 +56,7 @@ from info_framework import (
 )
 try:
     from PySide6.QtMultimedia import QAudioOutput, QMediaPlayer, QVideoSink
+    from PySide6.QtMultimediaWidgets import QGraphicsVideoItem
     HAS_MEDIA = True
 except ImportError:
     HAS_MEDIA = False
@@ -1717,10 +1720,16 @@ class MainWindow(QMainWindow):
         if not hasattr(self, "centralWidget"):
             return
         rect = self.centralWidget().rect()
-        for attr in ("_video_widget", "_video_label", "_gif_label", "_image_label"):
+        for attr in ("_video_widget", "_video_view", "_video_label", "_gif_label", "_image_label"):
             layer = getattr(self, attr, None)
             if layer is not None:
                 layer.setGeometry(rect)
+        item = getattr(self, "_video_item", None)
+        if item is not None:
+            item.setSize(QSizeF(rect.width(), rect.height()))
+            scene = getattr(self, "_video_scene", None)
+            if scene is not None:
+                scene.setSceneRect(0, 0, rect.width(), rect.height())
 
     def _raise_ui_above_wallpaper(self):
         """确保主界面控件永远在壁纸层上方。"""
@@ -1879,39 +1888,38 @@ class MainWindow(QMainWindow):
         self._clear_video_wallpaper()
         if not HAS_MEDIA:
             return
-        # 不用 QVideoWidget（原生窗口容易盖住 UI），改为普通 QLabel 接收视频帧，
-        # 这样壁纸层可以稳定地放在主界面下层。
-        label = QLabel(self.centralWidget())
-        label.setObjectName("wallpaperVideoLabel")
-        label.setGeometry(self.centralWidget().rect())
-        label.lower()
-        label.show()
+        # 使用 QGraphicsVideoItem + QGraphicsView：
+        # 1) 是普通 Qt 控件，可稳定放在主界面下层；
+        # 2) 由 QtMultimedia 内部渲染视频，不在 Python 里逐帧转 QImage，
+        #    性能远好于 QVideoSink+QLabel。
+        scene = QGraphicsScene(self)
+        item = QGraphicsVideoItem()
+        try:
+            item.setAspectRatioMode(Qt.AspectRatioMode.KeepAspectRatioByExpanding)
+        except Exception:
+            pass
+        scene.addItem(item)
+
+        view = QGraphicsView(scene, self.centralWidget())
+        view.setObjectName("wallpaperVideoView")
+        view.setFrameShape(QFrame.Shape.NoFrame)
+        view.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        view.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        view.setStyleSheet("QGraphicsView { background: transparent; border: none; }")
+        view.setGeometry(self.centralWidget().rect())
+        view.setRenderHint(QPainter.RenderHint.SmoothPixmapTransform)
+        view.lower()
+        view.show()
+        if view.width() > 0 and view.height() > 0:
+            item.setSize(QSizeF(view.width(), view.height()))
+            scene.setSceneRect(0, 0, view.width(), view.height())
         self._raise_ui_above_wallpaper()
 
         media = QMediaPlayer(self)
         audio = QAudioOutput(self)
         audio.setVolume(0)
         media.setAudioOutput(audio)
-        sink = QVideoSink(self)
-        media.setVideoOutput(sink)
-
-        def on_video_frame(frame):
-            if not frame.isValid():
-                return
-            image = frame.toImage()
-            if image.isNull():
-                return
-            pix = QPixmap.fromImage(image)
-            if label.width() > 0 and label.height() > 0:
-                pix = pix.scaled(
-                    label.size(),
-                    Qt.AspectRatioMode.KeepAspectRatioByExpanding,
-                    Qt.TransformationMode.SmoothTransformation,
-                )
-            label.setPixmap(pix)
-
-        sink.videoFrameChanged.connect(on_video_frame)
-
+        media.setVideoOutput(item)
         media.setSource(QUrl.fromLocalFile(path))
         def replay(status):
             if status == QMediaPlayer.MediaStatus.EndOfMedia:
@@ -1920,11 +1928,12 @@ class MainWindow(QMainWindow):
         media.mediaStatusChanged.connect(replay)
         media.play()
         self._video_player = media
-        self._video_sink = sink
-        self._video_label = label
+        self._video_item = item
+        self._video_scene = scene
+        self._video_view = view
 
     def _clear_video_wallpaper(self):
-        for attr in ("_video_player", "_video_widget", "_video_sink", "_video_label", "_gif_movie", "_gif_label", "_image_label"):
+        for attr in ("_video_player", "_video_widget", "_video_sink", "_video_label", "_video_item", "_video_scene", "_video_view", "_gif_movie", "_gif_label", "_image_label"):
             obj = getattr(self, attr, None)
             if obj is not None:
                 try:
