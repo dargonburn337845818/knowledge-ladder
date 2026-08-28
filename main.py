@@ -1067,6 +1067,8 @@ class DissectPage(QWidget):
         flow.setObjectName("flowBrowser")
         flow.setFrameShape(QFrame.Shape.NoFrame)
         flow.setMinimumHeight(240)
+        # 强制深色底 + 浅色字：不依赖全局 QSS/HTML body 是否生效
+        flow.setStyleSheet("QTextBrowser { background-color: #15171C; color: #F5F6F8; border: none; }")
         flow.setHtml(self._build_flow_html())
         self.content_layout.addWidget(flow, 1)
 
