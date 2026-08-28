@@ -1026,41 +1026,52 @@ class DissectPage(QWidget):
             self.mode = "question"
         self._render()
 
-    def _render_result(self):
-        self.step_label.setText("")
-
-        # 流程图（对齐移动端 diagram）：标签 + 答案卡片，箭头串联
+    def _build_flow_html(self) -> str:
+        """移动端 diagram 的 HTML 版，保证流程图一定渲染出来。"""
+        parts = []
         for i, step in enumerate(self.STEPS):
             value = self.ans.get(step["key"], "")
             label = dict(step["options"]).get(value, value)
-            node = QFrame()
-            node.setObjectName("diagramNode")
-            node_layout = QVBoxLayout(node)
-            node_layout.setContentsMargins(14, 10, 14, 10)
-            node_layout.setSpacing(2)
-            node_label = QLabel(self.LABELS[step["key"]])
-            node_label.setObjectName("diagramNodeLabel")
-            node_value = QLabel(label)
-            node_value.setObjectName("diagramNodeValue")
-            node_layout.addWidget(node_label)
-            node_layout.addWidget(node_value)
-            self.content_layout.addWidget(node)
+            parts.append(
+                f"""
+                <div style="background-color:#23262B;border:1px solid rgba(255,255,255,0.15);border-radius:10px;padding:12px 14px;margin:6px 0;">
+                  <div style="color:#E4B863;font-size:11px;font-weight:700;letter-spacing:1px;">{self.LABELS[step['key']]}</div>
+                  <div style="color:#F5F6F8;font-size:18px;font-weight:600;">{label}</div>
+                </div>
+                """
+            )
             if i < len(self.STEPS) - 1:
-                arrow = QLabel("↓")
-                arrow.setObjectName("dissectArrow")
-                arrow.setAlignment(Qt.AlignmentFlag.AlignCenter)
-                self.content_layout.addWidget(arrow)
-
-        # 建议方向节点（同移动端 ops-row）
+                parts.append(
+                    '<div style="text-align:center;color:rgba(255,255,255,0.45);font-size:18px;line-height:1;">↓</div>'
+                )
         ops = self._recommend()
-        ops_node = QFrame()
-        ops_node.setObjectName("diagramNode")
-        ops_layout = QVBoxLayout(ops_node)
-        ops_layout.setContentsMargins(14, 10, 14, 10)
-        ops_layout.setSpacing(4)
-        ops_label = QLabel("建议方向")
-        ops_label.setObjectName("diagramNodeLabel")
-        ops_layout.addWidget(ops_label)
+        parts.append(
+            f"""
+            <div style="background-color:#23262B;border:1px solid rgba(228,184,99,0.35);border-radius:10px;padding:12px 14px;margin:6px 0;">
+              <div style="color:#E4B863;font-size:11px;font-weight:700;letter-spacing:1px;">建议方向</div>
+              <div style="color:#F3DCA8;font-size:16px;font-weight:600;">{" / ".join(ops)}</div>
+              <div style="color:rgba(255,255,255,0.55);font-size:12px;margin-top:4px;">点下方操作看解释</div>
+            </div>
+            """
+        )
+        return (
+            '<html><body style="font-family:Segoe UI,PingFang SC,sans-serif;font-size:14px;'
+            'color:#F5F6F8;background:#15171C;">' + "".join(parts) + "</body></html>"
+        )
+
+    def _render_result(self):
+        self.step_label.setText("")
+
+        # 流程图（对齐移动端 diagram）：用富文本渲染，确保不会空白
+        flow = QTextBrowser()
+        flow.setObjectName("flowBrowser")
+        flow.setFrameShape(QFrame.Shape.NoFrame)
+        flow.setMinimumHeight(240)
+        flow.setHtml(self._build_flow_html())
+        self.content_layout.addWidget(flow, 1)
+
+        # 可点操作胶囊：查看解释
+        ops = self._recommend()
         ops_row = QHBoxLayout()
         ops_row.setSpacing(6)
         for op in ops:
@@ -1069,17 +1080,9 @@ class DissectPage(QWidget):
             op_btn.clicked.connect(lambda checked=False, o=op: self._show_ops([o]))
             ops_row.addWidget(op_btn)
         ops_row.addStretch(1)
-        ops_layout.addLayout(ops_row)
-        ops_hint = QLabel("点操作看解释")
-        ops_hint.setObjectName("goHint")
-        ops_layout.addWidget(ops_hint)
-        self.content_layout.addWidget(ops_node)
+        self.content_layout.addLayout(ops_row)
 
         # 下一步节点（和移动端下一步卡片一致）
-        arrow = QLabel("↓")
-        arrow.setObjectName("dissectArrow")
-        arrow.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.content_layout.addWidget(arrow)
         next_btn = QPushButton("下一步 → 引导式思考\n点这里继续")
         next_btn.setObjectName("diagramNodeButton")
         next_btn.clicked.connect(self._go_thinking)
