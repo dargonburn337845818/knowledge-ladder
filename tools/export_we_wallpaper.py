@@ -60,6 +60,8 @@ def export_wallpaper(wallpaper, width=1920, height=1080, seconds=15,
         "-width", str(width),
         "-height", str(height),
         "-x", "0", "-y", "0",
+        "-activate",
+        "-borderless",
     ], check=False)
 
     print("等待 Wallpaper Engine 渲染 3 秒…")
@@ -69,7 +71,8 @@ def export_wallpaper(wallpaper, width=1920, height=1080, seconds=15,
         "ffmpeg", "-y",
         "-f", "gdigrab",
         "-framerate", str(framerate),
-        "-i", f"title={window_name}",
+        "-i", "desktop",
+        "-vf", f"crop={width}:{height}:0:0",
         "-c:v", "h264_nvenc",
         "-preset", "p5",
         "-t", str(seconds),
