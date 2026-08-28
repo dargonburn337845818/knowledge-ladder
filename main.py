@@ -1585,8 +1585,10 @@ class MainWindow(QMainWindow):
         self.info_btn.clicked.connect(self._show_guide)
         left_layout.addWidget(self.info_btn)
 
-        # 导航按钮放在左上，和预览保持一致；下方再放 8 档列表
-        left_layout.addWidget(self.tier_list, 1)
+        # 导航按钮放在左上，和预览保持一致；8 档列表保持紧凑，不撑满左侧
+        self.tier_list.setMaximumHeight(320)
+        left_layout.addWidget(self.tier_list)
+        left_layout.addStretch(1)
 
         # 简约模式：隐藏风格/动画/重置等次要控制，避免挤压左侧 8 档列表
         self.style_btn = QPushButton(left)
