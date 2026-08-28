@@ -10,7 +10,7 @@ import json
 import os
 import sys
 
-from PySide6.QtCore import QEasingCurve, QPropertyAnimation, QSize, Qt, QStandardPaths, QUrl
+from PySide6.QtCore import QEasingCurve, QPropertyAnimation, QRectF, QSize, Qt, QStandardPaths, QUrl
 from PySide6.QtGui import QColor, QFont, QGuiApplication, QIcon, QMovie, QPainter, QPixmap
 from PySide6.QtWidgets import (
     QApplication,
@@ -883,6 +883,61 @@ class InfoGuideDialog(QDialog):
 """
 
 
+class FlowDiagram(QWidget):
+    """用 QPainter 直接绘制拆题流程图：不依赖 QSS / 富文本引擎，保证一定显示。"""
+
+    def __init__(self, items, parent=None):
+        super().__init__(parent)
+        self.items = items
+        self.setMinimumHeight(260)
+        self.setMinimumWidth(260)
+        self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
+
+    def sizeHint(self):
+        return QSize(420, max(260, 40 + len(self.items) * 86))
+
+    def paintEvent(self, event):
+        p = QPainter(self)
+        p.setRenderHint(QPainter.RenderHint.Antialiasing)
+        w = self.width()
+        margin = 16
+        node_h = 58
+        gap = 26
+        y = margin
+
+        for i, (label, value) in enumerate(self.items):
+            node = QRectF(margin, y, w - margin * 2, node_h)
+            p.setPen(QColor(255, 255, 255, 40))
+            p.setBrush(QColor(255, 255, 255, 18))
+            p.drawRoundedRect(node, 10, 10)
+
+            p.setPen(QColor(228, 184, 99))
+            p.setFont(QFont("Segoe UI", 10, QFont.Weight.Bold))
+            p.drawText(
+                QRectF(node.left() + 14, node.top() + 8, node.width() - 28, 16),
+                Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter,
+                label,
+            )
+
+            p.setPen(QColor(245, 246, 248))
+            p.setFont(QFont("Georgia", 15, QFont.Weight.Bold))
+            p.drawText(
+                QRectF(node.left() + 14, node.top() + 28, node.width() - 28, 22),
+                Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter,
+                value,
+            )
+
+            if i < len(self.items) - 1:
+                p.setPen(QColor(255, 255, 255, 130))
+                p.setFont(QFont("Segoe UI", 13))
+                p.drawText(
+                    QRectF(margin, node.bottom() + 2, w - margin * 2, 20),
+                    Qt.AlignmentFlag.AlignCenter,
+                    "↓",
+                )
+            y += node_h + gap
+
+
 class DissectPage(QWidget):
     """桌面端拆题引导页：四步拆题 + 结果图 + 引导式思考。"""
 
@@ -1062,18 +1117,18 @@ class DissectPage(QWidget):
     def _render_result(self):
         self.step_label.setText("")
 
-        # 流程图（对齐移动端 diagram）：用富文本渲染，确保不会空白
-        flow = QTextBrowser()
-        flow.setObjectName("flowBrowser")
-        flow.setFrameShape(QFrame.Shape.NoFrame)
-        flow.setMinimumHeight(240)
-        # 强制深色底 + 浅色字：不依赖全局 QSS/HTML body 是否生效
-        flow.setStyleSheet("QTextBrowser { background-color: #15171C; color: #F5F6F8; border: none; }")
-        flow.setHtml(self._build_flow_html())
+        # 流程图（对齐移动端 diagram）：QPainter 直接绘制，保证一定显示
+        ops = self._recommend()
+        items = []
+        for step in self.STEPS:
+            value = self.ans.get(step["key"], "")
+            label = dict(step["options"]).get(value, value)
+            items.append((self.LABELS[step["key"]], label))
+        items.append(("建议方向", " / ".join(ops)))
+        flow = FlowDiagram(items)
         self.content_layout.addWidget(flow, 1)
 
         # 可点操作胶囊：查看解释
-        ops = self._recommend()
         ops_row = QHBoxLayout()
         ops_row.setSpacing(6)
         for op in ops:
