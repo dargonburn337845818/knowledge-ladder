@@ -1028,23 +1028,38 @@ class DissectPage(QWidget):
         head.addWidget(self.step_label, 1)
         card_layout.addLayout(head)
 
+        self.scroll_area = QScrollArea()
+        self.scroll_area.setObjectName("dissectScroll")
+        self.scroll_area.setWidgetResizable(True)
+        self.scroll_area.setFrameShape(QFrame.Shape.NoFrame)
+
         self.content = QWidget()
         self.content.setObjectName("dissectContent")
         self.content_layout = QVBoxLayout(self.content)
         self.content_layout.setContentsMargins(0, 20, 0, 0)
-        self.content_layout.setSpacing(10)
-        card_layout.addWidget(self.content, 1)
+        self.content_layout.setSpacing(14)
+        self.scroll_area.setWidget(self.content)
+        card_layout.addWidget(self.scroll_area, 1)
 
         self.root.addWidget(self.card, 1)
 
         self._render()
 
-    def _clear_content(self):
-        while self.content_layout.count():
-            item = self.content_layout.takeAt(0)
+    def _clear_layout(self, layout):
+        """递归清空布局，连嵌套 layout 和里面的控件一起清理，避免残留。"""
+        while layout.count():
+            item = layout.takeAt(0)
             w = item.widget()
             if w is not None:
                 w.deleteLater()
+                continue
+            sub = item.layout()
+            if sub is not None:
+                self._clear_layout(sub)
+                sub.deleteLater()
+
+    def _clear_content(self):
+        self._clear_layout(self.content_layout)
 
     def _render(self):
         self._clear_content()
@@ -1139,6 +1154,13 @@ class DissectPage(QWidget):
         ops_row.addStretch(1)
         self.content_layout.addLayout(ops_row)
 
+        # 操作解释改成页面内联展示，不再弹警告小窗
+        self.ops_detail_label = QLabel("")
+        self.ops_detail_label.setObjectName("opsDetail")
+        self.ops_detail_label.setWordWrap(True)
+        self.ops_detail_label.hide()
+        self.content_layout.addWidget(self.ops_detail_label)
+
         # 下一步节点（和移动端下一步卡片一致）
         next_btn = QPushButton("下一步 → 引导式思考\n点这里继续")
         next_btn.setObjectName("diagramNodeButton")
@@ -1212,7 +1234,11 @@ class DissectPage(QWidget):
 
     def _show_ops(self, ops):
         text = "\n\n".join(f"{op}\n{info[0]}\n例：{info[1]}" for op in ops if op in self.OP_INFO for info in [self.OP_INFO[op]])
-        QMessageBox.information(self, "建议方向", text)
+        if getattr(self, "ops_detail_label", None) is not None:
+            self.ops_detail_label.setText(text)
+            self.ops_detail_label.show()
+        else:
+            QMessageBox.information(self, "建议方向", text)
 
     def _go_thinking(self):
         self.mode = "thinking"

@@ -381,3 +381,16 @@ QTextBrowser#flowBrowser {
     border: none;
     color: #F5F6F8;
 }
+
+QScrollArea#dissectScroll {
+    background: transparent;
+    border: none;
+}
+
+QLabel#opsDetail {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(228,184,99,0.25);
+    border-radius: 8px;
+    color: rgba(255,255,255,0.85);
+    padding: 10px 12px;
+}
