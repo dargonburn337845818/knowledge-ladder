@@ -881,8 +881,15 @@ class DissectPage(QWidget):
 
     def _build(self):
         self.root = QVBoxLayout(self)
-        self.root.setContentsMargins(28, 24, 28, 28)
+        self.root.setContentsMargins(24, 24, 24, 24)
         self.root.setSpacing(12)
+
+        # 亚克力卡片层，和预览一致
+        self.card = QFrame(self)
+        self.card.setObjectName("dissectAcrylic")
+        card_layout = QVBoxLayout(self.card)
+        card_layout.setContentsMargins(28, 22, 28, 26)
+        card_layout.setSpacing(12)
 
         head = QHBoxLayout()
         head.setSpacing(12)
@@ -894,14 +901,16 @@ class DissectPage(QWidget):
         self.step_label.setObjectName("dissectStep")
         self.step_label.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
         head.addWidget(self.step_label, 1)
-        self.root.addLayout(head)
+        card_layout.addLayout(head)
 
         self.content = QWidget()
         self.content.setObjectName("dissectContent")
         self.content_layout = QVBoxLayout(self.content)
         self.content_layout.setContentsMargins(0, 20, 0, 0)
         self.content_layout.setSpacing(10)
-        self.root.addWidget(self.content, 1)
+        card_layout.addWidget(self.content, 1)
+
+        self.root.addWidget(self.card, 1)
 
         self._render()
 
@@ -1329,7 +1338,7 @@ class MainWindow(QMainWindow):
         # 左侧档位列表：极简导航，只留颜色 + 数字
         left = QWidget()
         left.setObjectName("sidebar")
-        left.setFixedWidth(88)
+        left.setFixedWidth(180)
         left_layout = QVBoxLayout(left)
         left_layout.setContentsMargins(6, 6, 6, 6)
         left_layout.setSpacing(4)
