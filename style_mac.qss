@@ -375,3 +375,9 @@ QPushButton#diagramNodeButton {
 QPushButton#diagramNodeButton:hover {
     background: rgba(255,255,255,0.10);
 }
+
+QTextBrowser#flowBrowser {
+    background: rgba(20,22,27,0.65);
+    border: none;
+    color: #F5F6F8;
+}
