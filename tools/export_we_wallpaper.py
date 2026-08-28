@@ -31,6 +31,15 @@ def find_we_exe():
     return None
 
 
+def get_screen_size():
+    try:
+        import ctypes
+        user32 = ctypes.windll.user32
+        return user32.GetSystemMetrics(0), user32.GetSystemMetrics(1)
+    except Exception:
+        return 1920, 1080
+
+
 def run_we(we_exe, args, check=True):
     cmd = [we_exe, "-control"] + args
     print(">>", " ".join(f'"{x}"' if " " in x else x for x in cmd))
@@ -48,6 +57,10 @@ def export_wallpaper(wallpaper, width=1920, height=1080, seconds=15,
         raise RuntimeError("找不到 wallpaper32.exe / wallpaper64.exe，请确认 Wallpaper Engine 已安装")
     if not os.path.isfile(wallpaper):
         raise FileNotFoundError(f"壁纸文件不存在：{wallpaper}")
+
+    if width <= 0 or height <= 0:
+        width, height = get_screen_size()
+        print(f"使用全屏分辨率：{width}x{height}")
 
     out_dir = os.path.dirname(os.path.abspath(output))
     if out_dir:
@@ -109,8 +122,9 @@ def run_gui():
     root.resizable(False, False)
 
     wallpaper_var = tk.StringVar()
-    width_var = tk.StringVar(value="1920")
-    height_var = tk.StringVar(value="1080")
+    sw, sh = get_screen_size()
+    width_var = tk.StringVar(value=str(sw))
+    height_var = tk.StringVar(value=str(sh))
     seconds_var = tk.StringVar(value="15")
     output_var = tk.StringVar(value=r"D:\wallpaper-vedio\wallpaper_hd.mp4")
     upscale_var = tk.StringVar(value="")
@@ -182,8 +196,8 @@ def main():
 
     ap = argparse.ArgumentParser(description="Wallpaper Engine 高清导出（NVENC）")
     ap.add_argument("--wallpaper", required=True, help="Wallpaper 的 project.json / scene.pkg / 视频路径")
-    ap.add_argument("--width", type=int, default=1920)
-    ap.add_argument("--height", type=int, default=1080)
+    ap.add_argument("--width", type=int, default=0, help="0 表示自动使用当前屏幕全屏分辨率")
+    ap.add_argument("--height", type=int, default=0)
     ap.add_argument("--seconds", type=int, default=15)
     ap.add_argument("--framerate", type=int, default=60)
     ap.add_argument("--output", default=r"D:\wallpaper-vedio\wallpaper_hd.mp4")
