@@ -907,8 +907,8 @@ class FlowDiagram(QWidget):
 
         for i, (label, value) in enumerate(self.items):
             node = QRectF(margin, y, w - margin * 2, node_h)
-            p.setPen(QColor(255, 255, 255, 40))
-            p.setBrush(QColor(255, 255, 255, 18))
+            p.setPen(QColor(255, 255, 255, 60))
+            p.setBrush(QColor(42, 45, 51))
             p.drawRoundedRect(node, 10, 10)
 
             p.setPen(QColor(228, 184, 99))
