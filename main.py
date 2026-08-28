@@ -1022,16 +1022,19 @@ class DissectPage(QWidget):
 
     def _render_result(self):
         self.step_label.setText("")
-        title = QLabel("拆解过程")
-        title.setObjectName("dissectResultTitle")
-        self.content_layout.addWidget(title)
 
-        for step in self.STEPS:
+        # 流程图：四步链路，不在结果页放大标题
+        for i, step in enumerate(self.STEPS):
             value = self.ans.get(step["key"], "")
             label = dict(step["options"]).get(value, value)
             line = QLabel(f"{self.LABELS[step['key']]}  ·  {label}")
             line.setObjectName("dissectNode")
             self.content_layout.addWidget(line)
+            if i < len(self.STEPS) - 1:
+                arrow = QLabel("↓")
+                arrow.setObjectName("dissectArrow")
+                arrow.setAlignment(Qt.AlignmentFlag.AlignCenter)
+                self.content_layout.addWidget(arrow)
 
         ops = self._recommend()
         ops_btn = QPushButton("建议方向：" + " / ".join(ops))
@@ -1422,7 +1425,6 @@ class MainWindow(QMainWindow):
         self.tier_list.setUniformItemSizes(True)
         self.tier_list.setIconSize(QSize(18, 18))
         self.tier_list.currentRowChanged.connect(self._on_tier_changed)
-        left_layout.addWidget(self.tier_list, 1)
 
         # 拆题主入口：桌面端也以“拆题引导”为主
         self.dissect_btn = QPushButton("拆题", left)
@@ -1451,6 +1453,9 @@ class MainWindow(QMainWindow):
         self.info_btn.setToolTip("打开信息论总纲：四操作 / 四阶段 / 拆题四步")
         self.info_btn.clicked.connect(self._show_guide)
         left_layout.addWidget(self.info_btn)
+
+        # 导航按钮放在左上，和预览保持一致；下方再放 8 档列表
+        left_layout.addWidget(self.tier_list, 1)
 
         # 简约模式：隐藏风格/动画/重置等次要控制，避免挤压左侧 8 档列表
         self.style_btn = QPushButton(left)

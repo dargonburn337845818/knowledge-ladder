@@ -169,3 +169,162 @@ QScrollArea {
     background: transparent;
     border: none;
 }
+
+/* ===== 全局深色控制：防止默认白底 / 白字 ===== */
+QWidget {
+    background: transparent;
+}
+QLabel {
+    background: transparent;
+}
+
+QDialog, QMessageBox, QInputDialog, QFileDialog {
+    background: rgba(18,20,24,0.96);
+    color: #F5F6F8;
+}
+
+QMenu {
+    background: rgba(24,26,31,0.96);
+    color: #F5F6F8;
+    border: 1px solid rgba(255,255,255,0.10);
+}
+QMenu::item:selected {
+    background: rgba(228,184,99,0.18);
+    color: #F3DCA8;
+}
+
+QToolTip {
+    background: rgba(24,26,31,0.96);
+    color: #F5F6F8;
+    border: 1px solid rgba(255,255,255,0.10);
+}
+
+QAbstractItemView {
+    background: rgba(20,22,27,0.90);
+    color: #F5F6F8;
+    border: 1px solid rgba(255,255,255,0.08);
+    selection-background-color: rgba(228,184,99,0.18);
+    selection-color: #F3DCA8;
+}
+
+QListView, QListWidget {
+    background: transparent;
+    color: #F5F6F8;
+    outline: none;
+}
+
+QComboBox {
+    background: rgba(30,33,38,0.80);
+    color: #F5F6F8;
+    border: 1px solid rgba(255,255,255,0.10);
+    border-radius: 6px;
+    padding: 5px 10px;
+}
+QComboBox QAbstractItemView {
+    background: rgba(24,26,31,0.96);
+    color: #F5F6F8;
+    border: 1px solid rgba(255,255,255,0.10);
+    selection-background-color: rgba(228,184,99,0.18);
+    selection-color: #F3DCA8;
+}
+QComboBox::drop-down {
+    border: none;
+    width: 18px;
+}
+QComboBox::down-arrow {
+    image: none;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 5px solid rgba(255,255,255,0.75);
+}
+
+QLineEdit {
+    background: rgba(20,22,27,0.85);
+    color: #F5F6F8;
+    border: 1px solid rgba(255,255,255,0.10);
+    border-radius: 6px;
+    padding: 5px 8px;
+    selection-background-color: rgba(228,184,99,0.25);
+}
+
+QTextBrowser, QTextEdit, QPlainTextEdit {
+    background: rgba(20,22,27,0.85);
+    color: #F5F6F8;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 6px;
+    selection-background-color: rgba(228,184,99,0.25);
+}
+
+QScrollArea, QAbstractScrollArea, QScrollArea > QWidget > QWidget {
+    background: transparent;
+    border: none;
+}
+
+QTabWidget::pane {
+    background: rgba(20,22,27,0.75);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 6px;
+}
+QTabBar::tab {
+    background: rgba(30,33,38,0.65);
+    color: rgba(255,255,255,0.72);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 6px;
+    padding: 6px 12px;
+    margin-right: 4px;
+}
+QTabBar::tab:selected {
+    background: rgba(228,184,99,0.14);
+    color: #F3DCA8;
+    border-color: rgba(228,184,99,0.35);
+}
+
+QCheckBox {
+    background: transparent;
+    color: #F5F6F8;
+}
+
+QScrollBar:vertical {
+    background: transparent;
+    width: 8px;
+    margin: 0;
+}
+QScrollBar::handle:vertical {
+    background: rgba(255,255,255,0.16);
+    border-radius: 4px;
+    min-height: 24px;
+}
+QScrollBar::handle:vertical:hover {
+    background: rgba(255,255,255,0.28);
+}
+QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
+    height: 0;
+}
+QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
+    background: transparent;
+}
+
+QScrollBar:horizontal {
+    background: transparent;
+    height: 8px;
+    margin: 0;
+}
+QScrollBar::handle:horizontal {
+    background: rgba(255,255,255,0.16);
+    border-radius: 4px;
+    min-width: 24px;
+}
+QScrollBar::handle:horizontal:hover {
+    background: rgba(255,255,255,0.28);
+}
+QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal {
+    width: 0;
+}
+QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
+    background: transparent;
+}
+
+QLabel#dissectArrow {
+    color: rgba(228,184,99,0.75);
+    font-size: 18px;
+}
