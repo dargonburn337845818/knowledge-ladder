@@ -42,7 +42,7 @@ def run_we(we_exe, args, check=True):
 
 def export_wallpaper(wallpaper, width=1920, height=1080, seconds=15,
                      framerate=60, output=r"D:\wallpaper-vedio\wallpaper_hd.mp4",
-                     window_name="WE_HD_Export"):
+                     window_name="WE_HD_Export", upscale=None):
     we_exe = find_we_exe()
     if not we_exe:
         raise RuntimeError("找不到 wallpaper32.exe / wallpaper64.exe，请确认 Wallpaper Engine 已安装")
@@ -67,12 +67,17 @@ def export_wallpaper(wallpaper, width=1920, height=1080, seconds=15,
     print("等待 Wallpaper Engine 渲染 3 秒…")
     time.sleep(3)
 
+    filter_str = f"crop={width}:{height}:0:0"
+    if upscale:
+        uw, uh = upscale.lower().split("x")
+        filter_str += f",scale={uw}:{uh}:flags=lanczos"
     ffmpeg_cmd = [
         "ffmpeg", "-y",
         "-f", "gdigrab",
         "-framerate", str(framerate),
         "-i", "desktop",
-        "-vf", f"crop={width}:{height}:0:0",
+        "-vf", filter_str,
+        "-draw_mouse", "0",
         "-c:v", "h264_nvenc",
         "-preset", "p5",
         "-t", str(seconds),
@@ -108,6 +113,7 @@ def run_gui():
     height_var = tk.StringVar(value="1080")
     seconds_var = tk.StringVar(value="15")
     output_var = tk.StringVar(value=r"D:\wallpaper-vedio\wallpaper_hd.mp4")
+    upscale_var = tk.StringVar(value="")
 
     def browse():
         path = filedialog.askopenfilename(
@@ -132,6 +138,9 @@ def run_gui():
     tk.Label(form, text="秒").grid(row=1, column=0, padx=4, pady=4)
     tk.Entry(form, textvariable=seconds_var, width=10).grid(row=1, column=1, padx=4)
 
+    ttk.Label(root, text="输出放大尺寸（留空=原始，例 3840x2160 / 7680x4320）").pack(anchor="w", padx=16, pady=(8, 2))
+    tk.Entry(root, textvariable=upscale_var).pack(fill="x", padx=16)
+
     ttk.Label(root, text="输出目录: D:\\wallpaper-vedio").pack(anchor="w", padx=16, pady=8)
 
     status = ttk.Label(root, text="", foreground="#666")
@@ -152,7 +161,8 @@ def run_gui():
         status.config(text="导出中…请稍候")
         root.update()
         try:
-            out = export_wallpaper(wallpaper, width, height, seconds, output=output_var.get())
+            out = export_wallpaper(wallpaper, width, height, seconds, output=output_var.get(),
+                                  upscale=upscale_var.get().strip() or None)
             status.config(text=f"完成：{out}")
             messagebox.showinfo("完成", f"已导出：\n{out}")
         except Exception as e:
@@ -178,11 +188,12 @@ def main():
     ap.add_argument("--framerate", type=int, default=60)
     ap.add_argument("--output", default=r"D:\wallpaper-vedio\wallpaper_hd.mp4")
     ap.add_argument("--window-name", default="WE_HD_Export")
+    ap.add_argument("--upscale", default=None, help="输出放大尺寸，如 3840x2160 / 7680x4320")
     args = ap.parse_args()
 
     try:
         out = export_wallpaper(args.wallpaper, args.width, args.height, args.seconds,
-                               args.framerate, args.output, args.window_name)
+                               args.framerate, args.output, args.window_name, args.upscale)
         print(f"完成：{out}")
     except Exception as e:
         print(f"错误：{e}", file=sys.stderr)
