@@ -85,56 +85,56 @@ QWidget#appBody, QWidget#rightContainer {
 }
 
 QFrame#titleBar {
-    background: rgba(0, 0, 0, 0.18);
+    background: rgba(0, 0, 0, 0.30);
     border-bottom: 1px solid rgba(255,255,255,0.05);
 }
 
 QWidget#sidebar {
-    background: rgba(0, 0, 0, 0.14);
+    background: rgba(0, 0, 0, 0.28);
     border-right: 1px solid rgba(255,255,255,0.05);
 }
 
 QPushButton {
-    background: rgba(0, 0, 0, 0.24);
+    background: rgba(0, 0, 0, 0.34);
     border: 1px solid rgba(255,255,255,0.10);
-    color: rgba(255,255,255,0.92);
+    color: rgba(255,255,255,0.94);
 }
 
 QPushButton#dissectNext,
 QPushButton#dissectRestart,
 QPushButton#next {
-    background: rgba(228, 184, 99, 0.12);
-    border: 1px solid rgba(228, 184, 99, 0.35);
+    background: rgba(228, 184, 99, 0.16);
+    border: 1px solid rgba(228, 184, 99, 0.38);
     color: #F3DCA8;
 }
 
 QListWidget#tierList::item {
-    background: rgba(0, 0, 0, 0.18);
+    background: rgba(0, 0, 0, 0.30);
     border: 1px solid rgba(255,255,255,0.06);
 }
 
 QListWidget#tierList::item:selected {
-    background: rgba(228, 184, 99, 0.14);
-    border-color: rgba(228, 184, 99, 0.4);
+    background: rgba(228, 184, 99, 0.18);
+    border-color: rgba(228, 184, 99, 0.45);
     color: #F3DCA8;
 }
 
 QFrame#tagRow,
 QLabel#dissectNode,
 QLabel#dissectThinkCard {
-    background: rgba(0, 0, 0, 0.18);
+    background: rgba(0, 0, 0, 0.30);
     border: 1px solid rgba(255,255,255,0.06);
 }
 
 QFrame#dissectAcrylic {
-    background: rgba(0, 0, 0, 0.16);
-    border: 1px solid rgba(255,255,255,0.05);
+    background: rgba(0, 0, 0, 0.30);
+    border: 1px solid rgba(255,255,255,0.06);
 }
 
 QFrame#diagramNode,
 QPushButton#diagramNodeButton {
-    background: rgba(0, 0, 0, 0.16);
-    border: 1px solid rgba(255,255,255,0.05);
+    background: rgba(0, 0, 0, 0.30);
+    border: 1px solid rgba(255,255,255,0.06);
 }
 
 QWidget#dissectContent {
@@ -1524,6 +1524,7 @@ class MainWindow(QMainWindow):
 
         body = QWidget()
         body.setObjectName("appBody")
+        self.body = body
         body_layout = QHBoxLayout(body)
         body_layout.setContentsMargins(0, 0, 0, 0)
         body_layout.setSpacing(0)
@@ -1722,6 +1723,13 @@ class MainWindow(QMainWindow):
             if layer is not None:
                 layer.setGeometry(rect)
 
+    def _raise_ui_above_wallpaper(self):
+        """确保主界面控件永远在壁纸层上方。"""
+        if hasattr(self, "body"):
+            self.body.raise_()
+        if hasattr(self, "title_bar"):
+            self.title_bar.raise_()
+
     def _update_window_effect(self):
         # 扁平简约：不使用窗口阴影，避免四边出现多余暗角
         self.centralWidget().setGraphicsEffect(None)
@@ -1851,6 +1859,7 @@ class MainWindow(QMainWindow):
         label.lower()
         label.show()
         self._image_label = label
+        self._raise_ui_above_wallpaper()
 
     def _setup_gif_wallpaper(self, path: str):
         self._clear_video_wallpaper()
@@ -1865,6 +1874,7 @@ class MainWindow(QMainWindow):
         movie.start()
         self._gif_label = label
         self._gif_movie = movie
+        self._raise_ui_above_wallpaper()
 
     def _setup_video_wallpaper(self, path: str):
         self._clear_video_wallpaper()
@@ -1873,7 +1883,10 @@ class MainWindow(QMainWindow):
         video = QVideoWidget(self.centralWidget())
         video.setObjectName("wallpaperVideo")
         video.setGeometry(self.centralWidget().rect())
+        # 铺满窗口并裁掉多余部分，避免左右/上下黑边
+        video.setAspectRatioMode(Qt.AspectRatioMode.KeepAspectRatioByExpanding)
         video.lower()
+        self._raise_ui_above_wallpaper()
         media = QMediaPlayer(self)
         audio = QAudioOutput(self)
         audio.setVolume(0)
