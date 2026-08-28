@@ -131,6 +131,12 @@ QFrame#dissectAcrylic {
     border: 1px solid rgba(255,255,255,0.05);
 }
 
+QFrame#diagramNode,
+QPushButton#diagramNodeButton {
+    background: rgba(0, 0, 0, 0.16);
+    border: 1px solid rgba(255,255,255,0.05);
+}
+
 QWidget#dissectContent {
     background: transparent;
 }
@@ -1023,27 +1029,59 @@ class DissectPage(QWidget):
     def _render_result(self):
         self.step_label.setText("")
 
-        # 流程图：四步链路，不在结果页放大标题
+        # 流程图（对齐移动端 diagram）：标签 + 答案卡片，箭头串联
         for i, step in enumerate(self.STEPS):
             value = self.ans.get(step["key"], "")
             label = dict(step["options"]).get(value, value)
-            line = QLabel(f"{self.LABELS[step['key']]}  ·  {label}")
-            line.setObjectName("dissectNode")
-            self.content_layout.addWidget(line)
+            node = QFrame()
+            node.setObjectName("diagramNode")
+            node_layout = QVBoxLayout(node)
+            node_layout.setContentsMargins(14, 10, 14, 10)
+            node_layout.setSpacing(2)
+            node_label = QLabel(self.LABELS[step["key"]])
+            node_label.setObjectName("diagramNodeLabel")
+            node_value = QLabel(label)
+            node_value.setObjectName("diagramNodeValue")
+            node_layout.addWidget(node_label)
+            node_layout.addWidget(node_value)
+            self.content_layout.addWidget(node)
             if i < len(self.STEPS) - 1:
                 arrow = QLabel("↓")
                 arrow.setObjectName("dissectArrow")
                 arrow.setAlignment(Qt.AlignmentFlag.AlignCenter)
                 self.content_layout.addWidget(arrow)
 
+        # 建议方向节点（同移动端 ops-row）
         ops = self._recommend()
-        ops_btn = QPushButton("建议方向：" + " / ".join(ops))
-        ops_btn.setObjectName("dissectOps")
-        ops_btn.clicked.connect(lambda: self._show_ops(ops))
-        self.content_layout.addWidget(ops_btn)
+        ops_node = QFrame()
+        ops_node.setObjectName("diagramNode")
+        ops_layout = QVBoxLayout(ops_node)
+        ops_layout.setContentsMargins(14, 10, 14, 10)
+        ops_layout.setSpacing(4)
+        ops_label = QLabel("建议方向")
+        ops_label.setObjectName("diagramNodeLabel")
+        ops_layout.addWidget(ops_label)
+        ops_row = QHBoxLayout()
+        ops_row.setSpacing(6)
+        for op in ops:
+            op_btn = QPushButton(op)
+            op_btn.setObjectName("opPill")
+            op_btn.clicked.connect(lambda checked=False, o=op: self._show_ops([o]))
+            ops_row.addWidget(op_btn)
+        ops_row.addStretch(1)
+        ops_layout.addLayout(ops_row)
+        ops_hint = QLabel("点操作看解释")
+        ops_hint.setObjectName("goHint")
+        ops_layout.addWidget(ops_hint)
+        self.content_layout.addWidget(ops_node)
 
-        next_btn = QPushButton("下一步 → 引导式思考")
-        next_btn.setObjectName("dissectNext")
+        # 下一步节点（和移动端下一步卡片一致）
+        arrow = QLabel("↓")
+        arrow.setObjectName("dissectArrow")
+        arrow.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.content_layout.addWidget(arrow)
+        next_btn = QPushButton("下一步 → 引导式思考\n点这里继续")
+        next_btn.setObjectName("diagramNodeButton")
         next_btn.clicked.connect(self._go_thinking)
         self.content_layout.addWidget(next_btn)
 
@@ -1169,7 +1207,7 @@ class InfoMiniDialog(QDialog):
 
     def _html_wrap(self, body: str) -> str:
         return f"""
-        <html><body style="font-family:Georgia,serif;font-size:13px;color:#1a1712;">
+        <html><body style="font-family:Georgia,serif;font-size:13px;color:#F5F6F8;background:#15171C;">
         {body}
         </body></html>
         """
@@ -1186,7 +1224,7 @@ class InfoMiniDialog(QDialog):
                 "变换域映射": "解耦纠缠：FFT/矩阵幂/差分/生成函数",
                 "基线/暴力": "没有明显压缩：暴力/模拟/构造",
             }.get(op, "")
-            rows.append(f"<tr><td style='color:#B3401F'>{op}</td><td>{desc}</td></tr>")
+            rows.append(f"<tr><td style='color:#E4B863'>{op}</td><td>{desc}</td></tr>")
         b.setHtml(self._html_wrap(
             "<table cellpadding='6' cellspacing='0' style='border-collapse:collapse;width:100%;'>"
             "<tr><th>操作</th><th>代表方向</th></tr>" + "".join(rows) + "</table>"
@@ -1200,8 +1238,8 @@ class InfoMiniDialog(QDialog):
         for pid in sorted(PHASES):
             ph = PHASES[pid]
             rows.append(
-                f"<p style='border-top:1px solid rgba(26,23,18,0.2);padding-top:8px;'>"
-                f"<b>{ph['name']}</b><br><span style='color:#B3401F'>{ph['range']}</span><br>"
+                f"<p style='border-top:1px solid rgba(255,255,255,0.12);padding-top:8px;'>"
+                f"<b>{ph['name']}</b><br><span style='color:#E4B863'>{ph['range']}</span><br>"
                 f"{ph['slogan']}<br>{ph['description']}</p>"
             )
         b.setHtml(self._html_wrap("".join(rows)))
@@ -1213,9 +1251,9 @@ class InfoMiniDialog(QDialog):
         rows = []
         for s in ANATOMY_STEPS:
             rows.append(
-                f"<p style='border-top:1px solid rgba(26,23,18,0.2);padding-top:8px;'>"
+                f"<p style='border-top:1px solid rgba(255,255,255,0.12);padding-top:8px;'>"
                 f"<b>{s['step']}</b><br>{s['question']}<br>"
-                f"<span style='color:#B3401F'>{s['choices']}</span><br>{s['output']}</p>"
+                f"<span style='color:#E4B863'>{s['choices']}</span><br>{s['output']}</p>"
             )
         b.setHtml(self._html_wrap("".join(rows)))
         return b

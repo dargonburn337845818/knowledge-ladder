@@ -325,6 +325,53 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
 }
 
 QLabel#dissectArrow {
-    color: rgba(228,184,99,0.75);
+    color: rgba(255,255,255,0.40);
     font-size: 18px;
+}
+
+/* 移动端 diagram 的桌面版 */
+QFrame#diagramNode {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 10px;
+}
+QLabel#diagramNodeLabel {
+    color: #E4B863;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+QLabel#diagramNodeValue {
+    color: rgba(255,255,255,0.95);
+    font-family: Georgia, "Songti SC", serif;
+    font-size: 18px;
+    font-weight: 600;
+}
+QPushButton#opPill {
+    background: rgba(228,184,99,0.15);
+    border: 1px solid rgba(228,184,99,0.40);
+    border-radius: 12px;
+    color: #F3DCA8;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 6px 12px;
+}
+QPushButton#opPill:hover {
+    background: rgba(228,184,99,0.25);
+    border-color: rgba(228,184,99,0.55);
+}
+QLabel#goHint {
+    color: #E4B863;
+    font-size: 12px;
+}
+QPushButton#diagramNodeButton {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 10px;
+    color: #F5F6F8;
+    text-align: left;
+    padding: 12px 14px;
+}
+QPushButton#diagramNodeButton:hover {
+    background: rgba(255,255,255,0.10);
 }
