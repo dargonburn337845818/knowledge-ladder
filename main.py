@@ -1086,7 +1086,7 @@ class DissectPage(QWidget):
         parts = []
         for i, step in enumerate(self.STEPS):
             value = self.ans.get(step["key"], "")
-            label = dict(step["options"]).get(value, value)
+            label = self._option_label(step, value)
             parts.append(
                 f"""
                 <div style="background-color:#23262B;border:1px solid rgba(255,255,255,0.15);border-radius:10px;padding:12px 14px;margin:6px 0;">
@@ -1122,7 +1122,7 @@ class DissectPage(QWidget):
         items = []
         for step in self.STEPS:
             value = self.ans.get(step["key"], "")
-            label = dict(step["options"]).get(value, value)
+            label = self._option_label(step, value)
             items.append((self.LABELS[step["key"]], label))
         items.append(("建议方向", " / ".join(ops)))
         flow = FlowDiagram(items)
@@ -1165,7 +1165,7 @@ class DissectPage(QWidget):
         }
         for step in self.STEPS:
             value = self.ans.get(step["key"], "")
-            label = dict(step["options"]).get(value, value)
+            label = self._option_label(step, value)
             card = QLabel(f"{self.LABELS[step['key']]}：{label}\n{texts[step['key']]}")
             card.setObjectName("dissectThinkCard")
             self.content_layout.addWidget(card)
@@ -1184,6 +1184,13 @@ class DissectPage(QWidget):
         restart.clicked.connect(self._reset)
         self.content_layout.addWidget(restart)
         self.content_layout.addStretch(1)
+
+    def _option_label(self, step, value):
+        """从 (value, label, desc) 三元组里取答案显示名。"""
+        for v, label, _desc in step["options"]:
+            if v == value:
+                return label
+        return value
 
     def _recommend(self):
         ops = set()
