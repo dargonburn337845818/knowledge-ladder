@@ -12,3 +12,11 @@ mobile/node_modules/
 # 本地虚拟环境 / 测试数据
 .venv/
 .xdg/
+
+# 内部工作产物（保留本地，不入 GitHub 仓库）
+/系统提示词.txt
+/docs/
+/reports/
+/preview/
+/tools/build_algorithm_prior.py
+/tools/build_feature_matrix.py
