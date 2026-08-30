@@ -642,3 +642,159 @@ body.theme-editorial .explain-body .eg {
 body.theme-editorial .explain-title {
   color: #B3401F;
 }
+
+/* ============================================================
+   动态熵减新增组件样式
+   ============================================================ */
+.question-text {
+  font-size: 19px;
+  font-weight: 600;
+  line-height: 1.6;
+  margin-bottom: 14px;
+  color: var(--text);
+}
+
+.realtime-algos {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 10px 12px;
+  margin-bottom: 14px;
+}
+
+.realtime-label {
+  color: var(--gold);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.algo-chip {
+  display: inline-block;
+  background: rgba(228,184,99,0.12);
+  border: 1px solid rgba(228,184,99,0.35);
+  color: var(--gold-bright);
+  border-radius: 999px;
+  padding: 5px 10px;
+  margin: 3px 4px 3px 0;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.algo-chip b {
+  font-weight: 800;
+}
+
+.algo-list {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 12px;
+  margin-top: 12px;
+}
+
+.algo-list-title {
+  color: var(--gold);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.algo-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  color: var(--text);
+  font-size: 14px;
+}
+
+.algo-row:last-child { border-bottom: none; }
+
+.algo-row b {
+  color: var(--gold-bright);
+  font-weight: 800;
+}
+
+.direction-option {
+  color: var(--gold-bright) !important;
+}
+
+.warn-text {
+  color: var(--gold);
+  font-size: 14px;
+}
+
+.muted-text {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.debug-text {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.8;
+}
+
+.direction-body {
+  color: var(--muted);
+  font-size: 16px;
+  line-height: 1.85;
+  margin-bottom: 14px;
+}
+
+.heuristic-block {
+  border-top: 1px solid var(--border);
+  padding-top: 12px;
+  margin-top: 6px;
+}
+
+/* Editorial 主题覆盖：避免白色/亮金在米纸上不可见 */
+body.theme-editorial .question-text { color: #1A1712; }
+
+body.theme-editorial .realtime-algos,
+body.theme-editorial .algo-list,
+body.theme-editorial .heuristic-block {
+  background: transparent;
+  border-color: rgba(26,23,18,0.25);
+}
+
+body.theme-editorial .realtime-label,
+body.theme-editorial .algo-list-title {
+  color: #B3401F;
+}
+
+body.theme-editorial .algo-chip {
+  background: transparent;
+  border-color: #B3401F;
+  color: #1A1712;
+}
+
+body.theme-editorial .algo-row {
+  color: #1A1712;
+  border-color: rgba(26,23,18,0.15);
+}
+
+body.theme-editorial .algo-row b {
+  color: #B3401F;
+}
+
+body.theme-editorial .direction-option {
+  color: #1A1712 !important;
+}
+
+body.theme-editorial .warn-text,
+body.theme-editorial .realtime-label {
+  color: #B3401F;
+}
+
+body.theme-editorial .muted-text,
+body.theme-editorial .debug-text,
+body.theme-editorial .direction-body {
+  color: rgba(26,23,18,0.65);
+}

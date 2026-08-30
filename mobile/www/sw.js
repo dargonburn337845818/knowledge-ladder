@@ -1,10 +1,11 @@
-const CACHE = "knowledge-ladder-v1";
+const CACHE = "knowledge-ladder-v4";
 const ASSETS = [
   "./",
   "./index.html",
   "./style.css",
   "./app.js",
-  "./data.js",
+  "./entropy_data.js",
+  "./entropy_engine.js",
   "./manifest.json",
   "./icon.svg"
 ];

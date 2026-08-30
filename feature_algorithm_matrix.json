@@ -1,0 +1,4954 @@
+{
+  "meta": {
+    "version": "0.1.0",
+    "generated_at": "2026-08-30T03:56:27.264828+00:00",
+    "description": "条件概率矩阵 P(feature|algorithm)。在熵减更新中以贝叶斯方式使用：P(algorithm|answer) ∝ P(algorithm) * P(feature|algorithm)。",
+    "source": [
+      "info_framework.py",
+      "algorithm_prior.json",
+      "人工排查规则"
+    ]
+  },
+  "features": [
+    {
+      "id": "shape_linear",
+      "dimension": "形状",
+      "question": "数据主体是线性/序列/区间结构吗？",
+      "kind": "base"
+    },
+    {
+      "id": "shape_graph",
+      "dimension": "形状",
+      "question": "数据主体是树/图/依赖结构吗？",
+      "kind": "base"
+    },
+    {
+      "id": "shape_algebra",
+      "dimension": "形状",
+      "question": "数据主体是抽象数学对象/集合/值域吗？",
+      "kind": "base"
+    },
+    {
+      "id": "dynamic",
+      "dimension": "变化",
+      "question": "运行过程中数据会修改、需要实时维护吗？",
+      "kind": "base"
+    },
+    {
+      "id": "metric_sum",
+      "dimension": "规则",
+      "question": "合并规则是加法/最值/路径权值吗？",
+      "kind": "base"
+    },
+    {
+      "id": "metric_xor",
+      "dimension": "规则",
+      "question": "核心涉及异或/线性独立/异或空间吗？",
+      "kind": "base"
+    },
+    {
+      "id": "metric_count",
+      "dimension": "规则",
+      "question": "需要计数/组合/卷积/方案数吗？",
+      "kind": "base"
+    },
+    {
+      "id": "metric_bool",
+      "dimension": "规则",
+      "question": "问题只问可行性/判定（布尔）吗？",
+      "kind": "base"
+    },
+    {
+      "id": "metric_geom",
+      "dimension": "规则",
+      "question": "核心是几何/向量/距离/凸性吗？",
+      "kind": "base"
+    },
+    {
+      "id": "metric_num",
+      "dimension": "规则",
+      "question": "核心是数论/模运算/整除/质数吗？",
+      "kind": "base"
+    },
+    {
+      "id": "scale_tiny",
+      "dimension": "规模",
+      "question": "n ≤ 20，可以状压/指数级枚举吗？",
+      "kind": "base"
+    },
+    {
+      "id": "scale_small",
+      "dimension": "规模",
+      "question": "n ≤ 5000，可以接受 O(n²)/O(n³) 吗？",
+      "kind": "base"
+    },
+    {
+      "id": "scale_large",
+      "dimension": "规模",
+      "question": "n ≥ 1e5，需要 O(n log n) 或更好吗？",
+      "kind": "base"
+    },
+    {
+      "id": "monotonic",
+      "dimension": "排查",
+      "question": "答案或可行性判定具有单调性，可以二分吗？",
+      "kind": "extra"
+    },
+    {
+      "id": "dependency",
+      "dimension": "排查",
+      "question": "当前状态依赖前驱/递推关系，需要按顺序传递吗？",
+      "kind": "extra"
+    },
+    {
+      "id": "multi_query",
+      "dimension": "排查",
+      "question": "有大量/多次查询，需要批量或数据结构维护吗？",
+      "kind": "extra"
+    },
+    {
+      "id": "preprocess",
+      "dimension": "排查",
+      "question": "允许离线/预处理来换取查询更快吗？",
+      "kind": "extra"
+    },
+    {
+      "id": "optimization",
+      "dimension": "排查",
+      "question": "求的是最优值/最值，而不只是可行性吗？",
+      "kind": "extra"
+    },
+    {
+      "id": "range_ops",
+      "dimension": "排查",
+      "question": "核心在线性序列的区间操作/区间查询上吗？",
+      "kind": "extra"
+    },
+    {
+      "id": "graph_path",
+      "dimension": "排查",
+      "question": "核心在树/图的路径、连通、最短路或流上吗？",
+      "kind": "extra"
+    }
+  ],
+  "directions": [
+    "编码压缩",
+    "传播松弛",
+    "剪枝决策",
+    "变换域映射"
+  ],
+  "algorithms": [
+    {
+      "algorithm_name": "暴力枚举",
+      "category": "基础算法",
+      "sub": "枚举",
+      "cf_tags": [
+        "brute force"
+      ],
+      "dmoj_types": [
+        "Brute Force"
+      ],
+      "prior_probability": 0.006359,
+      "profile": {
+        "shape_linear": 0.05,
+        "shape_graph": 0.05,
+        "shape_algebra": 0.9,
+        "dynamic": 0.1,
+        "metric_sum": 0.1,
+        "metric_xor": 0.1,
+        "metric_count": 0.9,
+        "metric_bool": 0.9,
+        "metric_geom": 0.1,
+        "metric_num": 0.1,
+        "scale_tiny": 0.1,
+        "scale_small": 0.25,
+        "scale_large": 0.2,
+        "monotonic": 0.15,
+        "dependency": 0.15,
+        "multi_query": 0.15,
+        "preprocess": 0.15,
+        "optimization": 0.2,
+        "range_ops": 0.15,
+        "graph_path": 0.1
+      },
+      "direction_weights": {
+        "编码压缩": 0.35,
+        "传播松弛": 0.35,
+        "剪枝决策": 0.35,
+        "变换域映射": 0.35
+      }
+    },
+    {
+      "algorithm_name": "约瑟夫环（模拟）",
+      "category": "基础算法",
+      "sub": "模拟",
+      "cf_tags": [
+        "implementation"
+      ],
+      "dmoj_types": [
+        "Simulation"
+      ],
+      "prior_probability": 0.008673,
+      "profile": {
+        "shape_linear": 0.9,
+        "shape_graph": 0.05,
+        "shape_algebra": 0.05,
+        "dynamic": 0.1,
+        "metric_sum": 0.1,
+        "metric_xor": 0.1,
+        "metric_count": 0.1,
+        "metric_bool": 0.1,
+        "metric_geom": 0.1,
+        "metric_num": 0.9,
+        "scale_tiny": 0.1,
+        "scale_small": 0.25,
+        "scale_large": 0.2,
+        "monotonic": 0.15,
+        "dependency": 0.15,
+        "multi_query": 0.15,
+        "preprocess": 0.15,
+        "optimization": 0.9,
+        "range_ops": 0.15,
+        "graph_path": 0.1
+      },
+      "direction_weights": {
+        "编码压缩": 0.35,
+        "传播松弛": 0.35,
+        "剪枝决策": 0.35,
+        "变换域映射": 0.35
+      }
+    },
+    {
+      "algorithm_name": "区间调度（贪心）",
+      "category": "基础算法",
+      "sub": "贪心",
+      "cf_tags": [
+        "greedy"
+      ],
+      "dmoj_types": [
+        "Greedy Algorithms"
+      ],
+      "prior_probability": 0.012152,
+      "profile": {
+        "shape_linear": 0.9,
+        "shape_graph": 0.05,
+        "shape_algebra": 0.05,
+        "dynamic": 0.1,
+        "metric_sum": 0.1,
+        "metric_xor": 0.1,
+        "metric_count": 0.9,
+        "metric_bool": 0.1,
+        "metric_geom": 0.1,
+        "metric_num": 0.1,
+        "scale_tiny": 0.1,
+        "scale_small": 0.25,
+        "scale_large": 0.2,
+        "monotonic": 0.15,
+        "dependency": 0.15,
+        "multi_query": 0.15,
+        "preprocess": 0.15,
+        "optimization": 0.9,
+        "range_ops": 0.85,
+        "graph_path": 0.1
+      },
+      "direction_weights": {
+        "编码压缩": 0.05,
+        "传播松弛": 0.05,
+        "剪枝决策": 1.0,
+        "变换域映射": 0.05
+      }
+    },
+    {
+      "algorithm_name": "排序后取最值（基础贪心）",
+      "category": "基础算法",
+      "sub": "贪心",
+      "cf_tags": [
+        "greedy"
+      ],
+      "dmoj_types": [
+        "Greedy Algorithms"
+      ],
+      "prior_probability": 0.012152,
+      "profile": {
+        "shape_linear": 0.9,
+        "shape_graph": 0.05,
+        "shape_algebra": 0.05,
+        "dynamic": 0.1,
+        "metric_sum": 0.9,
+        "metric_xor": 0.1,
+        "metric_count": 0.1,
+        "metric_bool": 0.1,
+        "metric_geom": 0.1,
+        "metric_num": 0.1,
+        "scale_tiny": 0.1,
+        "scale_small": 0.25,
+        "scale_large": 0.2,
+        "monotonic": 0.15,
+        "dependency": 0.15,
+        "multi_query": 0.15,
+        "preprocess": 0.15,
+        "optimization": 0.9,
+        "range_ops": 0.15,
+        "graph_path": 0.1
+      },
+      "direction_weights": {
+        "编码压缩": 0.05,
+        "传播松弛": 0.05,
+        "剪枝决策": 1.0,
+        "变换域映射": 0.05
+      }
+    },
+    {
+      "algorithm_name": "反悔贪心（带堆维护）",
+      "category": "基础算法",
+      "sub": "贪心",
+      "cf_tags": [
+        "greedy"
+      ],
+      "dmoj_types": [
+        "Greedy Algorithms"
+      ],
+      "prior_probability": 0.012152,
+      "profile": {
+        "shape_linear": 0.9,
+        "shape_graph": 0.05,
+        "shape_algebra": 0.05,
+        "dynamic": 0.1,
+        "metric_sum": 0.9,
+        "metric_xor": 0.1,
+        "metric_count": 0.1,
+        "metric_bool": 0.1,
+        "metric_geom": 0.1,
+        "metric_num": 0.1,
+        "scale_tiny": 0.1,
+        "scale_small": 0.25,
+        "scale_large": 0.2,
+        "monotonic": 0.15,
+        "dependency": 0.85,
+        "multi_query": 0.15,
+        "preprocess": 0.15,
+        "optimization": 0.9,
+        "range_ops": 0.15,
+        "graph_path": 0.1
+      },
+      "direction_weights": {
+        "编码压缩": 0.05,
+        "传播松弛": 1.0,
+        "剪枝决策": 1.0,
+        "变换域映射": 0.05
+      }
+    },
+    {
+      "algorithm_name": "二分查找",
+      "category": "基础算法",
+      "sub": "二分",
+      "cf_tags": [
+        "binary search"
+      ],
+      "dmoj_types": [
+        "Divide and Conquer",
+        "Implementation"
+      ],
+      "prior_probability": 0.008514,
+      "profile": {
+        "shape_linear": 0.9,
+        "shape_graph": 0.05,
+        "shape_algebra": 0.05,
+        "dynamic": 0.1,
+        "metric_sum": 0.1,
+        "metric_xor": 0.1,
+        "metric_count": 0.1,
+        "metric_bool": 0.1,
+        "metric_geom": 0.1,
+        "metric_num": 0.1,
+        "scale_tiny": 0.1,
+        "scale_small": 0.25,
+        "scale_large": 0.8,
+        "monotonic": 0.85,
+        "dependency": 0.15,
+        "multi_query": 0.15,
+        "preprocess": 0.15,
+        "optimization": 0.9,
+        "range_ops": 0.15,
+        "graph_path": 0.1
+      },
+      "direction_weights": {
+        "编码压缩": 0.05,
+        "传播松弛": 0.05,
+        "剪枝决策": 1.0,
+        "变换域映射": 0.05
+      }
+    },
+    {
+      "algorithm_name": "二分答案",
+      "category": "基础算法",
+      "sub": "二分",
+      "cf_tags": [
+        "binary search"
+      ],
+      "dmoj_types": [
+        "Divide and Conquer",
+        "Implementation"
+      ],
+      "prior_probability": 0.008514,
+      "profile": {
+        "shape_linear": 0.05,
+        "shape_graph": 0.05,
+        "shape_algebra": 0.9,
+        "dynamic": 0.1,
+        "metric_sum": 0.1,
+        "metric_xor": 0.1,
+        "metric_count": 0.1,
+        "metric_bool": 0.9,
+        "metric_geom": 0.1,
+        "metric_num": 0.1,
+        "scale_tiny": 0.1,
+        "scale_small": 0.25,
+        "scale_large": 0.8,
+        "monotonic": 0.85,
+        "dependency": 0.15,
+        "multi_query": 0.15,
+        "preprocess": 0.15,
+        "optimization": 0.2,
+        "range_ops": 0.15,
+        "graph_path": 0.1
+      },
+      "direction_weights": {
+        "编码压缩": 0.05,
+        "传播松弛": 0.05,
+        "剪枝决策": 1.0,
+        "变换域映射": 0.05
+      }
+    },
+    {
+      "algorithm_name": "归并排序求逆序对",
+      "category": "基础算法",
+      "sub": "分治",
+      "cf_tags": [
+        "sortings"
+      ],
+      "dmoj_types": [
+        "Divide and Conquer"
+      ],
+      "prior_probability": 0.003796,
+      "profile": {
+        "shape_linear": 0.9,
+        "shape_graph": 0.05,
+        "shape_algebra": 0.05,
+        "dynamic": 0.1,
+        "metric_sum": 0.1,
+        "metric_xor": 0.1,
+        "metric_count": 0.9,
+        "metric_bool": 0.1,
+        "metric_geom": 0.1,
+        "metric_num": 0.1,
+        "scale_tiny": 0.1,
+        "scale_small": 0.25,
+        "scale_large": 0.2,
+        "monotonic": 0.15,
+        "dependency": 0.85,
+        "multi_query": 0.15,
+        "preprocess": 0.85,
+        "optimization": 0.9,
+        "range_ops": 0.15,
+        "graph_path": 0.1
+      },
+      "direction_weights": {
+        "编码压缩": 0.05,
+        "传播松弛": 1.0,
+        "剪枝决策": 1.0,
+        "变换域映射": 0.05
+      }
+    },
+    {
+      "algorithm_name": "结构体排序（重载运算符）",
+      "category": "基础算法",
+      "sub": "排序",
+      "cf_tags": [
+        "sortings"
+      ],
+      "dmoj_types": [
+        "Implementation"
+      ],
+      "prior_probability": 0.013015,
+      "profile": {
+        "shape_linear": 0.9,
+        "shape_graph": 0.05,
+        "shape_algebra": 0.05,
+        "dynamic": 0.1,
+        "metric_sum": 0.1,
+        "metric_xor": 0.1,
+        "metric_count": 0.1,
+        "metric_bool": 0.1,
+        "metric_geom": 0.1,
+        "metric_num": 0.1,
+        "scale_tiny": 0.1,
+        "scale_small": 0.25,
+        "scale_large": 0.8,
+        "monotonic": 0.15,
+        "dependency": 0.15,
+        "multi_query": 0.15,
+        "preprocess": 0.85,
+        "optimization": 0.9,
+        "range_ops": 0.15,
+        "graph_path": 0.1
+      },
+      "direction_weights": {
+        "编码压缩": 1.0,
+        "传播松弛": 0.05,
+        "剪枝决策": 0.05,
+        "变换域映射": 0.05
+      }
+    },
+    {
+      "algorithm_name": "一维前缀和",
+      "category": "基础算法",
+      "sub": "前缀和与差分",
+      "cf_tags": [
+        "data structures"
+      ],
+      "dmoj_types": [
+        "Data Structures"
+      ],
+      "prior_probability": 0.010901,
+      "profile": {
+        "shape_linear": 0.9,
+        "shape_graph": 0.05,
+        "shape_algebra": 0.05,
+        "dynamic": 0.1,
+        "metric_sum": 0.9,
+        "metric_xor": 0.1,
+        "metric_count": 0.1,
+        "metric_bool": 0.1,
+        "metric_geom": 0.1,
+        "metric_num": 0.1,
+        "scale_tiny": 0.1,
+        "scale_small": 0.25,
+        "scale_large": 0.2,
+        "monotonic": 0.15,
+        "dependency": 0.15,
+        "multi_query": 0.85,
+        "preprocess": 0.85,
+        "optimization": 0.9,
+        "range_ops": 0.85,
+        "graph_path": 0.1
+      },
+      "direction_weights": {
+        "编码压缩": 1.0,
+        "传播松弛": 0.05,
+        "剪枝决策": 0.05,
+        "变换域映射": 0.05
+      }
+    },
+    {
+      "algorithm_name": "二维前缀和",
+      "category": "基础算法",
+      "sub": "前缀和与差分",
+      "cf_tags": [
+        "data structures"
+      ],
+      "dmoj_types": [
+        "Data Structures"
+      ],
+      "prior_probability": 0.010901,
+      "profile": {
+        "shape_linear": 0.9,
+        "shape_graph": 0.05,
+        "shape_algebra": 0.05,
+        "dynamic": 0.1,
+        "metric_sum": 0.9,
+        "metric_xor": 0.1,
+        "metric_count": 0.1,
+        "metric_bool": 0.1,
+        "metric_geom": 0.1,
+        "metric_num": 0.1,
+        "scale_tiny": 0.1,
+        "scale_small": 0.25,
+        "scale_large": 0.2,
+        "monotonic": 0.15,
+        "dependency": 0.15,
+        "multi_query": 0.85,
+        "preprocess": 0.85,
+        "optimization": 0.9,
+        "range_ops": 0.85,
+        "graph_path": 0.1
+      },
+      "direction_weights": {
+        "编码压缩": 1.0,
+        "传播松弛": 0.05,
+        "剪枝决策": 0.05,
+        "变换域映射": 0.05
+      }
+    },
+    {
+      "algorithm_name": "差分数组",
+      "category": "基础算法",
+      "sub": "前缀和与差分",
+      "cf_tags": [
+        "data structures"
+      ],
+      "dmoj_types": [
+        "Data Structures"
+      ],
+      "prior_probability": 0.010901,
+      "profile": {
+        "shape_linear": 0.9,
+        "shape_graph": 0.05,
+        "shape_algebra": 0.05,
+        "dynamic": 0.1,
+        "metric_sum": 0.9,
+        "metric_xor": 0.1,
+        "metric_count": 0.1,
+        "metric_bool": 0.1,
+        "metric_geom": 0.1,
+        "metric_num": 0.1,
+        "scale_tiny": 0.1,
+        "scale_small": 0.25,
+        "scale_large": 0.2,
+        "monotonic": 0.15,
+        "dependency": 0.15,
+        "multi_query": 0.85,
+        "preprocess": 0.85,
+        "optimization": 0.9,
+        "range_ops": 0.85,
+        "graph_path": 0.1
+      },
+      "direction_weights": {
+        "编码压缩": 1.0,
+        "传播松弛": 0.05,
+        "剪枝决策": 0.05,
+        "变换域映射": 1.0
+      }
+    },
+    {
+      "algorithm_name": "双指针（滑动窗口）",
+      "category": "基础算法",
+      "sub": "双指针",
+      "cf_tags": [
+        "two pointers"
+      ],
+      "dmoj_types": [
+        "Implementation"
+      ],
+      "prior_probability": 0.011434,
+      "profile": {
+        "shape_linear": 0.9,
+        "shape_graph": 0.05,
+        "shape_algebra": 0.05,
+        "dynamic": 0.1,
+        "metric_sum": 0.9,
+        "metric_xor": 0.1,
+        "metric_count": 0.9,
+        "metric_bool": 0.1,
+        "metric_geom": 0.1,
+        "metric_num": 0.1,
+        "scale_tiny": 0.1,
+        "scale_small": 0.25,
+        "scale_large": 0.8,
+        "monotonic": 0.85,
+        "dependency": 0.15,
+        "multi_query": 0.15,
+        "preprocess": 0.15,
+        "optimization": 0.9,
+        "range_ops": 0.85,
+        "graph_path": 0.1
+      },
+      "direction_weights": {
+        "编码压缩": 0.05,
+        "传播松弛": 0.05,
+        "剪枝决策": 1.0,
+        "变换域映射": 0.05
+      }
+    },
+    {
+      "algorithm_name": "构造算法",
+      "category": "基础算法",
+      "sub": "构造",
+      "cf_tags": [
+        "constructive algorithms"
+      ],
+      "dmoj_types": [
+        "Constructive"
+      ],
+      "prior_probability": 0.006024,
+      "profile": {
+        "shape_linear": 0.05,
+        "shape_graph": 0.05,
+        "shape_algebra": 0.9,
+        "dynamic": 0.1,
+        "metric_sum": 0.1,
+        "metric_xor": 0.1,
+        "metric_count": 0.1,
+        "metric_bool": 0.9,
+        "metric_geom": 0.1,
+        "metric_num": 0.1,
+        "scale_tiny": 0.1,
+        "scale_small": 0.25,
+        "scale_large": 0.2,
+        "monotonic": 0.15,
+        "dependency": 0.15,
+        "multi_query": 0.15,
+        "preprocess": 0.15,
+        "optimization": 0.2,
+        "range_ops": 0.15,
+        "graph_path": 0.1
+      },
+      "direction_weights": {
+        "编码压缩": 0.35,
+        "传播松弛": 0.35,
+        "剪枝决策": 0.35,
+        "变换域映射": 0.35
+      }
+    },
+    {
+      "algorithm_name": "位掩码子集枚举",
+      "category": "基础算法",
+      "sub": "位运算",
+      "cf_tags": [
+        "bitmasks",
+        "brute force"
+      ],
+      "dmoj_types": [
+        "Ad Hoc",
+        "Brute Force"
+      ],
+      "prior_probability": 0.006501,
+      "profile": {
+        "shape_linear": 0.05,
+        "shape_graph": 0.05,
+        "shape_algebra": 0.9,
+        "dynamic": 0.1,
+        "metric_sum": 0.1,
+        "metric_xor": 0.1,
+        "metric_count": 0.9,
+        "metric_bool": 0.9,
+        "metric_geom": 0.1,
+        "metric_num": 0.1,
+        "scale_tiny": 0.85,
+        "scale_small": 0.25,
+        "scale_large": 0.2,
+        "monotonic": 0.15,
+        "dependency": 0.15,
+        "multi_query": 0.15,
+        "preprocess": 0.15,
+        "optimization": 0.2,
+        "range_ops": 0.15,
+        "graph_path": 0.1
+      },
+      "direction_weights": {
+        "编码压缩": 1.0,
+        "传播松弛": 0.05,
+        "剪枝决策": 0.05,
+        "变换域映射": 0.05
+      }
+    },
+    {
+      "algorithm_name": "状态压缩 + BFS",
+      "category": "基础算法",
+      "sub": "位运算",
+      "cf_tags": [
+        "bitmasks"
+      ],
+      "dmoj_types": [
+        "Ad Hoc",
+        "Brute Force"
+      ],
+      "prior_probability": 0.004812,
+      "profile": {
+        "shape_linear": 0.05,
+        "shape_graph": 0.05,
+        "shape_algebra": 0.9,
+        "dynamic": 0.1,
+        "metric_sum": 0.1,
+        "metric_xor": 0.1,
+        "metric_count": 0.1,
+        "metric_bool": 0.9,
+        "metric_geom": 0.1,
+        "metric_num": 0.1,
+        "scale_tiny": 0.1,
+        "scale_small": 0.25,
+        "scale_large": 0.2,
+        "monotonic": 0.15,
+        "dependency": 0.85,
+        "multi_query": 0.15,
+        "preprocess": 0.15,
+        "optimization": 0.2,
+        "range_ops": 0.15,
+        "graph_path": 0.1
+      },
+      "direction_weights": {
+        "编码压缩": 1.0,
+        "传播松弛": 1.0,
+        "剪枝决策": 0.05,
+        "变换域映射": 0.05
+      }
+    },
+    {
+      "algorithm_name": "单调栈",
+      "category": "数据结构",
+      "sub": "栈",
+      "cf_tags": [
+        "data structures"
+      ],
+      "dmoj_types": [
+        "Data Structures"
+      ],
+      "prior_probability": 0.010901,
+      "profile": {
+        "shape_linear": 0.9,
+        "shape_graph": 0.05,
+        "shape_algebra": 0.05,
+        "dynamic": 0.1,
+        "metric_sum": 0.9,
+        "metric_xor": 0.1,
+        "metric_count": 0.1,
+        "metric_bool": 0.1,
+        "metric_geom": 0.1,
+        "metric_num": 0.1,
+        "scale_tiny": 0.1,
+        "scale_small": 0.25,
+        "scale_large": 0.8,
+        "monotonic": 0.85,
+        "dependency": 0.15,
+        "multi_query": 0.15,
+        "preprocess": 0.15,
+        "optimization": 0.9,
+        "range_ops": 0.85,
+        "graph_path": 0.1
+      },
+      "direction_weights": {
+        "编码压缩": 0.05,
+        "传播松弛": 0.05,
+        "剪枝决策": 1.0,
+        "变换域映射": 0.05
+      }
+    },
+    {
+      "algorithm_name": "栈（基础）",
+      "category": "数据结构",
+      "sub": "栈",
+      "cf_tags": [
+        "data structures"
+      ],
+      "dmoj_types": [
+        "Data Structures"
+      ],
+      "prior_probability": 0.010901,
+      "profile": {
+        "shape_linear": 0.9,
+        "shape_graph": 0.05,
+        "shape_algebra": 0.05,
+        "dynamic": 0.1,
+        "metric_sum": 0.1,
+        "metric_xor": 0.1,
+        "metric_count": 0.1,
+        "metric_bool": 0.9,
+        "metric_geom": 0.1,
+        "metric_num": 0.1,
+        "scale_tiny": 0.1,
+        "scale_small": 0.25,
+        "scale_large": 0.8,
+        "monotonic": 0.15,
+        "dependency": 0.15,
+        "multi_query": 0.15,
+        "preprocess": 0.15,
+        "optimization": 0.2,
+        "range_ops": 0.15,
+        "graph_path": 0.1
+      },
+      "direction_weights": {
+        "编码压缩": 0.35,
+        "传播松弛": 0.35,
+        "剪枝决策": 0.35,
+        "变换域映射": 0.35
+      }
+    },
+    {
+      "algorithm_name": "单调队列（滑动窗口）",
+      "category": "数据结构",
+      "sub": "队列",
+      "cf_tags": [
+        "data structures"
+      ],
+      "dmoj_types": [
+        "Data Structures"
+      ],
+      "prior_probability": 0.010901,
+      "profile": {
+        "shape_linear": 0.9,
+        "shape_graph": 0.05,
+        "shape_algebra": 0.05,
+        "dynamic": 0.1,
+        "metric_sum": 0.9,
+        "metric_xor": 0.1,
+        "metric_count": 0.1,
+        "metric_bool": 0.1,
+        "metric_geom": 0.1,
+        "metric_num": 0.1,
+        "scale_tiny": 0.1,
+        "scale_small": 0.25,
+        "scale_large": 0.8,
+        "monotonic": 0.85,
+        "dependency": 0.85,
+        "multi_query": 0.15,
+        "preprocess": 0.15,
+        "optimization": 0.9,
+        "range_ops": 0.85,
+        "graph_path": 0.1
+      },
+      "direction_weights": {
+        "编码压缩": 0.05,
+        "传播松弛": 0.8,
+        "剪枝决策": 1.0,
+        "变换域映射": 0.05
+      }
+    },
+    {
+      "algorithm_name": "队列（基础）",
+      "category": "数据结构",
+      "sub": "队列",
+      "cf_tags": [
+        "data structures"
+      ],
+      "dmoj_types": [
+        "Data Structures"
+      ],
+      "prior_probability": 0.010901,
+      "profile": {
+        "shape_linear": 0.9,
+        "shape_graph": 0.05,
+        "shape_algebra": 0.05,
+        "dynamic": 0.1,
+        "metric_sum": 0.1,
+        "metric_xor": 0.1,
+        "metric_count": 0.1,
+        "metric_bool": 0.9,
+        "metric_geom": 0.1,
+        "metric_num": 0.1,
+        "scale_tiny": 0.1,
+        "scale_small": 0.25,
+        "scale_large": 0.8,
+        "monotonic": 0.15,
+        "dependency": 0.85,
+        "multi_query": 0.15,
+        "preprocess": 0.15,
+        "optimization": 0.2,
+        "range_ops": 0.15,
+        "graph_path": 0.1
+      },
+      "direction_weights": {
+        "编码压缩": 0.05,
+        "传播松弛": 1.0,
+        "剪枝决策": 0.05,
+        "变换域映射": 0.05
+      }
+    },
+    {
+      "algorithm_name": "堆（Top-K）",
+      "category": "数据结构",
+      "sub": "堆",
+      "cf_tags": [
+        "data structures"
+      ],
+      "dmoj_types": [
+        "Data Structures"
+      ],
+      "prior_probability": 0.010901,
+      "profile": {
+        "shape_linear": 0.9,
+        "shape_graph": 0.05,
+        "shape_algebra": 0.05,
+        "dynamic": 0.1,
+        "metric_sum": 0.9,
+        "metric_xor": 0.1,
+        "metric_count": 0.1,
+        "metric_bool": 0.1,
+        "metric_geom": 0.1,
+        "metric_num": 0.1,
+        "scale_tiny": 0.1,
+        "scale_small": 0.25,
+        "scale_large": 0.8,
+        "monotonic": 0.15,
+        "dependency": 0.15,
+        "multi_query": 0.15,
+        "preprocess": 0.15,
+        "optimization": 0.9,
+        "range_ops": 0.15,
+        "graph_path": 0.1
+      },
+      "direction_weights": {
+        "编码压缩": 0.05,
+        "传播松弛": 0.05,
+        "剪枝决策": 1.0,
+        "变换域映射": 0.05
+      }
+    },
+    {
+      "algorithm_name": "并查集 (DSU)",
+      "category": "数据结构",
+      "sub": "并查集",
+      "cf_tags": [
+        "dsu"
+      ],
+      "dmoj_types": [
+        "Data Structures"
+      ],
+      "prior_probability": 0.006604,
+      "profile": {
+        "shape_linear": 0.05,
+        "shape_graph": 0.9,
+        "shape_algebra": 0.05,
+        "dynamic": 0.9,
+        "metric_sum": 0.1,
+        "metric_xor": 0.1,
+        "metric_count": 0.1,
+        "metric_bool": 0.9,
+        "metric_geom": 0.1,
+        "metric_num": 0.1,
+        "scale_tiny": 0.1,
+        "scale_small": 0.25,
+        "scale_large": 0.2,
+        "monotonic": 0.15,
+        "dependency": 0.85,
+        "multi_query": 0.15,
+        "preprocess": 0.15,
+        "optimization": 0.2,
+        "range_ops": 0.15,
+        "graph_path": 0.85
+      },
+      "direction_weights": {
+        "编码压缩": 1.0,
+        "传播松弛": 1.0,
+        "剪枝决策": 0.05,
+        "变换域映射": 0.05
+      }
+    },
+    {
+      "algorithm_name": "带权并查集",
+      "category": "数据结构",
+      "sub": "并查集",
+      "cf_tags": [
+        "dsu"
+      ],
+      "dmoj_types": [
+        "Data Structures"
+      ],
+      "prior_probability": 0.006604,
+      "profile": {
+        "shape_linear": 0.05,
+        "shape_graph": 0.9,
+        "shape_algebra": 0.05,
+        "dynamic": 0.9,
+        "metric_sum": 0.9,
+        "metric_xor": 0.9,
+        "metric_count": 0.1,
+        "metric_bool": 0.1,
+        "metric_geom": 0.1,
+        "metric_num": 0.1,
+        "scale_tiny": 0.1,
+        "scale_small": 0.25,
+        "scale_large": 0.2,
+        "monotonic": 0.15,
+        "dependency": 0.85,
+        "multi_query": 0.15,
+        "preprocess": 0.15,
+        "optimization": 0.9,
+        "range_ops": 0.15,
+        "graph_path": 0.85
+      },
+      "direction_weights": {
+        "编码压缩": 1.0,
+        "传播松弛": 1.0,
+        "剪枝决策": 0.05,
+        "变换域映射": 0.05
+      }
+    },
+    {
+      "algorithm_name": "线段树（区间和 + 懒标记）",
+      "category": "数据结构",
+      "sub": "线段树",
+      "cf_tags": [
+        "data structures"
+      ],
+      "dmoj_types": [
+        "Data Structures"
+      ],
+      "prior_probability": 0.010901,
+      "profile": {
+        "shape_linear": 0.9,
+        "shape_graph": 0.05,
+        "shape_algebra": 0.05,
+        "dynamic": 0.9,
+        "metric_sum": 0.9,
+        "metric_xor": 0.1,
+        "metric_count": 0.1,
+        "metric_bool": 0.1,
+        "metric_geom": 0.1,
+        "metric_num": 0.1,
+        "scale_tiny": 0.1,
+        "scale_small": 0.25,
+        "scale_large": 0.8,
+        "monotonic": 0.15,
+        "dependency": 0.85,
+        "multi_query": 0.85,
+        "preprocess": 0.15,
+        "optimization": 0.9,
+        "range_ops": 0.85,
+        "graph_path": 0.1
+      },
+      "direction_weights": {
+        "编码压缩": 1.0,
+        "传播松弛": 1.0,
+        "剪枝决策": 0.05,
+        "变换域映射": 0.05
+      }
+    },
+    {
+      "algorithm_name": "ST 表（静态区间最值）",
+      "category": "数据结构",
+      "sub": "线段树",
+      "cf_tags": [
+        "data structures"
+      ],
+      "dmoj_types": [
+        "Data Structures"
+      ],
+      "prior_probability": 0.010901,
+      "profile": {
+        "shape_linear": 0.9,
+        "shape_graph": 0.05,
+        "shape_algebra": 0.05,
+        "dynamic": 0.1,
+        "metric_sum": 0.9,
+        "metric_xor": 0.1,
+        "metric_count": 0.1,
+        "metric_bool": 0.1,
+        "metric_geom": 0.1,
+        "metric_num": 0.1,
+        "scale_tiny": 0.1,
+        "scale_small": 0.25,
+        "scale_large": 0.8,
+        "monotonic": 0.15,
+        "dependency": 0.15,
+        "multi_query": 0.85,
+        "preprocess": 0.85,
+        "optimization": 0.9,
+        "range_ops": 0.85,
+        "graph_path": 0.1
+      },
+      "direction_weights": {
+        "编码压缩": 1.0,
+        "传播松弛": 0.05,
+        "剪枝决策": 0.05,
+        "变换域映射": 0.05
+      }
+    },
+    {
+      "algorithm_name": "树状数组 (BIT)",
+      "category": "数据结构",
+      "sub": "树状数组",
+      "cf_tags": [
+        "data structures"
+      ],
+      "dmoj_types": [
+        "Data Structures"
+      ],
+      "prior_probability": 0.010901,
+      "profile": {
+        "shape_linear": 0.9,
+        "shape_graph": 0.05,
+        "shape_algebra": 0.05,
+        "dynamic": 0.9,
+        "metric_sum": 0.9,
+        "metric_xor": 0.1,
+        "metric_count": 0.1,
+        "metric_bool": 0.1,
+        "metric_geom": 0.1,
+        "metric_num": 0.1,
+        "scale_tiny": 0.1,
+        "scale_small": 0.25,
+        "scale_large": 0.8,
+        "monotonic": 0.15,
+        "dependency": 0.85,
+        "multi_query": 0.85,
+        "preprocess": 0.15,
+        "optimization": 0.9,
+        "range_ops": 0.85,
+        "graph_path": 0.1
+      },
+      "direction_weights": {
+        "编码压缩": 1.0,
+        "传播松弛": 1.0,
+        "剪枝决策": 0.05,
+        "变换域映射": 0.05
+      }
+    },
+    {
+      "algorithm_name": "树状数组求逆序对",
+      "category": "数据结构",
+      "sub": "树状数组",
+      "cf_tags": [
+        "data structures"
+      ],
+      "dmoj_types": [
+        "Data Structures"
+      ],
+      "prior_probability": 0.010901,
+      "profile": {
+        "shape_linear": 0.9,
+        "shape_graph": 0.05,
+        "shape_algebra": 0.05,
+        "dynamic": 0.9,
+        "metric_sum": 0.1,
+        "metric_xor": 0.1,
+        "metric_count": 0.9,
+        "metric_bool": 0.1,
+        "metric_geom": 0.1,
+        "metric_num": 0.1,
+        "scale_tiny": 0.1,
+        "scale_small": 0.25,
+        "scale_large": 0.8,
+        "monotonic": 0.15,
+        "dependency": 0.85,
+        "multi_query": 0.85,
+        "preprocess": 0.15,
+        "optimization": 0.9,
+        "range_ops": 0.85,
+        "graph_path": 0.1
+      },
+      "direction_weights": {
+        "编码压缩": 1.0,
+        "传播松弛": 1.0,
+        "剪枝决策": 0.05,
+        "变换域映射": 0.05
+      }
+    },
+    {
+      "algorithm_name": "FHQ Treap（无旋 Treap）",
+      "category": "数据结构",
+      "sub": "高级数据结构",
+      "cf_tags": [
+        "data structures"
+      ],
+      "dmoj_types": [
+        "Data Structures"
+      ],
+      "prior_probability": 0.010901,
+      "profile": {
+        "shape_linear": 0.9,
+        "shape_graph": 0.05,
+        "shape_algebra": 0.05,
+        "dynamic": 0.9,
+        "metric_sum": 0.9,
+        "metric_xor": 0.1,
+        "metric_count": 0.1,
+        "metric_bool": 0.1,
+        "metric_geom": 0.1,
+        "metric_num": 0.1,
+        "scale_tiny": 0.1,
+        "scale_small": 0.25,
+        "scale_large": 0.8,
+        "monotonic": 0.15,
+        "dependency": 0.85,
+        "multi_query": 0.15,
+        "preprocess": 0.15,
+        "optimization": 0.9,
+        "range_ops": 0.15,
+        "graph_path": 0.1
+      },
+      "direction_weights": {
+        "编码压缩": 1.0,
+        "传播松弛": 1.0,
+        "剪枝决策": 0.05,
+        "变换域映射": 0.05
+      }
+    },
+    {
+      "algorithm_name": "线段树合并/分裂",
+      "category": "数据结构",
+      "sub": "高级数据结构",
+      "cf_tags": [
+        "data structures"
+      ],
+      "dmoj_types": [
+        "Data Structures"
+      ],
+      "prior_probability": 0.010901,
+      "profile": {
+        "shape_linear": 0.05,
+        "shape_graph": 0.9,
+        "shape_algebra": 0.05,
+        "dynamic": 0.9,
+        "metric_sum": 0.9,
+        "metric_xor": 0.1,
+        "metric_count": 0.9,
+        "metric_bool": 0.1,
+        "metric_geom": 0.1,
+        "metric_num": 0.1,
+        "scale_tiny": 0.1,
+        "scale_small": 0.25,
+        "scale_large": 0.8,
+        "monotonic": 0.15,
+        "dependency": 0.85,
+        "multi_query": 0.85,
+        "preprocess": 0.15,
+        "optimization": 0.9,
+        "range_ops": 0.15,
+        "graph_path": 0.85
+      },
+      "direction_weights": {
+        "编码压缩": 0.05,
+        "传播松弛": 1.0,
+        "剪枝决策": 0.05,
+        "变换域映射": 1.0
+      }
+    },
+    {
+      "algorithm_name": "可撤销并查集",
+      "category": "数据结构",
+      "sub": "高级数据结构",
+      "cf_tags": [
+        "data structures"
+      ],
+      "dmoj_types": [
+        "Data Structures"
+      ],
+      "prior_probability": 0.010901,
+      "profile": {
+        "shape_linear": 0.05,
+        "shape_graph": 0.9,
+        "shape_algebra": 0.05,
+        "dynamic": 0.9,
+        "metric_sum": 0.1,
+        "metric_xor": 0.1,
+        "metric_count": 0.1,
+        "metric_bool": 0.9,
+        "metric_geom": 0.1,
+        "metric_num": 0.1,
+        "scale_tiny": 0.1,
+        "scale_small": 0.25,
+        "scale_large": 0.8,
+        "monotonic": 0.15,
+        "dependency": 0.85,
+        "multi_query": 0.15,
+        "preprocess": 0.15,
+        "optimization": 0.2,
+        "range_ops": 0.15,
+        "graph_path": 0.85
+      },
+      "direction_weights": {
+        "编码压缩": 0.05,
+        "传播松弛": 1.0,
+        "剪枝决策": 0.05,
+        "变换域映射": 1.0
+      }
+    },
+    {
+      "algorithm_name": "Dijkstra",
+      "category": "图论",
+      "sub": "最短路",
+      "cf_tags": [
+        "graphs"
+      ],
+      "dmoj_types": [
+        "Graph Theory"
+      ],
+      "prior_probability": 0.01094,
+      "profile": {
+        "shape_linear": 0.05,
+        "shape_graph": 0.9,
+        "shape_algebra": 0.05,
+        "dynamic": 0.1,
+        "metric_sum": 0.9,
+        "metric_xor": 0.1,
+        "metric_count": 0.1,
+        "metric_bool": 0.1,
+        "metric_geom": 0.1,
+        "metric_num": 0.1,
+        "scale_tiny": 0.1,
+        "scale_small": 0.25,
+        "scale_large": 0.8,
+        "monotonic": 0.15,
+        "dependency": 0.85,
+        "multi_query": 0.15,
+        "preprocess": 0.15,
+        "optimization": 0.9,
+        "range_ops": 0.15,
+        "graph_path": 0.85
+      },
+      "direction_weights": {
+        "编码压缩": 0.05,
+        "传播松弛": 1.0,
+        "剪枝决策": 1.0,
+        "变换域映射": 0.05
+      }
+    },
+    {
+      "algorithm_name": "Bellman-Ford",
+      "category": "图论",
+      "sub": "最短路",
+      "cf_tags": [
+        "graphs"
+      ],
+      "dmoj_types": [
+        "Graph Theory"
+      ],
+      "prior_probability": 0.01094,
+      "profile": {
+        "shape_linear": 0.05,
+        "shape_graph": 0.9,
+        "shape_algebra": 0.05,
+        "dynamic": 0.1,
+        "metric_sum": 0.9,
+        "metric_xor": 0.1,
+        "metric_count": 0.1,
+        "metric_bool": 0.1,
+        "metric_geom": 0.1,
+        "metric_num": 0.1,
+        "scale_tiny": 0.1,
+        "scale_small": 0.25,
+        "scale_large": 0.8,
+        "monotonic": 0.15,
+        "dependency": 0.85,
+        "multi_query": 0.15,
+        "preprocess": 0.15,
+        "optimization": 0.9,
+        "range_ops": 0.15,
+        "graph_path": 0.85
+      },
+      "direction_weights": {
+        "编码压缩": 0.05,
+        "传播松弛": 1.0,
+        "剪枝决策": 0.05,
+        "变换域映射": 0.05
+      }
+    },
+    {
+      "algorithm_name": "Floyd-Warshall",
+      "category": "图论",
+      "sub": "最短路",
+      "cf_tags": [
+        "graphs"
+      ],
+      "dmoj_types": [
+        "Graph Theory"
+      ],
+      "prior_probability": 0.01094,
+      "profile": {
+        "shape_linear": 0.05,
+        "shape_graph": 0.9,
+        "shape_algebra": 0.05,
+        "dynamic": 0.1,
+        "metric_sum": 0.9,
+        "metric_xor": 0.1,
+        "metric_count": 0.1,
+        "metric_bool": 0.1,
+        "metric_geom": 0.1,
+        "metric_num": 0.1,
+        "scale_tiny": 0.1,
+        "scale_small": 0.75,
+        "scale_large": 0.8,
+        "monotonic": 0.15,
+        "dependency": 0.85,
+        "multi_query": 0.15,
+        "preprocess": 0.15,
+        "optimization": 0.9,
+        "range_ops": 0.15,
+        "graph_path": 0.85
+      },
+      "direction_weights": {
+        "编码压缩": 0.05,
+        "传播松弛": 1.0,
+        "剪枝决策": 0.05,
+        "变换域映射": 1.0
+      }
+    },
+    {
+      "algorithm_name": "Kruskal",
+      "category": "图论",
+      "sub": "最小生成树",
+      "cf_tags": [
+        "graphs"
+      ],
+      "dmoj_types": [
+        "Graph Theory"
+      ],
+      "prior_probability": 0.01094,
+      "profile": {
+        "shape_linear": 0.05,
+        "shape_graph": 0.9,
+        "shape_algebra": 0.05,
+        "dynamic": 0.1,
+        "metric_sum": 0.9,
+        "metric_xor": 0.1,
+        "metric_count": 0.1,
+        "metric_bool": 0.9,
+        "metric_geom": 0.1,
+        "metric_num": 0.1,
+        "scale_tiny": 0.1,
+        "scale_small": 0.25,
+        "scale_large": 0.8,
+        "monotonic": 0.15,
+        "dependency": 0.85,
+        "multi_query": 0.15,
+        "preprocess": 0.15,
+        "optimization": 0.2,
+        "range_ops": 0.15,
+        "graph_path": 0.85
+      },
+      "direction_weights": {
+        "编码压缩": 0.05,
+        "传播松弛": 1.0,
+        "剪枝决策": 1.0,
+        "变换域映射": 0.05
+      }
+    },
+    {
+      "algorithm_name": "Prim",
+      "category": "图论",
+      "sub": "最小生成树",
+      "cf_tags": [
+        "graphs"
+      ],
+      "dmoj_types": [
+        "Graph Theory"
+      ],
+      "prior_probability": 0.01094,
+      "profile": {
+        "shape_linear": 0.05,
+        "shape_graph": 0.9,
+        "shape_algebra": 0.05,
+        "dynamic": 0.1,
+        "metric_sum": 0.9,
+        "metric_xor": 0.1,
+        "metric_count": 0.1,
+        "metric_bool": 0.1,
+        "metric_geom": 0.1,
+        "metric_num": 0.1,
+        "scale_tiny": 0.1,
+        "scale_small": 0.25,
+        "scale_large": 0.8,
+        "monotonic": 0.15,
+        "dependency": 0.85,
+        "multi_query": 0.15,
+        "preprocess": 0.15,
+        "optimization": 0.9,
+        "range_ops": 0.15,
+        "graph_path": 0.85
+      },
+      "direction_weights": {
+        "编码压缩": 0.05,
+        "传播松弛": 1.0,
+        "剪枝决策": 1.0,
+        "变换域映射": 0.05
+      }
+    },
+    {
+      "algorithm_name": "Dinic 最大流",
+      "category": "图论",
+      "sub": "网络流",
+      "cf_tags": [
+        "flows"
+      ],
+      "dmoj_types": [
+        "Graph Theory"
+      ],
+      "prior_probability": 0.008126,
+      "profile": {
+        "shape_linear": 0.05,
+        "shape_graph": 0.9,
+        "shape_algebra": 0.05,
+        "dynamic": 0.1,
+        "metric_sum": 0.9,
+        "metric_xor": 0.1,
+        "metric_count": 0.1,
+        "metric_bool": 0.1,
+        "metric_geom": 0.1,
+        "metric_num": 0.1,
+        "scale_tiny": 0.1,
+        "scale_small": 0.25,
+        "scale_large": 0.8,
+        "monotonic": 0.15,
+        "dependency": 0.85,
+        "multi_query": 0.15,
+        "preprocess": 0.15,
+        "optimization": 0.9,
+        "range_ops": 0.15,
+        "graph_path": 0.85
+      },
+      "direction_weights": {
+        "编码压缩": 0.05,
+        "传播松弛": 1.0,
+        "剪枝决策": 1.0,
+        "变换域映射": 0.05
+      }
+    },
+    {
+      "algorithm_name": "最小割建模",
+      "category": "图论",
+      "sub": "网络流",
+      "cf_tags": [
+        "flows"
+      ],
+      "dmoj_types": [
+        "Graph Theory"
+      ],
+      "prior_probability": 0.008126,
+      "profile": {
+        "shape_linear": 0.05,
+        "shape_graph": 0.9,
+        "shape_algebra": 0.05,
+        "dynamic": 0.1,
+        "metric_sum": 0.9,
+        "metric_xor": 0.1,
+        "metric_count": 0.1,
+        "metric_bool": 0.9,
+        "metric_geom": 0.1,
+        "metric_num": 0.1,
+        "scale_tiny": 0.1,
+        "scale_small": 0.25,
+        "scale_large": 0.8,
+        "monotonic": 0.15,
+        "dependency": 0.15,
+        "multi_query": 0.15,
+        "preprocess": 0.15,
+        "optimization": 0.2,
+        "range_ops": 0.15,
+        "graph_path": 0.85
+      },
+      "direction_weights": {
+        "编码压缩": 0.05,
+        "传播松弛": 0.05,
+        "剪枝决策": 1.0,
+        "变换域映射": 1.0
+      }
+    },
+    {
+      "algorithm_name": "Tarjan 求 SCC",
+      "category": "图论",
+      "sub": "强连通分量",
+      "cf_tags": [
+        "graphs"
+      ],
+      "dmoj_types": [
+        "Graph Theory"
+      ],
+      "prior_probability": 0.01094,
+      "profile": {
+        "shape_linear": 0.05,
+        "shape_graph": 0.9,
+        "shape_algebra": 0.05,
+        "dynamic": 0.1,
+        "metric_sum": 0.1,
+        "metric_xor": 0.1,
+        "metric_count": 0.9,
+        "metric_bool": 0.9,
+        "metric_geom": 0.1,
+        "metric_num": 0.1,
+        "scale_tiny": 0.1,
+        "scale_small": 0.25,
+        "scale_large": 0.8,
+        "monotonic": 0.15,
+        "dependency": 0.15,
+        "multi_query": 0.15,
+        "preprocess": 0.15,
+        "optimization": 0.2,
+        "range_ops": 0.15,
+        "graph_path": 0.85
+      },
+      "direction_weights": {
+        "编码压缩": 1.0,
+        "传播松弛": 0.05,
+        "剪枝决策": 0.05,
+        "变换域映射": 1.0
+      }
+    },
+    {
+      "algorithm_name": "拓扑排序 (Kahn)",
+      "category": "图论",
+      "sub": "拓扑序",
+      "cf_tags": [
+        "graphs"
+      ],
+      "dmoj_types": [
+        "Graph Theory"
+      ],
+      "prior_probability": 0.01094,
+      "profile": {
+        "shape_linear": 0.05,
+        "shape_graph": 0.9,
+        "shape_algebra": 0.05,
+        "dynamic": 0.1,
+        "metric_sum": 0.1,
+        "metric_xor": 0.1,
+        "metric_count": 0.1,
+        "metric_bool": 0.9,
+        "metric_geom": 0.1,
+        "metric_num": 0.1,
+        "scale_tiny": 0.1,
+        "scale_small": 0.25,
+        "scale_large": 0.2,
+        "monotonic": 0.15,
+        "dependency": 0.85,
+        "multi_query": 0.15,
+        "preprocess": 0.15,
+        "optimization": 0.2,
+        "range_ops": 0.15,
+        "graph_path": 0.85
+      },
+      "direction_weights": {
+        "编码压缩": 0.05,
+        "传播松弛": 1.0,
+        "剪枝决策": 0.05,
+        "变换域映射": 0.05
+      }
+    },
+    {
+      "algorithm_name": "连通块染色",
+      "category": "图论",
+      "sub": "DFS / BFS",
+      "cf_tags": [
+        "dfs and similar"
+      ],
+      "dmoj_types": [
+        "Graph Theory"
+      ],
+      "prior_probability": 0.010544,
+      "profile": {
+        "shape_linear": 0.05,
+        "shape_graph": 0.9,
+        "shape_algebra": 0.05,
+        "dynamic": 0.1,
+        "metric_sum": 0.1,
+        "metric_xor": 0.1,
+        "metric_count": 0.1,
+        "metric_bool": 0.9,
+        "metric_geom": 0.1,
+        "metric_num": 0.1,
+        "scale_tiny": 0.1,
+        "scale_small": 0.25,
+        "scale_large": 0.2,
+        "monotonic": 0.15,
+        "dependency": 0.85,
+        "multi_query": 0.15,
+        "preprocess": 0.15,
+        "optimization": 0.2,
+        "range_ops": 0.15,
+        "graph_path": 0.85
+      },
+      "direction_weights": {
+        "编码压缩": 0.05,
+        "传播松弛": 1.0,
+        "剪枝决策": 0.05,
+        "变换域映射": 0.05
+      }
+    },
+    {
+      "algorithm_name": "二分图染色判定",
+      "category": "图论",
+      "sub": "DFS / BFS",
+      "cf_tags": [
+        "dfs and similar"
+      ],
+      "dmoj_types": [
+        "Graph Theory"
+      ],
+      "prior_probability": 0.010544,
+      "profile": {
+        "shape_linear": 0.05,
+        "shape_graph": 0.9,
+        "shape_algebra": 0.05,
+        "dynamic": 0.1,
+        "metric_sum": 0.1,
+        "metric_xor": 0.1,
+        "metric_count": 0.1,
+        "metric_bool": 0.9,
+        "metric_geom": 0.1,
+        "metric_num": 0.1,
+        "scale_tiny": 0.1,
+        "scale_small": 0.25,
+        "scale_large": 0.8,
+        "monotonic": 0.15,
+        "dependency": 0.85,
+        "multi_query": 0.15,
+        "preprocess": 0.15,
+        "optimization": 0.2,
+        "range_ops": 0.15,
+        "graph_path": 0.85
+      },
+      "direction_weights": {
+        "编码压缩": 0.05,
+        "传播松弛": 1.0,
+        "剪枝决策": 1.0,
+        "变换域映射": 0.05
+      }
+    },
+    {
+      "algorithm_name": "简单回溯",
+      "category": "图论",
+      "sub": "DFS / BFS",
+      "cf_tags": [
+        "dfs and similar"
+      ],
+      "dmoj_types": [
+        "Graph Theory"
+      ],
+      "prior_probability": 0.010544,
+      "profile": {
+        "shape_linear": 0.05,
+        "shape_graph": 0.9,
+        "shape_algebra": 0.05,
+        "dynamic": 0.1,
+        "metric_sum": 0.1,
+        "metric_xor": 0.1,
+        "metric_count": 0.1,
+        "metric_bool": 0.9,
+        "metric_geom": 0.1,
+        "metric_num": 0.1,
+        "scale_tiny": 0.1,
+        "scale_small": 0.25,
+        "scale_large": 0.2,
+        "monotonic": 0.15,
+        "dependency": 0.15,
+        "multi_query": 0.15,
+        "preprocess": 0.15,
+        "optimization": 0.2,
+        "range_ops": 0.15,
+        "graph_path": 0.85
+      },
+      "direction_weights": {
+        "编码压缩": 0.05,
+        "传播松弛": 0.05,
+        "剪枝决策": 1.0,
+        "变换域映射": 0.05
+      }
+    },
+    {
+      "algorithm_name": "割点 / 桥",
+      "category": "图论",
+      "sub": "进阶图论",
+      "cf_tags": [
+        "graphs"
+      ],
+      "dmoj_types": [
+        "Graph Theory"
+      ],
+      "prior_probability": 0.01094,
+      "profile": {
+        "shape_linear": 0.05,
+        "shape_graph": 0.9,
+        "shape_algebra": 0.05,
+        "dynamic": 0.1,
+        "metric_sum": 0.1,
+        "metric_xor": 0.1,
+        "metric_count": 0.9,
+        "metric_bool": 0.9,
+        "metric_geom": 0.1,
+        "metric_num": 0.1,
+        "scale_tiny": 0.1,
+        "scale_small": 0.25,
+        "scale_large": 0.2,
+        "monotonic": 0.15,
+        "dependency": 0.15,
+        "multi_query": 0.15,
+        "preprocess": 0.15,
+        "optimization": 0.2,
+        "range_ops": 0.15,
+        "graph_path": 0.85
+      },
+      "direction_weights": {
+        "编码压缩": 1.0,
+        "传播松弛": 0.05,
+        "剪枝决策": 0.05,
+        "变换域映射": 1.0
+      }
+    },
+    {
+      "algorithm_name": "拓扑排序 + DAG DP",
+      "category": "图论",
+      "sub": "进阶图论",
+      "cf_tags": [
+        "graphs"
+      ],
+      "dmoj_types": [
+        "Graph Theory"
+      ],
+      "prior_probability": 0.01094,
+      "profile": {
+        "shape_linear": 0.05,
+        "shape_graph": 0.9,
+        "shape_algebra": 0.05,
+        "dynamic": 0.1,
+        "metric_sum": 0.9,
+        "metric_xor": 0.1,
+        "metric_count": 0.1,
+        "metric_bool": 0.1,
+        "metric_geom": 0.1,
+        "metric_num": 0.1,
+        "scale_tiny": 0.1,
+        "scale_small": 0.25,
+        "scale_large": 0.2,
+        "monotonic": 0.15,
+        "dependency": 0.85,
+        "multi_query": 0.15,
+        "preprocess": 0.15,
+        "optimization": 0.9,
+        "range_ops": 0.15,
+        "graph_path": 0.85
+      },
+      "direction_weights": {
+        "编码压缩": 0.05,
+        "传播松弛": 1.0,
+        "剪枝决策": 0.05,
+        "变换域映射": 0.05
+      }
+    },
+    {
+      "algorithm_name": "二分图最大匹配（匈牙利）",
+      "category": "图论",
+      "sub": "进阶图论",
+      "cf_tags": [
+        "graph matchings"
+      ],
+      "dmoj_types": [
+        "Graph Theory"
+      ],
+      "prior_probability": 0.007978,
+      "profile": {
+        "shape_linear": 0.05,
+        "shape_graph": 0.9,
+        "shape_algebra": 0.05,
+        "dynamic": 0.1,
+        "metric_sum": 0.1,
+        "metric_xor": 0.1,
+        "metric_count": 0.9,
+        "metric_bool": 0.9,
+        "metric_geom": 0.1,
+        "metric_num": 0.1,
+        "scale_tiny": 0.1,
+        "scale_small": 0.25,
+        "scale_large": 0.8,
+        "monotonic": 0.15,
+        "dependency": 0.85,
+        "multi_query": 0.15,
+        "preprocess": 0.15,
+        "optimization": 0.2,
+        "range_ops": 0.15,
+        "graph_path": 0.85
+      },
+      "direction_weights": {
+        "编码压缩": 0.05,
+        "传播松弛": 1.0,
+        "剪枝决策": 1.0,
+        "变换域映射": 0.05
+      }
+    },
+    {
+      "algorithm_name": "KM 算法",
+      "category": "图论",
+      "sub": "进阶图论",
+      "cf_tags": [
+        "graph matchings"
+      ],
+      "dmoj_types": [
+        "Graph Theory"
+      ],
+      "prior_probability": 0.007978,
+      "profile": {
+        "shape_linear": 0.05,
+        "shape_graph": 0.9,
+        "shape_algebra": 0.05,
+        "dynamic": 0.1,
+        "metric_sum": 0.9,
+        "metric_xor": 0.1,
+        "metric_count": 0.1,
+        "metric_bool": 0.1,
+        "metric_geom": 0.1,
+        "metric_num": 0.1,
+        "scale_tiny": 0.1,
+        "scale_small": 0.75,
+        "scale_large": 0.2,
+        "monotonic": 0.15,
+        "dependency": 0.85,
+        "multi_query": 0.15,
+        "preprocess": 0.15,
+        "optimization": 0.9,
+        "range_ops": 0.15,
+        "graph_path": 0.85
+      },
+      "direction_weights": {
+        "编码压缩": 0.05,
+        "传播松弛": 1.0,
+        "剪枝决策": 0.05,
+        "变换域映射": 1.0
+      }
+    },
+    {
+      "algorithm_name": "2-SAT",
+      "category": "图论",
+      "sub": "进阶图论",
+      "cf_tags": [
+        "2-sat"
+      ],
+      "dmoj_types": [
+        "Graph Theory"
+      ],
+      "prior_probability": 0.007806,
+      "profile": {
+        "shape_linear": 0.05,
+        "shape_graph": 0.9,
+        "shape_algebra": 0.05,
+        "dynamic": 0.1,
+        "metric_sum": 0.1,
+        "metric_xor": 0.1,
+        "metric_count": 0.1,
+        "metric_bool": 0.9,
+        "metric_geom": 0.1,
+        "metric_num": 0.1,
+        "scale_tiny": 0.1,
+        "scale_small": 0.25,
+        "scale_large": 0.2,
+        "monotonic": 0.15,
+        "dependency": 0.85,
+        "multi_query": 0.15,
+        "preprocess": 0.15,
+        "optimization": 0.2,
+        "range_ops": 0.15,
+        "graph_path": 0.85
+      },
+      "direction_weights": {
+        "编码压缩": 0.05,
+        "传播松弛": 1.0,
+        "剪枝决策": 0.05,
+        "变换域映射": 1.0
+      }
+    },
+    {
+      "algorithm_name": "LCA（倍增）",
+      "category": "树",
+      "sub": "树上基础",
+      "cf_tags": [
+        "trees"
+      ],
+      "dmoj_types": [
+        "Graph Theory"
+      ],
+      "prior_probability": 0.010269,
+      "profile": {
+        "shape_linear": 0.05,
+        "shape_graph": 0.9,
+        "shape_algebra": 0.05,
+        "dynamic": 0.1,
+        "metric_sum": 0.9,
+        "metric_xor": 0.1,
+        "metric_count": 0.1,
+        "metric_bool": 0.1,
+        "metric_geom": 0.1,
+        "metric_num": 0.1,
+        "scale_tiny": 0.1,
+        "scale_small": 0.25,
+        "scale_large": 0.8,
+        "monotonic": 0.15,
+        "dependency": 0.15,
+        "multi_query": 0.85,
+        "preprocess": 0.85,
+        "optimization": 0.9,
+        "range_ops": 0.15,
+        "graph_path": 0.85
+      },
+      "direction_weights": {
+        "编码压缩": 1.0,
+        "传播松弛": 0.05,
+        "剪枝决策": 0.05,
+        "变换域映射": 1.0
+      }
+    },
+    {
+      "algorithm_name": "树上差分",
+      "category": "树",
+      "sub": "树上基础",
+      "cf_tags": [
+        "trees"
+      ],
+      "dmoj_types": [
+        "Graph Theory"
+      ],
+      "prior_probability": 0.010269,
+      "profile": {
+        "shape_linear": 0.05,
+        "shape_graph": 0.9,
+        "shape_algebra": 0.05,
+        "dynamic": 0.1,
+        "metric_sum": 0.9,
+        "metric_xor": 0.1,
+        "metric_count": 0.9,
+        "metric_bool": 0.1,
+        "metric_geom": 0.1,
+        "metric_num": 0.1,
+        "scale_tiny": 0.1,
+        "scale_small": 0.25,
+        "scale_large": 0.8,
+        "monotonic": 0.15,
+        "dependency": 0.15,
+        "multi_query": 0.15,
+        "preprocess": 0.85,
+        "optimization": 0.9,
+        "range_ops": 0.15,
+        "graph_path": 0.85
+      },
+      "direction_weights": {
+        "编码压缩": 1.0,
+        "传播松弛": 0.05,
+        "剪枝决策": 0.05,
+        "变换域映射": 1.0
+      }
+    },
+    {
+      "algorithm_name": "树的直径 / 重心",
+      "category": "树",
+      "sub": "树上基础",
+      "cf_tags": [
+        "trees"
+      ],
+      "dmoj_types": [
+        "Graph Theory"
+      ],
+      "prior_probability": 0.010269,
+      "profile": {
+        "shape_linear": 0.05,
+        "shape_graph": 0.9,
+        "shape_algebra": 0.05,
+        "dynamic": 0.1,
+        "metric_sum": 0.9,
+        "metric_xor": 0.1,
+        "metric_count": 0.9,
+        "metric_bool": 0.1,
+        "metric_geom": 0.1,
+        "metric_num": 0.1,
+        "scale_tiny": 0.1,
+        "scale_small": 0.25,
+        "scale_large": 0.8,
+        "monotonic": 0.15,
+        "dependency": 0.85,
+        "multi_query": 0.15,
+        "preprocess": 0.15,
+        "optimization": 0.9,
+        "range_ops": 0.15,
+        "graph_path": 0.85
+      },
+      "direction_weights": {
+        "编码压缩": 0.05,
+        "传播松弛": 1.0,
+        "剪枝决策": 0.05,
+        "变换域映射": 0.05
+      }
+    },
+    {
+      "algorithm_name": "基环树 DP",
+      "category": "树",
+      "sub": "进阶树论",
+      "cf_tags": [
+        "trees"
+      ],
+      "dmoj_types": [
+        "Graph Theory"
+      ],
+      "prior_probability": 0.010269,
+      "profile": {
+        "shape_linear": 0.05,
+        "shape_graph": 0.9,
+        "shape_algebra": 0.05,
+        "dynamic": 0.1,
+        "metric_sum": 0.9,
+        "metric_xor": 0.1,
+        "metric_count": 0.1,
+        "metric_bool": 0.1,
+        "metric_geom": 0.1,
+        "metric_num": 0.1,
+        "scale_tiny": 0.1,
+        "scale_small": 0.25,
+        "scale_large": 0.8,
+        "monotonic": 0.15,
+        "dependency": 0.85,
+        "multi_query": 0.15,
+        "preprocess": 0.15,
+        "optimization": 0.9,
+        "range_ops": 0.15,
+        "graph_path": 0.85
+      },
+      "direction_weights": {
+        "编码压缩": 0.05,
+        "传播松弛": 1.0,
+        "剪枝决策": 0.05,
+        "变换域映射": 1.0
+      }
+    },
+    {
+      "algorithm_name": "仙人掌 / 圆方树",
+      "category": "树",
+      "sub": "进阶树论",
+      "cf_tags": [
+        "graphs",
+        "trees"
+      ],
+      "dmoj_types": [
+        "Graph Theory"
+      ],
+      "prior_probability": 0.010604,
+      "profile": {
+        "shape_linear": 0.05,
+        "shape_graph": 0.9,
+        "shape_algebra": 0.05,
+        "dynamic": 0.1,
+        "metric_sum": 0.9,
+        "metric_xor": 0.1,
+        "metric_count": 0.1,
+        "metric_bool": 0.9,
+        "metric_geom": 0.1,
+        "metric_num": 0.1,
+        "scale_tiny": 0.1,
+        "scale_small": 0.25,
+        "scale_large": 0.8,
+        "monotonic": 0.15,
+        "dependency": 0.15,
+        "multi_query": 0.15,
+        "preprocess": 0.15,
+        "optimization": 0.2,
+        "range_ops": 0.15,
+        "graph_path": 0.85
+      },
+      "direction_weights": {
+        "编码压缩": 1.0,
+        "传播松弛": 0.05,
+        "剪枝决策": 0.05,
+        "变换域映射": 1.0
+      }
+    },
+    {
+      "algorithm_name": "LIS（最长上升子序列）",
+      "category": "动态规划",
+      "sub": "线性 DP",
+      "cf_tags": [
+        "dp"
+      ],
+      "dmoj_types": [
+        "Dynamic Programming"
+      ],
+      "prior_probability": 0.012073,
+      "profile": {
+        "shape_linear": 0.9,
+        "shape_graph": 0.05,
+        "shape_algebra": 0.05,
+        "dynamic": 0.1,
+        "metric_sum": 0.9,
+        "metric_xor": 0.1,
+        "metric_count": 0.9,
+        "metric_bool": 0.1,
+        "metric_geom": 0.1,
+        "metric_num": 0.1,
+        "scale_tiny": 0.1,
+        "scale_small": 0.75,
+        "scale_large": 0.2,
+        "monotonic": 0.15,
+        "dependency": 0.85,
+        "multi_query": 0.15,
+        "preprocess": 0.15,
+        "optimization": 0.9,
+        "range_ops": 0.85,
+        "graph_path": 0.1
+      },
+      "direction_weights": {
+        "编码压缩": 0.05,
+        "传播松弛": 1.0,
+        "剪枝决策": 0.8,
+        "变换域映射": 0.05
+      }
+    },
+    {
+      "algorithm_name": "LCS（最长公共子序列）",
+      "category": "动态规划",
+      "sub": "线性 DP",
+      "cf_tags": [
+        "dp"
+      ],
+      "dmoj_types": [
+        "Dynamic Programming"
+      ],
+      "prior_probability": 0.012073,
+      "profile": {
+        "shape_linear": 0.9,
+        "shape_graph": 0.05,
+        "shape_algebra": 0.05,
+        "dynamic": 0.1,
+        "metric_sum": 0.1,
+        "metric_xor": 0.1,
+        "metric_count": 0.9,
+        "metric_bool": 0.1,
+        "metric_geom": 0.1,
+        "metric_num": 0.1,
+        "scale_tiny": 0.1,
+        "scale_small": 0.75,
+        "scale_large": 0.2,
+        "monotonic": 0.15,
+        "dependency": 0.85,
+        "multi_query": 0.15,
+        "preprocess": 0.15,
+        "optimization": 0.9,
+        "range_ops": 0.85,
+        "graph_path": 0.1
+      },
+      "direction_weights": {
+        "编码压缩": 0.05,
+        "传播松弛": 1.0,
+        "剪枝决策": 0.05,
+        "变换域映射": 0.05
+      }
+    },
+    {
+      "algorithm_name": "0/1 背包",
+      "category": "动态规划",
+      "sub": "线性 DP",
+      "cf_tags": [
+        "dp"
+      ],
+      "dmoj_types": [
+        "Dynamic Programming"
+      ],
+      "prior_probability": 0.012073,
+      "profile": {
+        "shape_linear": 0.05,
+        "shape_graph": 0.05,
+        "shape_algebra": 0.9,
+        "dynamic": 0.1,
+        "metric_sum": 0.9,
+        "metric_xor": 0.1,
+        "metric_count": 0.1,
+        "metric_bool": 0.1,
+        "metric_geom": 0.1,
+        "metric_num": 0.1,
+        "scale_tiny": 0.1,
+        "scale_small": 0.75,
+        "scale_large": 0.2,
+        "monotonic": 0.15,
+        "dependency": 0.85,
+        "multi_query": 0.15,
+        "preprocess": 0.15,
+        "optimization": 0.9,
+        "range_ops": 0.15,
+        "graph_path": 0.1
+      },
+      "direction_weights": {
+        "编码压缩": 0.05,
+        "传播松弛": 1.0,
+        "剪枝决策": 0.05,
+        "变换域映射": 0.05
+      }
+    },
+    {
+      "algorithm_name": "完全背包",
+      "category": "动态规划",
+      "sub": "线性 DP",
+      "cf_tags": [
+        "dp"
+      ],
+      "dmoj_types": [
+        "Dynamic Programming"
+      ],
+      "prior_probability": 0.012073,
+      "profile": {
+        "shape_linear": 0.05,
+        "shape_graph": 0.05,
+        "shape_algebra": 0.9,
+        "dynamic": 0.1,
+        "metric_sum": 0.9,
+        "metric_xor": 0.1,
+        "metric_count": 0.1,
+        "metric_bool": 0.1,
+        "metric_geom": 0.1,
+        "metric_num": 0.1,
+        "scale_tiny": 0.1,
+        "scale_small": 0.75,
+        "scale_large": 0.2,
+        "monotonic": 0.15,
+        "dependency": 0.85,
+        "multi_query": 0.15,
+        "preprocess": 0.15,
+        "optimization": 0.9,
+        "range_ops": 0.15,
+        "graph_path": 0.1
+      },
+      "direction_weights": {
+        "编码压缩": 0.05,
+        "传播松弛": 1.0,
+        "剪枝决策": 0.05,
+        "变换域映射": 0.05
+      }
+    },
+    {
+      "algorithm_name": "石子合并",
+      "category": "动态规划",
+      "sub": "区间 DP",
+      "cf_tags": [
+        "dp"
+      ],
+      "dmoj_types": [
+        "Dynamic Programming"
+      ],
+      "prior_probability": 0.012073,
+      "profile": {
+        "shape_linear": 0.9,
+        "shape_graph": 0.05,
+        "shape_algebra": 0.05,
+        "dynamic": 0.1,
+        "metric_sum": 0.9,
+        "metric_xor": 0.1,
+        "metric_count": 0.1,
+        "metric_bool": 0.1,
+        "metric_geom": 0.1,
+        "metric_num": 0.1,
+        "scale_tiny": 0.1,
+        "scale_small": 0.75,
+        "scale_large": 0.2,
+        "monotonic": 0.15,
+        "dependency": 0.85,
+        "multi_query": 0.15,
+        "preprocess": 0.15,
+        "optimization": 0.9,
+        "range_ops": 0.85,
+        "graph_path": 0.1
+      },
+      "direction_weights": {
+        "编码压缩": 0.05,
+        "传播松弛": 1.0,
+        "剪枝决策": 0.05,
+        "变换域映射": 0.05
+      }
+    },
+    {
+      "algorithm_name": "树上最大权独立集",
+      "category": "动态规划",
+      "sub": "树形 DP",
+      "cf_tags": [
+        "dp"
+      ],
+      "dmoj_types": [
+        "Dynamic Programming"
+      ],
+      "prior_probability": 0.012073,
+      "profile": {
+        "shape_linear": 0.05,
+        "shape_graph": 0.9,
+        "shape_algebra": 0.05,
+        "dynamic": 0.1,
+        "metric_sum": 0.9,
+        "metric_xor": 0.1,
+        "metric_count": 0.1,
+        "metric_bool": 0.1,
+        "metric_geom": 0.1,
+        "metric_num": 0.1,
+        "scale_tiny": 0.1,
+        "scale_small": 0.25,
+        "scale_large": 0.2,
+        "monotonic": 0.15,
+        "dependency": 0.85,
+        "multi_query": 0.15,
+        "preprocess": 0.15,
+        "optimization": 0.9,
+        "range_ops": 0.15,
+        "graph_path": 0.85
+      },
+      "direction_weights": {
+        "编码压缩": 0.05,
+        "传播松弛": 1.0,
+        "剪枝决策": 0.05,
+        "变换域映射": 0.05
+      }
+    },
+    {
+      "algorithm_name": "TSP（状压）",
+      "category": "动态规划",
+      "sub": "状压 DP",
+      "cf_tags": [
+        "dp"
+      ],
+      "dmoj_types": [
+        "Brute Force",
+        "Dynamic Programming"
+      ],
+      "prior_probability": 0.009918,
+      "profile": {
+        "shape_linear": 0.05,
+        "shape_graph": 0.05,
+        "shape_algebra": 0.9,
+        "dynamic": 0.1,
+        "metric_sum": 0.9,
+        "metric_xor": 0.1,
+        "metric_count": 0.1,
+        "metric_bool": 0.1,
+        "metric_geom": 0.1,
+        "metric_num": 0.1,
+        "scale_tiny": 0.85,
+        "scale_small": 0.25,
+        "scale_large": 0.2,
+        "monotonic": 0.15,
+        "dependency": 0.85,
+        "multi_query": 0.15,
+        "preprocess": 0.15,
+        "optimization": 0.9,
+        "range_ops": 0.15,
+        "graph_path": 0.1
+      },
+      "direction_weights": {
+        "编码压缩": 1.0,
+        "传播松弛": 1.0,
+        "剪枝决策": 0.05,
+        "变换域映射": 0.05
+      }
+    },
+    {
+      "algorithm_name": "数位 DP（不含 4）",
+      "category": "动态规划",
+      "sub": "数位 DP",
+      "cf_tags": [
+        "dp"
+      ],
+      "dmoj_types": [
+        "Dynamic Programming"
+      ],
+      "prior_probability": 0.012073,
+      "profile": {
+        "shape_linear": 0.9,
+        "shape_graph": 0.05,
+        "shape_algebra": 0.05,
+        "dynamic": 0.1,
+        "metric_sum": 0.1,
+        "metric_xor": 0.1,
+        "metric_count": 0.9,
+        "metric_bool": 0.1,
+        "metric_geom": 0.1,
+        "metric_num": 0.1,
+        "scale_tiny": 0.1,
+        "scale_small": 0.75,
+        "scale_large": 0.2,
+        "monotonic": 0.15,
+        "dependency": 0.85,
+        "multi_query": 0.15,
+        "preprocess": 0.15,
+        "optimization": 0.9,
+        "range_ops": 0.15,
+        "graph_path": 0.1
+      },
+      "direction_weights": {
+        "编码压缩": 1.0,
+        "传播松弛": 1.0,
+        "剪枝决策": 0.05,
+        "变换域映射": 0.05
+      }
+    },
+    {
+      "algorithm_name": "斜率优化（CHT）",
+      "category": "动态规划",
+      "sub": "DP 优化",
+      "cf_tags": [
+        "dp"
+      ],
+      "dmoj_types": [
+        "Dynamic Programming"
+      ],
+      "prior_probability": 0.012073,
+      "profile": {
+        "shape_linear": 0.9,
+        "shape_graph": 0.05,
+        "shape_algebra": 0.05,
+        "dynamic": 0.1,
+        "metric_sum": 0.9,
+        "metric_xor": 0.1,
+        "metric_count": 0.1,
+        "metric_bool": 0.1,
+        "metric_geom": 0.1,
+        "metric_num": 0.1,
+        "scale_tiny": 0.1,
+        "scale_small": 0.75,
+        "scale_large": 0.2,
+        "monotonic": 0.85,
+        "dependency": 0.15,
+        "multi_query": 0.15,
+        "preprocess": 0.15,
+        "optimization": 0.9,
+        "range_ops": 0.15,
+        "graph_path": 0.1
+      },
+      "direction_weights": {
+        "编码压缩": 0.05,
+        "传播松弛": 0.05,
+        "剪枝决策": 1.0,
+        "变换域映射": 1.0
+      }
+    },
+    {
+      "algorithm_name": "四边形不等式优化",
+      "category": "动态规划",
+      "sub": "DP 优化",
+      "cf_tags": [
+        "dp"
+      ],
+      "dmoj_types": [
+        "Dynamic Programming"
+      ],
+      "prior_probability": 0.012073,
+      "profile": {
+        "shape_linear": 0.9,
+        "shape_graph": 0.05,
+        "shape_algebra": 0.05,
+        "dynamic": 0.1,
+        "metric_sum": 0.9,
+        "metric_xor": 0.1,
+        "metric_count": 0.1,
+        "metric_bool": 0.1,
+        "metric_geom": 0.1,
+        "metric_num": 0.1,
+        "scale_tiny": 0.1,
+        "scale_small": 0.75,
+        "scale_large": 0.2,
+        "monotonic": 0.85,
+        "dependency": 0.15,
+        "multi_query": 0.15,
+        "preprocess": 0.15,
+        "optimization": 0.9,
+        "range_ops": 0.15,
+        "graph_path": 0.1
+      },
+      "direction_weights": {
+        "编码压缩": 0.05,
+        "传播松弛": 0.8,
+        "剪枝决策": 1.0,
+        "变换域映射": 0.05
+      }
+    },
+    {
+      "algorithm_name": "轮廓线 DP（简单棋盘状压）",
+      "category": "动态规划",
+      "sub": "轮廓线 DP",
+      "cf_tags": [
+        "dp"
+      ],
+      "dmoj_types": [
+        "Dynamic Programming"
+      ],
+      "prior_probability": 0.012073,
+      "profile": {
+        "shape_linear": 0.05,
+        "shape_graph": 0.05,
+        "shape_algebra": 0.9,
+        "dynamic": 0.1,
+        "metric_sum": 0.1,
+        "metric_xor": 0.1,
+        "metric_count": 0.9,
+        "metric_bool": 0.9,
+        "metric_geom": 0.1,
+        "metric_num": 0.1,
+        "scale_tiny": 0.85,
+        "scale_small": 0.75,
+        "scale_large": 0.2,
+        "monotonic": 0.15,
+        "dependency": 0.15,
+        "multi_query": 0.15,
+        "preprocess": 0.15,
+        "optimization": 0.2,
+        "range_ops": 0.15,
+        "graph_path": 0.1
+      },
+      "direction_weights": {
+        "编码压缩": 1.0,
+        "传播松弛": 0.05,
+        "剪枝决策": 0.05,
+        "变换域映射": 1.0
+      }
+    },
+    {
+      "algorithm_name": "KMP",
+      "category": "字符串",
+      "sub": "模式匹配",
+      "cf_tags": [
+        "strings"
+      ],
+      "dmoj_types": [
+        "String Algorithms"
+      ],
+      "prior_probability": 0.003672,
+      "profile": {
+        "shape_linear": 0.9,
+        "shape_graph": 0.05,
+        "shape_algebra": 0.05,
+        "dynamic": 0.1,
+        "metric_sum": 0.1,
+        "metric_xor": 0.1,
+        "metric_count": 0.9,
+        "metric_bool": 0.9,
+        "metric_geom": 0.1,
+        "metric_num": 0.1,
+        "scale_tiny": 0.1,
+        "scale_small": 0.75,
+        "scale_large": 0.8,
+        "monotonic": 0.15,
+        "dependency": 0.15,
+        "multi_query": 0.15,
+        "preprocess": 0.85,
+        "optimization": 0.2,
+        "range_ops": 0.85,
+        "graph_path": 0.1
+      },
+      "direction_weights": {
+        "编码压缩": 1.0,
+        "传播松弛": 0.05,
+        "剪枝决策": 1.0,
+        "变换域映射": 0.05
+      }
+    },
+    {
+      "algorithm_name": "Z-function",
+      "category": "字符串",
+      "sub": "模式匹配",
+      "cf_tags": [
+        "string suffix structures"
+      ],
+      "dmoj_types": [
+        "String Algorithms"
+      ],
+      "prior_probability": 0.001774,
+      "profile": {
+        "shape_linear": 0.9,
+        "shape_graph": 0.05,
+        "shape_algebra": 0.05,
+        "dynamic": 0.1,
+        "metric_sum": 0.1,
+        "metric_xor": 0.1,
+        "metric_count": 0.9,
+        "metric_bool": 0.1,
+        "metric_geom": 0.1,
+        "metric_num": 0.1,
+        "scale_tiny": 0.1,
+        "scale_small": 0.25,
+        "scale_large": 0.8,
+        "monotonic": 0.15,
+        "dependency": 0.15,
+        "multi_query": 0.15,
+        "preprocess": 0.85,
+        "optimization": 0.9,
+        "range_ops": 0.85,
+        "graph_path": 0.1
+      },
+      "direction_weights": {
+        "编码压缩": 1.0,
+        "传播松弛": 0.05,
+        "剪枝决策": 1.0,
+        "变换域映射": 0.05
+      }
+    },
+    {
+      "algorithm_name": "AC 自动机",
+      "category": "字符串",
+      "sub": "多模式匹配",
+      "cf_tags": [
+        "string suffix structures"
+      ],
+      "dmoj_types": [
+        "String Algorithms"
+      ],
+      "prior_probability": 0.001774,
+      "profile": {
+        "shape_linear": 0.05,
+        "shape_graph": 0.9,
+        "shape_algebra": 0.05,
+        "dynamic": 0.1,
+        "metric_sum": 0.1,
+        "metric_xor": 0.1,
+        "metric_count": 0.9,
+        "metric_bool": 0.9,
+        "metric_geom": 0.1,
+        "metric_num": 0.1,
+        "scale_tiny": 0.1,
+        "scale_small": 0.25,
+        "scale_large": 0.8,
+        "monotonic": 0.15,
+        "dependency": 0.15,
+        "multi_query": 0.15,
+        "preprocess": 0.85,
+        "optimization": 0.2,
+        "range_ops": 0.15,
+        "graph_path": 0.85
+      },
+      "direction_weights": {
+        "编码压缩": 1.0,
+        "传播松弛": 0.05,
+        "剪枝决策": 1.0,
+        "变换域映射": 0.05
+      }
+    },
+    {
+      "algorithm_name": "AC 自动机 + 矩阵快速幂",
+      "category": "字符串",
+      "sub": "多模式匹配",
+      "cf_tags": [
+        "string suffix structures"
+      ],
+      "dmoj_types": [
+        "Advanced Math",
+        "String Algorithms"
+      ],
+      "prior_probability": 0.001435,
+      "profile": {
+        "shape_linear": 0.05,
+        "shape_graph": 0.9,
+        "shape_algebra": 0.05,
+        "dynamic": 0.1,
+        "metric_sum": 0.1,
+        "metric_xor": 0.1,
+        "metric_count": 0.9,
+        "metric_bool": 0.1,
+        "metric_geom": 0.1,
+        "metric_num": 0.1,
+        "scale_tiny": 0.1,
+        "scale_small": 0.25,
+        "scale_large": 0.8,
+        "monotonic": 0.15,
+        "dependency": 0.15,
+        "multi_query": 0.15,
+        "preprocess": 0.15,
+        "optimization": 0.9,
+        "range_ops": 0.15,
+        "graph_path": 0.85
+      },
+      "direction_weights": {
+        "编码压缩": 1.0,
+        "传播松弛": 0.05,
+        "剪枝决策": 0.05,
+        "变换域映射": 1.0
+      }
+    },
+    {
+      "algorithm_name": "后缀数组 (SA)",
+      "category": "字符串",
+      "sub": "后缀结构",
+      "cf_tags": [
+        "string suffix structures"
+      ],
+      "dmoj_types": [
+        "String Algorithms"
+      ],
+      "prior_probability": 0.001774,
+      "profile": {
+        "shape_linear": 0.9,
+        "shape_graph": 0.05,
+        "shape_algebra": 0.05,
+        "dynamic": 0.1,
+        "metric_sum": 0.1,
+        "metric_xor": 0.1,
+        "metric_count": 0.9,
+        "metric_bool": 0.1,
+        "metric_geom": 0.1,
+        "metric_num": 0.1,
+        "scale_tiny": 0.1,
+        "scale_small": 0.25,
+        "scale_large": 0.8,
+        "monotonic": 0.15,
+        "dependency": 0.15,
+        "multi_query": 0.15,
+        "preprocess": 0.85,
+        "optimization": 0.9,
+        "range_ops": 0.85,
+        "graph_path": 0.1
+      },
+      "direction_weights": {
+        "编码压缩": 1.0,
+        "传播松弛": 0.05,
+        "剪枝决策": 0.05,
+        "变换域映射": 1.0
+      }
+    },
+    {
+      "algorithm_name": "Manacher",
+      "category": "字符串",
+      "sub": "后缀结构",
+      "cf_tags": [
+        "string suffix structures"
+      ],
+      "dmoj_types": [
+        "String Algorithms"
+      ],
+      "prior_probability": 0.001774,
+      "profile": {
+        "shape_linear": 0.9,
+        "shape_graph": 0.05,
+        "shape_algebra": 0.05,
+        "dynamic": 0.1,
+        "metric_sum": 0.9,
+        "metric_xor": 0.1,
+        "metric_count": 0.9,
+        "metric_bool": 0.1,
+        "metric_geom": 0.1,
+        "metric_num": 0.1,
+        "scale_tiny": 0.1,
+        "scale_small": 0.25,
+        "scale_large": 0.8,
+        "monotonic": 0.15,
+        "dependency": 0.15,
+        "multi_query": 0.15,
+        "preprocess": 0.85,
+        "optimization": 0.9,
+        "range_ops": 0.85,
+        "graph_path": 0.1
+      },
+      "direction_weights": {
+        "编码压缩": 1.0,
+        "传播松弛": 0.05,
+        "剪枝决策": 1.0,
+        "变换域映射": 0.05
+      }
+    },
+    {
+      "algorithm_name": "SAM（后缀自动机）",
+      "category": "字符串",
+      "sub": "后缀结构",
+      "cf_tags": [
+        "string suffix structures"
+      ],
+      "dmoj_types": [
+        "String Algorithms"
+      ],
+      "prior_probability": 0.001774,
+      "profile": {
+        "shape_linear": 0.05,
+        "shape_graph": 0.9,
+        "shape_algebra": 0.05,
+        "dynamic": 0.1,
+        "metric_sum": 0.1,
+        "metric_xor": 0.1,
+        "metric_count": 0.9,
+        "metric_bool": 0.1,
+        "metric_geom": 0.1,
+        "metric_num": 0.1,
+        "scale_tiny": 0.1,
+        "scale_small": 0.25,
+        "scale_large": 0.8,
+        "monotonic": 0.15,
+        "dependency": 0.15,
+        "multi_query": 0.15,
+        "preprocess": 0.15,
+        "optimization": 0.9,
+        "range_ops": 0.15,
+        "graph_path": 0.85
+      },
+      "direction_weights": {
+        "编码压缩": 1.0,
+        "传播松弛": 0.05,
+        "剪枝决策": 0.05,
+        "变换域映射": 1.0
+      }
+    },
+    {
+      "algorithm_name": "Trie（字典树）",
+      "category": "字符串",
+      "sub": "哈希与字典树",
+      "cf_tags": [
+        "strings"
+      ],
+      "dmoj_types": [
+        "String Algorithms"
+      ],
+      "prior_probability": 0.003672,
+      "profile": {
+        "shape_linear": 0.05,
+        "shape_graph": 0.9,
+        "shape_algebra": 0.05,
+        "dynamic": 0.1,
+        "metric_sum": 0.1,
+        "metric_xor": 0.1,
+        "metric_count": 0.9,
+        "metric_bool": 0.9,
+        "metric_geom": 0.1,
+        "metric_num": 0.1,
+        "scale_tiny": 0.1,
+        "scale_small": 0.25,
+        "scale_large": 0.8,
+        "monotonic": 0.15,
+        "dependency": 0.85,
+        "multi_query": 0.15,
+        "preprocess": 0.85,
+        "optimization": 0.2,
+        "range_ops": 0.15,
+        "graph_path": 0.85
+      },
+      "direction_weights": {
+        "编码压缩": 1.0,
+        "传播松弛": 1.0,
+        "剪枝决策": 0.05,
+        "变换域映射": 0.05
+      }
+    },
+    {
+      "algorithm_name": "字符串哈希（Rolling Hash）",
+      "category": "字符串",
+      "sub": "哈希与字典树",
+      "cf_tags": [
+        "strings"
+      ],
+      "dmoj_types": [
+        "String Algorithms"
+      ],
+      "prior_probability": 0.003672,
+      "profile": {
+        "shape_linear": 0.9,
+        "shape_graph": 0.05,
+        "shape_algebra": 0.05,
+        "dynamic": 0.1,
+        "metric_sum": 0.1,
+        "metric_xor": 0.1,
+        "metric_count": 0.1,
+        "metric_bool": 0.9,
+        "metric_geom": 0.1,
+        "metric_num": 0.1,
+        "scale_tiny": 0.1,
+        "scale_small": 0.25,
+        "scale_large": 0.8,
+        "monotonic": 0.15,
+        "dependency": 0.15,
+        "multi_query": 0.15,
+        "preprocess": 0.85,
+        "optimization": 0.2,
+        "range_ops": 0.85,
+        "graph_path": 0.1
+      },
+      "direction_weights": {
+        "编码压缩": 1.0,
+        "传播松弛": 0.05,
+        "剪枝决策": 0.05,
+        "变换域映射": 0.05
+      }
+    },
+    {
+      "algorithm_name": "线性筛（欧拉筛）",
+      "category": "数论",
+      "sub": "素数筛",
+      "cf_tags": [
+        "number theory"
+      ],
+      "dmoj_types": [
+        "Advanced Math"
+      ],
+      "prior_probability": 0.003201,
+      "profile": {
+        "shape_linear": 0.05,
+        "shape_graph": 0.05,
+        "shape_algebra": 0.9,
+        "dynamic": 0.1,
+        "metric_sum": 0.1,
+        "metric_xor": 0.1,
+        "metric_count": 0.9,
+        "metric_bool": 0.1,
+        "metric_geom": 0.1,
+        "metric_num": 0.9,
+        "scale_tiny": 0.1,
+        "scale_small": 0.75,
+        "scale_large": 0.2,
+        "monotonic": 0.15,
+        "dependency": 0.85,
+        "multi_query": 0.15,
+        "preprocess": 0.15,
+        "optimization": 0.9,
+        "range_ops": 0.15,
+        "graph_path": 0.1
+      },
+      "direction_weights": {
+        "编码压缩": 1.0,
+        "传播松弛": 1.0,
+        "剪枝决策": 0.05,
+        "变换域映射": 0.05
+      }
+    },
+    {
+      "algorithm_name": "埃氏筛",
+      "category": "数论",
+      "sub": "素数筛",
+      "cf_tags": [
+        "math"
+      ],
+      "dmoj_types": [
+        "Advanced Math"
+      ],
+      "prior_probability": 0.010032,
+      "profile": {
+        "shape_linear": 0.05,
+        "shape_graph": 0.05,
+        "shape_algebra": 0.9,
+        "dynamic": 0.1,
+        "metric_sum": 0.1,
+        "metric_xor": 0.1,
+        "metric_count": 0.1,
+        "metric_bool": 0.9,
+        "metric_geom": 0.1,
+        "metric_num": 0.1,
+        "scale_tiny": 0.1,
+        "scale_small": 0.75,
+        "scale_large": 0.2,
+        "monotonic": 0.15,
+        "dependency": 0.85,
+        "multi_query": 0.15,
+        "preprocess": 0.15,
+        "optimization": 0.2,
+        "range_ops": 0.15,
+        "graph_path": 0.1
+      },
+      "direction_weights": {
+        "编码压缩": 0.05,
+        "传播松弛": 1.0,
+        "剪枝决策": 1.0,
+        "变换域映射": 0.05
+      }
+    },
+    {
+      "algorithm_name": "素数判定（试除法）",
+      "category": "数论",
+      "sub": "素数筛",
+      "cf_tags": [
+        "math"
+      ],
+      "dmoj_types": [
+        "Advanced Math"
+      ],
+      "prior_probability": 0.010032,
+      "profile": {
+        "shape_linear": 0.05,
+        "shape_graph": 0.05,
+        "shape_algebra": 0.9,
+        "dynamic": 0.1,
+        "metric_sum": 0.1,
+        "metric_xor": 0.1,
+        "metric_count": 0.1,
+        "metric_bool": 0.9,
+        "metric_geom": 0.1,
+        "metric_num": 0.1,
+        "scale_tiny": 0.1,
+        "scale_small": 0.75,
+        "scale_large": 0.2,
+        "monotonic": 0.15,
+        "dependency": 0.15,
+        "multi_query": 0.15,
+        "preprocess": 0.15,
+        "optimization": 0.2,
+        "range_ops": 0.15,
+        "graph_path": 0.1
+      },
+      "direction_weights": {
+        "编码压缩": 0.35,
+        "传播松弛": 0.35,
+        "剪枝决策": 0.35,
+        "变换域映射": 0.35
+      }
+    },
+    {
+      "algorithm_name": "欧拉函数",
+      "category": "数论",
+      "sub": "欧拉函数",
+      "cf_tags": [
+        "number theory"
+      ],
+      "dmoj_types": [
+        "Advanced Math"
+      ],
+      "prior_probability": 0.003201,
+      "profile": {
+        "shape_linear": 0.05,
+        "shape_graph": 0.05,
+        "shape_algebra": 0.9,
+        "dynamic": 0.1,
+        "metric_sum": 0.1,
+        "metric_xor": 0.1,
+        "metric_count": 0.9,
+        "metric_bool": 0.1,
+        "metric_geom": 0.1,
+        "metric_num": 0.9,
+        "scale_tiny": 0.1,
+        "scale_small": 0.25,
+        "scale_large": 0.2,
+        "monotonic": 0.15,
+        "dependency": 0.15,
+        "multi_query": 0.15,
+        "preprocess": 0.15,
+        "optimization": 0.9,
+        "range_ops": 0.15,
+        "graph_path": 0.1
+      },
+      "direction_weights": {
+        "编码压缩": 1.0,
+        "传播松弛": 0.05,
+        "剪枝决策": 0.05,
+        "变换域映射": 1.0
+      }
+    },
+    {
+      "algorithm_name": "快速幂",
+      "category": "数论",
+      "sub": "快速幂与逆元",
+      "cf_tags": [
+        "math"
+      ],
+      "dmoj_types": [
+        "Advanced Math"
+      ],
+      "prior_probability": 0.010032,
+      "profile": {
+        "shape_linear": 0.05,
+        "shape_graph": 0.05,
+        "shape_algebra": 0.9,
+        "dynamic": 0.1,
+        "metric_sum": 0.1,
+        "metric_xor": 0.1,
+        "metric_count": 0.1,
+        "metric_bool": 0.1,
+        "metric_geom": 0.1,
+        "metric_num": 0.9,
+        "scale_tiny": 0.1,
+        "scale_small": 0.75,
+        "scale_large": 0.2,
+        "monotonic": 0.15,
+        "dependency": 0.15,
+        "multi_query": 0.15,
+        "preprocess": 0.15,
+        "optimization": 0.9,
+        "range_ops": 0.15,
+        "graph_path": 0.1
+      },
+      "direction_weights": {
+        "编码压缩": 0.05,
+        "传播松弛": 0.05,
+        "剪枝决策": 0.05,
+        "变换域映射": 1.0
+      }
+    },
+    {
+      "algorithm_name": "扩展欧几里得 (exgcd)",
+      "category": "数论",
+      "sub": "快速幂与逆元",
+      "cf_tags": [
+        "number theory"
+      ],
+      "dmoj_types": [
+        "Advanced Math"
+      ],
+      "prior_probability": 0.003201,
+      "profile": {
+        "shape_linear": 0.05,
+        "shape_graph": 0.05,
+        "shape_algebra": 0.9,
+        "dynamic": 0.1,
+        "metric_sum": 0.1,
+        "metric_xor": 0.1,
+        "metric_count": 0.1,
+        "metric_bool": 0.1,
+        "metric_geom": 0.1,
+        "metric_num": 0.9,
+        "scale_tiny": 0.1,
+        "scale_small": 0.75,
+        "scale_large": 0.2,
+        "monotonic": 0.15,
+        "dependency": 0.15,
+        "multi_query": 0.15,
+        "preprocess": 0.15,
+        "optimization": 0.9,
+        "range_ops": 0.15,
+        "graph_path": 0.1
+      },
+      "direction_weights": {
+        "编码压缩": 0.05,
+        "传播松弛": 0.05,
+        "剪枝决策": 0.05,
+        "变换域映射": 1.0
+      }
+    },
+    {
+      "algorithm_name": "费马小定理求逆元",
+      "category": "数论",
+      "sub": "快速幂与逆元",
+      "cf_tags": [
+        "number theory"
+      ],
+      "dmoj_types": [
+        "Advanced Math"
+      ],
+      "prior_probability": 0.003201,
+      "profile": {
+        "shape_linear": 0.05,
+        "shape_graph": 0.05,
+        "shape_algebra": 0.9,
+        "dynamic": 0.1,
+        "metric_sum": 0.1,
+        "metric_xor": 0.1,
+        "metric_count": 0.1,
+        "metric_bool": 0.1,
+        "metric_geom": 0.1,
+        "metric_num": 0.9,
+        "scale_tiny": 0.1,
+        "scale_small": 0.75,
+        "scale_large": 0.2,
+        "monotonic": 0.15,
+        "dependency": 0.15,
+        "multi_query": 0.15,
+        "preprocess": 0.15,
+        "optimization": 0.9,
+        "range_ops": 0.15,
+        "graph_path": 0.1
+      },
+      "direction_weights": {
+        "编码压缩": 0.05,
+        "传播松弛": 0.05,
+        "剪枝决策": 0.05,
+        "变换域映射": 1.0
+      }
+    },
+    {
+      "algorithm_name": "组合数（预处理阶乘）",
+      "category": "数论",
+      "sub": "组合数学",
+      "cf_tags": [
+        "combinatorics"
+      ],
+      "dmoj_types": [
+        "Advanced Math"
+      ],
+      "prior_probability": 0.003042,
+      "profile": {
+        "shape_linear": 0.05,
+        "shape_graph": 0.05,
+        "shape_algebra": 0.9,
+        "dynamic": 0.1,
+        "metric_sum": 0.1,
+        "metric_xor": 0.1,
+        "metric_count": 0.9,
+        "metric_bool": 0.1,
+        "metric_geom": 0.1,
+        "metric_num": 0.1,
+        "scale_tiny": 0.1,
+        "scale_small": 0.75,
+        "scale_large": 0.2,
+        "monotonic": 0.15,
+        "dependency": 0.15,
+        "multi_query": 0.15,
+        "preprocess": 0.15,
+        "optimization": 0.9,
+        "range_ops": 0.15,
+        "graph_path": 0.1
+      },
+      "direction_weights": {
+        "编码压缩": 1.0,
+        "传播松弛": 0.05,
+        "剪枝决策": 0.05,
+        "变换域映射": 0.05
+      }
+    },
+    {
+      "algorithm_name": "中国剩余定理 (CRT)",
+      "category": "数论",
+      "sub": "组合数学",
+      "cf_tags": [
+        "math"
+      ],
+      "dmoj_types": [
+        "Advanced Math"
+      ],
+      "prior_probability": 0.010032,
+      "profile": {
+        "shape_linear": 0.05,
+        "shape_graph": 0.05,
+        "shape_algebra": 0.9,
+        "dynamic": 0.1,
+        "metric_sum": 0.1,
+        "metric_xor": 0.1,
+        "metric_count": 0.1,
+        "metric_bool": 0.1,
+        "metric_geom": 0.1,
+        "metric_num": 0.9,
+        "scale_tiny": 0.1,
+        "scale_small": 0.75,
+        "scale_large": 0.2,
+        "monotonic": 0.15,
+        "dependency": 0.15,
+        "multi_query": 0.15,
+        "preprocess": 0.15,
+        "optimization": 0.9,
+        "range_ops": 0.15,
+        "graph_path": 0.1
+      },
+      "direction_weights": {
+        "编码压缩": 0.05,
+        "传播松弛": 0.05,
+        "剪枝决策": 0.05,
+        "变换域映射": 1.0
+      }
+    },
+    {
+      "algorithm_name": "Lucas 定理",
+      "category": "数论",
+      "sub": "组合数学",
+      "cf_tags": [
+        "combinatorics"
+      ],
+      "dmoj_types": [
+        "Advanced Math"
+      ],
+      "prior_probability": 0.003042,
+      "profile": {
+        "shape_linear": 0.05,
+        "shape_graph": 0.05,
+        "shape_algebra": 0.9,
+        "dynamic": 0.1,
+        "metric_sum": 0.1,
+        "metric_xor": 0.1,
+        "metric_count": 0.9,
+        "metric_bool": 0.1,
+        "metric_geom": 0.1,
+        "metric_num": 0.9,
+        "scale_tiny": 0.1,
+        "scale_small": 0.75,
+        "scale_large": 0.2,
+        "monotonic": 0.15,
+        "dependency": 0.15,
+        "multi_query": 0.15,
+        "preprocess": 0.15,
+        "optimization": 0.9,
+        "range_ops": 0.15,
+        "graph_path": 0.1
+      },
+      "direction_weights": {
+        "编码压缩": 0.05,
+        "传播松弛": 0.05,
+        "剪枝决策": 0.05,
+        "变换域映射": 1.0
+      }
+    },
+    {
+      "algorithm_name": "容斥原理",
+      "category": "数论",
+      "sub": "组合数学",
+      "cf_tags": [
+        "combinatorics"
+      ],
+      "dmoj_types": [
+        "Advanced Math"
+      ],
+      "prior_probability": 0.003042,
+      "profile": {
+        "shape_linear": 0.05,
+        "shape_graph": 0.05,
+        "shape_algebra": 0.9,
+        "dynamic": 0.1,
+        "metric_sum": 0.1,
+        "metric_xor": 0.1,
+        "metric_count": 0.9,
+        "metric_bool": 0.1,
+        "metric_geom": 0.1,
+        "metric_num": 0.1,
+        "scale_tiny": 0.1,
+        "scale_small": 0.75,
+        "scale_large": 0.2,
+        "monotonic": 0.15,
+        "dependency": 0.15,
+        "multi_query": 0.15,
+        "preprocess": 0.15,
+        "optimization": 0.9,
+        "range_ops": 0.15,
+        "graph_path": 0.1
+      },
+      "direction_weights": {
+        "编码压缩": 0.05,
+        "传播松弛": 0.05,
+        "剪枝决策": 0.05,
+        "变换域映射": 1.0
+      }
+    },
+    {
+      "algorithm_name": "错排 / 卡特兰数",
+      "category": "数论",
+      "sub": "组合数学",
+      "cf_tags": [
+        "combinatorics"
+      ],
+      "dmoj_types": [
+        "Advanced Math"
+      ],
+      "prior_probability": 0.003042,
+      "profile": {
+        "shape_linear": 0.05,
+        "shape_graph": 0.05,
+        "shape_algebra": 0.9,
+        "dynamic": 0.1,
+        "metric_sum": 0.1,
+        "metric_xor": 0.1,
+        "metric_count": 0.9,
+        "metric_bool": 0.1,
+        "metric_geom": 0.1,
+        "metric_num": 0.1,
+        "scale_tiny": 0.1,
+        "scale_small": 0.75,
+        "scale_large": 0.2,
+        "monotonic": 0.15,
+        "dependency": 0.15,
+        "multi_query": 0.15,
+        "preprocess": 0.15,
+        "optimization": 0.9,
+        "range_ops": 0.15,
+        "graph_path": 0.1
+      },
+      "direction_weights": {
+        "编码压缩": 1.0,
+        "传播松弛": 0.05,
+        "剪枝决策": 0.05,
+        "变换域映射": 1.0
+      }
+    },
+    {
+      "algorithm_name": "唯一分解定理",
+      "category": "数论",
+      "sub": "进阶数论",
+      "cf_tags": [
+        "number theory"
+      ],
+      "dmoj_types": [
+        "Advanced Math"
+      ],
+      "prior_probability": 0.003201,
+      "profile": {
+        "shape_linear": 0.05,
+        "shape_graph": 0.05,
+        "shape_algebra": 0.9,
+        "dynamic": 0.1,
+        "metric_sum": 0.1,
+        "metric_xor": 0.1,
+        "metric_count": 0.1,
+        "metric_bool": 0.1,
+        "metric_geom": 0.1,
+        "metric_num": 0.9,
+        "scale_tiny": 0.1,
+        "scale_small": 0.25,
+        "scale_large": 0.2,
+        "monotonic": 0.15,
+        "dependency": 0.15,
+        "multi_query": 0.15,
+        "preprocess": 0.15,
+        "optimization": 0.9,
+        "range_ops": 0.15,
+        "graph_path": 0.1
+      },
+      "direction_weights": {
+        "编码压缩": 1.0,
+        "传播松弛": 0.05,
+        "剪枝决策": 0.05,
+        "变换域映射": 0.05
+      }
+    },
+    {
+      "algorithm_name": "高斯消元（异或方程组 bitset）",
+      "category": "数论",
+      "sub": "进阶数论",
+      "cf_tags": [
+        "math"
+      ],
+      "dmoj_types": [
+        "Advanced Math"
+      ],
+      "prior_probability": 0.010032,
+      "profile": {
+        "shape_linear": 0.05,
+        "shape_graph": 0.05,
+        "shape_algebra": 0.9,
+        "dynamic": 0.1,
+        "metric_sum": 0.1,
+        "metric_xor": 0.9,
+        "metric_count": 0.1,
+        "metric_bool": 0.9,
+        "metric_geom": 0.1,
+        "metric_num": 0.1,
+        "scale_tiny": 0.1,
+        "scale_small": 0.75,
+        "scale_large": 0.2,
+        "monotonic": 0.15,
+        "dependency": 0.15,
+        "multi_query": 0.15,
+        "preprocess": 0.15,
+        "optimization": 0.2,
+        "range_ops": 0.15,
+        "graph_path": 0.1
+      },
+      "direction_weights": {
+        "编码压缩": 0.05,
+        "传播松弛": 0.05,
+        "剪枝决策": 0.05,
+        "变换域映射": 1.0
+      }
+    },
+    {
+      "algorithm_name": "扩展中国剩余定理（EXCRT）",
+      "category": "数论",
+      "sub": "进阶数论",
+      "cf_tags": [
+        "math"
+      ],
+      "dmoj_types": [
+        "Advanced Math"
+      ],
+      "prior_probability": 0.010032,
+      "profile": {
+        "shape_linear": 0.05,
+        "shape_graph": 0.05,
+        "shape_algebra": 0.9,
+        "dynamic": 0.1,
+        "metric_sum": 0.1,
+        "metric_xor": 0.1,
+        "metric_count": 0.1,
+        "metric_bool": 0.1,
+        "metric_geom": 0.1,
+        "metric_num": 0.9,
+        "scale_tiny": 0.1,
+        "scale_small": 0.75,
+        "scale_large": 0.2,
+        "monotonic": 0.15,
+        "dependency": 0.15,
+        "multi_query": 0.15,
+        "preprocess": 0.15,
+        "optimization": 0.9,
+        "range_ops": 0.15,
+        "graph_path": 0.1
+      },
+      "direction_weights": {
+        "编码压缩": 0.05,
+        "传播松弛": 0.05,
+        "剪枝决策": 0.05,
+        "变换域映射": 1.0
+      }
+    },
+    {
+      "algorithm_name": "线性基",
+      "category": "数论",
+      "sub": "进阶数论",
+      "cf_tags": [
+        "math"
+      ],
+      "dmoj_types": [
+        "Advanced Math"
+      ],
+      "prior_probability": 0.010032,
+      "profile": {
+        "shape_linear": 0.05,
+        "shape_graph": 0.05,
+        "shape_algebra": 0.9,
+        "dynamic": 0.1,
+        "metric_sum": 0.1,
+        "metric_xor": 0.9,
+        "metric_count": 0.1,
+        "metric_bool": 0.1,
+        "metric_geom": 0.1,
+        "metric_num": 0.1,
+        "scale_tiny": 0.1,
+        "scale_small": 0.25,
+        "scale_large": 0.2,
+        "monotonic": 0.15,
+        "dependency": 0.15,
+        "multi_query": 0.15,
+        "preprocess": 0.15,
+        "optimization": 0.9,
+        "range_ops": 0.15,
+        "graph_path": 0.1
+      },
+      "direction_weights": {
+        "编码压缩": 1.0,
+        "传播松弛": 0.05,
+        "剪枝决策": 0.05,
+        "变换域映射": 1.0
+      }
+    },
+    {
+      "algorithm_name": "GCD / LCM",
+      "category": "数论",
+      "sub": "GCD / LCM",
+      "cf_tags": [
+        "math"
+      ],
+      "dmoj_types": [
+        "Advanced Math"
+      ],
+      "prior_probability": 0.010032,
+      "profile": {
+        "shape_linear": 0.05,
+        "shape_graph": 0.05,
+        "shape_algebra": 0.9,
+        "dynamic": 0.1,
+        "metric_sum": 0.1,
+        "metric_xor": 0.1,
+        "metric_count": 0.1,
+        "metric_bool": 0.1,
+        "metric_geom": 0.1,
+        "metric_num": 0.9,
+        "scale_tiny": 0.1,
+        "scale_small": 0.75,
+        "scale_large": 0.2,
+        "monotonic": 0.15,
+        "dependency": 0.15,
+        "multi_query": 0.15,
+        "preprocess": 0.15,
+        "optimization": 0.9,
+        "range_ops": 0.15,
+        "graph_path": 0.1
+      },
+      "direction_weights": {
+        "编码压缩": 0.05,
+        "传播松弛": 0.05,
+        "剪枝决策": 0.05,
+        "变换域映射": 1.0
+      }
+    },
+    {
+      "algorithm_name": "矩阵快速幂优化递推",
+      "category": "矩阵",
+      "sub": "矩阵快速幂",
+      "cf_tags": [
+        "matrices"
+      ],
+      "dmoj_types": [
+        "Advanced Math"
+      ],
+      "prior_probability": 0.0012,
+      "profile": {
+        "shape_linear": 0.05,
+        "shape_graph": 0.05,
+        "shape_algebra": 0.9,
+        "dynamic": 0.1,
+        "metric_sum": 0.9,
+        "metric_xor": 0.1,
+        "metric_count": 0.1,
+        "metric_bool": 0.1,
+        "metric_geom": 0.1,
+        "metric_num": 0.1,
+        "scale_tiny": 0.1,
+        "scale_small": 0.75,
+        "scale_large": 0.2,
+        "monotonic": 0.15,
+        "dependency": 0.15,
+        "multi_query": 0.15,
+        "preprocess": 0.15,
+        "optimization": 0.9,
+        "range_ops": 0.15,
+        "graph_path": 0.1
+      },
+      "direction_weights": {
+        "编码压缩": 0.05,
+        "传播松弛": 0.05,
+        "剪枝决策": 0.05,
+        "变换域映射": 1.0
+      }
+    },
+    {
+      "algorithm_name": "Andrew 单调链凸包",
+      "category": "计算几何",
+      "sub": "凸包",
+      "cf_tags": [
+        "geometry"
+      ],
+      "dmoj_types": [
+        "Geometry"
+      ],
+      "prior_probability": 0.002735,
+      "profile": {
+        "shape_linear": 0.05,
+        "shape_graph": 0.05,
+        "shape_algebra": 0.9,
+        "dynamic": 0.1,
+        "metric_sum": 0.1,
+        "metric_xor": 0.1,
+        "metric_count": 0.1,
+        "metric_bool": 0.1,
+        "metric_geom": 0.9,
+        "metric_num": 0.1,
+        "scale_tiny": 0.1,
+        "scale_small": 0.25,
+        "scale_large": 0.8,
+        "monotonic": 0.85,
+        "dependency": 0.15,
+        "multi_query": 0.15,
+        "preprocess": 0.15,
+        "optimization": 0.9,
+        "range_ops": 0.15,
+        "graph_path": 0.1
+      },
+      "direction_weights": {
+        "编码压缩": 1.0,
+        "传播松弛": 0.05,
+        "剪枝决策": 1.0,
+        "变换域映射": 0.05
+      }
+    },
+    {
+      "algorithm_name": "旋转卡壳",
+      "category": "计算几何",
+      "sub": "凸包",
+      "cf_tags": [
+        "geometry"
+      ],
+      "dmoj_types": [
+        "Geometry"
+      ],
+      "prior_probability": 0.002735,
+      "profile": {
+        "shape_linear": 0.05,
+        "shape_graph": 0.05,
+        "shape_algebra": 0.9,
+        "dynamic": 0.1,
+        "metric_sum": 0.1,
+        "metric_xor": 0.1,
+        "metric_count": 0.1,
+        "metric_bool": 0.1,
+        "metric_geom": 0.9,
+        "metric_num": 0.1,
+        "scale_tiny": 0.1,
+        "scale_small": 0.25,
+        "scale_large": 0.8,
+        "monotonic": 0.85,
+        "dependency": 0.15,
+        "multi_query": 0.15,
+        "preprocess": 0.15,
+        "optimization": 0.9,
+        "range_ops": 0.15,
+        "graph_path": 0.1
+      },
+      "direction_weights": {
+        "编码压缩": 0.05,
+        "传播松弛": 0.05,
+        "剪枝决策": 1.0,
+        "变换域映射": 1.0
+      }
+    },
+    {
+      "algorithm_name": "最近点对（分治）",
+      "category": "计算几何",
+      "sub": "最近点对",
+      "cf_tags": [
+        "geometry"
+      ],
+      "dmoj_types": [
+        "Geometry"
+      ],
+      "prior_probability": 0.002735,
+      "profile": {
+        "shape_linear": 0.05,
+        "shape_graph": 0.05,
+        "shape_algebra": 0.9,
+        "dynamic": 0.1,
+        "metric_sum": 0.1,
+        "metric_xor": 0.1,
+        "metric_count": 0.1,
+        "metric_bool": 0.1,
+        "metric_geom": 0.9,
+        "metric_num": 0.1,
+        "scale_tiny": 0.1,
+        "scale_small": 0.25,
+        "scale_large": 0.8,
+        "monotonic": 0.85,
+        "dependency": 0.15,
+        "multi_query": 0.15,
+        "preprocess": 0.15,
+        "optimization": 0.9,
+        "range_ops": 0.15,
+        "graph_path": 0.1
+      },
+      "direction_weights": {
+        "编码压缩": 0.05,
+        "传播松弛": 0.05,
+        "剪枝决策": 1.0,
+        "变换域映射": 1.0
+      }
+    },
+    {
+      "algorithm_name": "线段相交判定",
+      "category": "计算几何",
+      "sub": "线段相交",
+      "cf_tags": [
+        "geometry"
+      ],
+      "dmoj_types": [
+        "Geometry"
+      ],
+      "prior_probability": 0.002735,
+      "profile": {
+        "shape_linear": 0.05,
+        "shape_graph": 0.05,
+        "shape_algebra": 0.9,
+        "dynamic": 0.1,
+        "metric_sum": 0.1,
+        "metric_xor": 0.1,
+        "metric_count": 0.1,
+        "metric_bool": 0.9,
+        "metric_geom": 0.9,
+        "metric_num": 0.1,
+        "scale_tiny": 0.1,
+        "scale_small": 0.25,
+        "scale_large": 0.2,
+        "monotonic": 0.15,
+        "dependency": 0.15,
+        "multi_query": 0.15,
+        "preprocess": 0.15,
+        "optimization": 0.2,
+        "range_ops": 0.15,
+        "graph_path": 0.1
+      },
+      "direction_weights": {
+        "编码压缩": 0.35,
+        "传播松弛": 0.35,
+        "剪枝决策": 0.35,
+        "变换域映射": 0.35
+      }
+    },
+    {
+      "algorithm_name": "叉积 / 点积判断方位",
+      "category": "计算几何",
+      "sub": "向量基础",
+      "cf_tags": [
+        "geometry"
+      ],
+      "dmoj_types": [
+        "Geometry"
+      ],
+      "prior_probability": 0.002735,
+      "profile": {
+        "shape_linear": 0.05,
+        "shape_graph": 0.05,
+        "shape_algebra": 0.9,
+        "dynamic": 0.1,
+        "metric_sum": 0.1,
+        "metric_xor": 0.1,
+        "metric_count": 0.1,
+        "metric_bool": 0.1,
+        "metric_geom": 0.9,
+        "metric_num": 0.1,
+        "scale_tiny": 0.1,
+        "scale_small": 0.25,
+        "scale_large": 0.2,
+        "monotonic": 0.15,
+        "dependency": 0.15,
+        "multi_query": 0.15,
+        "preprocess": 0.15,
+        "optimization": 0.9,
+        "range_ops": 0.15,
+        "graph_path": 0.1
+      },
+      "direction_weights": {
+        "编码压缩": 0.35,
+        "传播松弛": 0.35,
+        "剪枝决策": 0.35,
+        "变换域映射": 0.35
+      }
+    },
+    {
+      "algorithm_name": "Nim 游戏与 SG 函数",
+      "category": "其他",
+      "sub": "博弈论",
+      "cf_tags": [
+        "games"
+      ],
+      "dmoj_types": [
+        "Ad Hoc",
+        "Game Theory"
+      ],
+      "prior_probability": 0.003369,
+      "profile": {
+        "shape_linear": 0.05,
+        "shape_graph": 0.05,
+        "shape_algebra": 0.9,
+        "dynamic": 0.1,
+        "metric_sum": 0.1,
+        "metric_xor": 0.9,
+        "metric_count": 0.1,
+        "metric_bool": 0.9,
+        "metric_geom": 0.1,
+        "metric_num": 0.1,
+        "scale_tiny": 0.85,
+        "scale_small": 0.75,
+        "scale_large": 0.2,
+        "monotonic": 0.15,
+        "dependency": 0.15,
+        "multi_query": 0.15,
+        "preprocess": 0.15,
+        "optimization": 0.2,
+        "range_ops": 0.15,
+        "graph_path": 0.1
+      },
+      "direction_weights": {
+        "编码压缩": 1.0,
+        "传播松弛": 0.05,
+        "剪枝决策": 0.05,
+        "变换域映射": 1.0
+      }
+    },
+    {
+      "algorithm_name": "期望 DP（掷骰子）",
+      "category": "其他",
+      "sub": "概率期望",
+      "cf_tags": [
+        "dp"
+      ],
+      "dmoj_types": [
+        "Ad Hoc"
+      ],
+      "prior_probability": 0.011427,
+      "profile": {
+        "shape_linear": 0.9,
+        "shape_graph": 0.05,
+        "shape_algebra": 0.05,
+        "dynamic": 0.1,
+        "metric_sum": 0.9,
+        "metric_xor": 0.1,
+        "metric_count": 0.1,
+        "metric_bool": 0.1,
+        "metric_geom": 0.1,
+        "metric_num": 0.1,
+        "scale_tiny": 0.1,
+        "scale_small": 0.25,
+        "scale_large": 0.2,
+        "monotonic": 0.15,
+        "dependency": 0.85,
+        "multi_query": 0.15,
+        "preprocess": 0.15,
+        "optimization": 0.9,
+        "range_ops": 0.15,
+        "graph_path": 0.1
+      },
+      "direction_weights": {
+        "编码压缩": 0.05,
+        "传播松弛": 1.0,
+        "剪枝决策": 0.05,
+        "变换域映射": 0.05
+      }
+    },
+    {
+      "algorithm_name": "莫队（区间不同数）",
+      "category": "其他",
+      "sub": "莫队",
+      "cf_tags": [
+        "data structures"
+      ],
+      "dmoj_types": [
+        "Ad Hoc",
+        "Data Structures"
+      ],
+      "prior_probability": 0.010526,
+      "profile": {
+        "shape_linear": 0.9,
+        "shape_graph": 0.05,
+        "shape_algebra": 0.05,
+        "dynamic": 0.1,
+        "metric_sum": 0.1,
+        "metric_xor": 0.1,
+        "metric_count": 0.9,
+        "metric_bool": 0.1,
+        "metric_geom": 0.1,
+        "metric_num": 0.1,
+        "scale_tiny": 0.1,
+        "scale_small": 0.25,
+        "scale_large": 0.8,
+        "monotonic": 0.15,
+        "dependency": 0.15,
+        "multi_query": 0.85,
+        "preprocess": 0.85,
+        "optimization": 0.9,
+        "range_ops": 0.85,
+        "graph_path": 0.1
+      },
+      "direction_weights": {
+        "编码压缩": 0.05,
+        "传播松弛": 0.05,
+        "剪枝决策": 1.0,
+        "变换域映射": 1.0
+      }
+    },
+    {
+      "algorithm_name": "主席树（区间第 k 小）",
+      "category": "其他",
+      "sub": "主席树",
+      "cf_tags": [
+        "data structures"
+      ],
+      "dmoj_types": [
+        "Ad Hoc",
+        "Data Structures"
+      ],
+      "prior_probability": 0.010526,
+      "profile": {
+        "shape_linear": 0.9,
+        "shape_graph": 0.05,
+        "shape_algebra": 0.05,
+        "dynamic": 0.9,
+        "metric_sum": 0.9,
+        "metric_xor": 0.1,
+        "metric_count": 0.9,
+        "metric_bool": 0.1,
+        "metric_geom": 0.1,
+        "metric_num": 0.1,
+        "scale_tiny": 0.1,
+        "scale_small": 0.25,
+        "scale_large": 0.8,
+        "monotonic": 0.15,
+        "dependency": 0.15,
+        "multi_query": 0.85,
+        "preprocess": 0.15,
+        "optimization": 0.9,
+        "range_ops": 0.85,
+        "graph_path": 0.1
+      },
+      "direction_weights": {
+        "编码压缩": 1.0,
+        "传播松弛": 0.05,
+        "剪枝决策": 0.05,
+        "变换域映射": 1.0
+      }
+    },
+    {
+      "algorithm_name": "Link-Cut Tree (LCT)",
+      "category": "数据结构",
+      "sub": "动态树",
+      "cf_tags": [
+        "data structures"
+      ],
+      "dmoj_types": [
+        "Data Structures"
+      ],
+      "prior_probability": 0.010901,
+      "profile": {
+        "shape_linear": 0.05,
+        "shape_graph": 0.9,
+        "shape_algebra": 0.05,
+        "dynamic": 0.9,
+        "metric_sum": 0.9,
+        "metric_xor": 0.9,
+        "metric_count": 0.1,
+        "metric_bool": 0.1,
+        "metric_geom": 0.1,
+        "metric_num": 0.1,
+        "scale_tiny": 0.1,
+        "scale_small": 0.25,
+        "scale_large": 0.8,
+        "monotonic": 0.15,
+        "dependency": 0.85,
+        "multi_query": 0.15,
+        "preprocess": 0.15,
+        "optimization": 0.9,
+        "range_ops": 0.15,
+        "graph_path": 0.85
+      },
+      "direction_weights": {
+        "编码压缩": 0.05,
+        "传播松弛": 1.0,
+        "剪枝决策": 0.05,
+        "变换域映射": 1.0
+      }
+    },
+    {
+      "algorithm_name": "树链剖分 (HLD)",
+      "category": "数据结构",
+      "sub": "树链剖分",
+      "cf_tags": [
+        "data structures"
+      ],
+      "dmoj_types": [
+        "Data Structures"
+      ],
+      "prior_probability": 0.010901,
+      "profile": {
+        "shape_linear": 0.05,
+        "shape_graph": 0.9,
+        "shape_algebra": 0.05,
+        "dynamic": 0.9,
+        "metric_sum": 0.9,
+        "metric_xor": 0.1,
+        "metric_count": 0.1,
+        "metric_bool": 0.1,
+        "metric_geom": 0.1,
+        "metric_num": 0.1,
+        "scale_tiny": 0.1,
+        "scale_small": 0.25,
+        "scale_large": 0.8,
+        "monotonic": 0.15,
+        "dependency": 0.15,
+        "multi_query": 0.85,
+        "preprocess": 0.85,
+        "optimization": 0.9,
+        "range_ops": 0.15,
+        "graph_path": 0.85
+      },
+      "direction_weights": {
+        "编码压缩": 1.0,
+        "传播松弛": 0.05,
+        "剪枝决策": 0.05,
+        "变换域映射": 1.0
+      }
+    },
+    {
+      "algorithm_name": "可持久化数据结构（主席树进阶）",
+      "category": "数据结构",
+      "sub": "可持久化",
+      "cf_tags": [
+        "data structures"
+      ],
+      "dmoj_types": [
+        "Data Structures"
+      ],
+      "prior_probability": 0.010901,
+      "profile": {
+        "shape_linear": 0.9,
+        "shape_graph": 0.05,
+        "shape_algebra": 0.05,
+        "dynamic": 0.9,
+        "metric_sum": 0.9,
+        "metric_xor": 0.1,
+        "metric_count": 0.9,
+        "metric_bool": 0.1,
+        "metric_geom": 0.1,
+        "metric_num": 0.1,
+        "scale_tiny": 0.1,
+        "scale_small": 0.25,
+        "scale_large": 0.8,
+        "monotonic": 0.15,
+        "dependency": 0.15,
+        "multi_query": 0.85,
+        "preprocess": 0.15,
+        "optimization": 0.9,
+        "range_ops": 0.85,
+        "graph_path": 0.1
+      },
+      "direction_weights": {
+        "编码压缩": 1.0,
+        "传播松弛": 0.05,
+        "剪枝决策": 0.05,
+        "变换域映射": 1.0
+      }
+    },
+    {
+      "algorithm_name": "后缀自动机（SAM）进阶",
+      "category": "字符串",
+      "sub": "后缀结构",
+      "cf_tags": [
+        "string suffix structures"
+      ],
+      "dmoj_types": [
+        "String Algorithms"
+      ],
+      "prior_probability": 0.001774,
+      "profile": {
+        "shape_linear": 0.05,
+        "shape_graph": 0.9,
+        "shape_algebra": 0.05,
+        "dynamic": 0.1,
+        "metric_sum": 0.1,
+        "metric_xor": 0.1,
+        "metric_count": 0.9,
+        "metric_bool": 0.1,
+        "metric_geom": 0.1,
+        "metric_num": 0.1,
+        "scale_tiny": 0.1,
+        "scale_small": 0.25,
+        "scale_large": 0.8,
+        "monotonic": 0.15,
+        "dependency": 0.85,
+        "multi_query": 0.15,
+        "preprocess": 0.15,
+        "optimization": 0.9,
+        "range_ops": 0.15,
+        "graph_path": 0.85
+      },
+      "direction_weights": {
+        "编码压缩": 1.0,
+        "传播松弛": 1.0,
+        "剪枝决策": 0.05,
+        "变换域映射": 0.05
+      }
+    },
+    {
+      "algorithm_name": "广义 SAM",
+      "category": "字符串",
+      "sub": "后缀结构",
+      "cf_tags": [
+        "string suffix structures"
+      ],
+      "dmoj_types": [
+        "String Algorithms"
+      ],
+      "prior_probability": 0.001774,
+      "profile": {
+        "shape_linear": 0.05,
+        "shape_graph": 0.9,
+        "shape_algebra": 0.05,
+        "dynamic": 0.1,
+        "metric_sum": 0.1,
+        "metric_xor": 0.1,
+        "metric_count": 0.9,
+        "metric_bool": 0.1,
+        "metric_geom": 0.1,
+        "metric_num": 0.1,
+        "scale_tiny": 0.1,
+        "scale_small": 0.25,
+        "scale_large": 0.8,
+        "monotonic": 0.15,
+        "dependency": 0.15,
+        "multi_query": 0.15,
+        "preprocess": 0.15,
+        "optimization": 0.9,
+        "range_ops": 0.15,
+        "graph_path": 0.85
+      },
+      "direction_weights": {
+        "编码压缩": 1.0,
+        "传播松弛": 0.05,
+        "剪枝决策": 0.05,
+        "变换域映射": 1.0
+      }
+    },
+    {
+      "algorithm_name": "FFT",
+      "category": "数学",
+      "sub": "多项式",
+      "cf_tags": [
+        "math"
+      ],
+      "dmoj_types": [
+        "Advanced Math"
+      ],
+      "prior_probability": 0.010032,
+      "profile": {
+        "shape_linear": 0.05,
+        "shape_graph": 0.05,
+        "shape_algebra": 0.9,
+        "dynamic": 0.1,
+        "metric_sum": 0.1,
+        "metric_xor": 0.1,
+        "metric_count": 0.1,
+        "metric_bool": 0.1,
+        "metric_geom": 0.1,
+        "metric_num": 0.1,
+        "scale_tiny": 0.1,
+        "scale_small": 0.25,
+        "scale_large": 0.8,
+        "monotonic": 0.15,
+        "dependency": 0.15,
+        "multi_query": 0.15,
+        "preprocess": 0.15,
+        "optimization": 0.9,
+        "range_ops": 0.15,
+        "graph_path": 0.1
+      },
+      "direction_weights": {
+        "编码压缩": 0.05,
+        "传播松弛": 0.05,
+        "剪枝决策": 0.05,
+        "变换域映射": 1.0
+      }
+    },
+    {
+      "algorithm_name": "NTT",
+      "category": "数学",
+      "sub": "多项式",
+      "cf_tags": [
+        "math"
+      ],
+      "dmoj_types": [
+        "Advanced Math"
+      ],
+      "prior_probability": 0.010032,
+      "profile": {
+        "shape_linear": 0.05,
+        "shape_graph": 0.05,
+        "shape_algebra": 0.9,
+        "dynamic": 0.1,
+        "metric_sum": 0.1,
+        "metric_xor": 0.1,
+        "metric_count": 0.1,
+        "metric_bool": 0.1,
+        "metric_geom": 0.1,
+        "metric_num": 0.1,
+        "scale_tiny": 0.1,
+        "scale_small": 0.25,
+        "scale_large": 0.8,
+        "monotonic": 0.15,
+        "dependency": 0.15,
+        "multi_query": 0.15,
+        "preprocess": 0.15,
+        "optimization": 0.9,
+        "range_ops": 0.15,
+        "graph_path": 0.1
+      },
+      "direction_weights": {
+        "编码压缩": 0.05,
+        "传播松弛": 0.05,
+        "剪枝决策": 0.05,
+        "变换域映射": 1.0
+      }
+    },
+    {
+      "algorithm_name": "生成函数",
+      "category": "数学",
+      "sub": "组合计数",
+      "cf_tags": [
+        "math"
+      ],
+      "dmoj_types": [
+        "Advanced Math"
+      ],
+      "prior_probability": 0.010032,
+      "profile": {
+        "shape_linear": 0.05,
+        "shape_graph": 0.05,
+        "shape_algebra": 0.9,
+        "dynamic": 0.1,
+        "metric_sum": 0.1,
+        "metric_xor": 0.1,
+        "metric_count": 0.9,
+        "metric_bool": 0.1,
+        "metric_geom": 0.1,
+        "metric_num": 0.1,
+        "scale_tiny": 0.1,
+        "scale_small": 0.25,
+        "scale_large": 0.8,
+        "monotonic": 0.15,
+        "dependency": 0.15,
+        "multi_query": 0.15,
+        "preprocess": 0.15,
+        "optimization": 0.9,
+        "range_ops": 0.15,
+        "graph_path": 0.1
+      },
+      "direction_weights": {
+        "编码压缩": 1.0,
+        "传播松弛": 0.05,
+        "剪枝决策": 0.05,
+        "变换域映射": 1.0
+      }
+    },
+    {
+      "algorithm_name": "莫比乌斯反演",
+      "category": "数论",
+      "sub": "反演",
+      "cf_tags": [
+        "math"
+      ],
+      "dmoj_types": [
+        "Advanced Math"
+      ],
+      "prior_probability": 0.010032,
+      "profile": {
+        "shape_linear": 0.05,
+        "shape_graph": 0.05,
+        "shape_algebra": 0.9,
+        "dynamic": 0.1,
+        "metric_sum": 0.1,
+        "metric_xor": 0.1,
+        "metric_count": 0.9,
+        "metric_bool": 0.1,
+        "metric_geom": 0.1,
+        "metric_num": 0.9,
+        "scale_tiny": 0.1,
+        "scale_small": 0.25,
+        "scale_large": 0.8,
+        "monotonic": 0.15,
+        "dependency": 0.15,
+        "multi_query": 0.15,
+        "preprocess": 0.15,
+        "optimization": 0.9,
+        "range_ops": 0.15,
+        "graph_path": 0.1
+      },
+      "direction_weights": {
+        "编码压缩": 0.05,
+        "传播松弛": 0.05,
+        "剪枝决策": 0.05,
+        "变换域映射": 1.0
+      }
+    },
+    {
+      "algorithm_name": "线性基进阶",
+      "category": "数论",
+      "sub": "线性基进阶",
+      "cf_tags": [
+        "math"
+      ],
+      "dmoj_types": [
+        "Advanced Math"
+      ],
+      "prior_probability": 0.010032,
+      "profile": {
+        "shape_linear": 0.05,
+        "shape_graph": 0.05,
+        "shape_algebra": 0.9,
+        "dynamic": 0.9,
+        "metric_sum": 0.1,
+        "metric_xor": 0.9,
+        "metric_count": 0.1,
+        "metric_bool": 0.1,
+        "metric_geom": 0.1,
+        "metric_num": 0.1,
+        "scale_tiny": 0.1,
+        "scale_small": 0.25,
+        "scale_large": 0.2,
+        "monotonic": 0.15,
+        "dependency": 0.15,
+        "multi_query": 0.15,
+        "preprocess": 0.15,
+        "optimization": 0.9,
+        "range_ops": 0.15,
+        "graph_path": 0.1
+      },
+      "direction_weights": {
+        "编码压缩": 1.0,
+        "传播松弛": 0.05,
+        "剪枝决策": 0.05,
+        "变换域映射": 1.0
+      }
+    },
+    {
+      "algorithm_name": "半平面交",
+      "category": "计算几何",
+      "sub": "半平面交",
+      "cf_tags": [
+        "geometry"
+      ],
+      "dmoj_types": [
+        "Geometry"
+      ],
+      "prior_probability": 0.002735,
+      "profile": {
+        "shape_linear": 0.05,
+        "shape_graph": 0.05,
+        "shape_algebra": 0.9,
+        "dynamic": 0.1,
+        "metric_sum": 0.1,
+        "metric_xor": 0.1,
+        "metric_count": 0.1,
+        "metric_bool": 0.9,
+        "metric_geom": 0.9,
+        "metric_num": 0.1,
+        "scale_tiny": 0.1,
+        "scale_small": 0.25,
+        "scale_large": 0.8,
+        "monotonic": 0.85,
+        "dependency": 0.15,
+        "multi_query": 0.15,
+        "preprocess": 0.15,
+        "optimization": 0.2,
+        "range_ops": 0.15,
+        "graph_path": 0.1
+      },
+      "direction_weights": {
+        "编码压缩": 0.05,
+        "传播松弛": 0.05,
+        "剪枝决策": 1.0,
+        "变换域映射": 1.0
+      }
+    },
+    {
+      "algorithm_name": "最小圆覆盖",
+      "category": "计算几何",
+      "sub": "圆",
+      "cf_tags": [
+        "geometry"
+      ],
+      "dmoj_types": [
+        "Geometry"
+      ],
+      "prior_probability": 0.002735,
+      "profile": {
+        "shape_linear": 0.05,
+        "shape_graph": 0.05,
+        "shape_algebra": 0.9,
+        "dynamic": 0.1,
+        "metric_sum": 0.9,
+        "metric_xor": 0.1,
+        "metric_count": 0.1,
+        "metric_bool": 0.1,
+        "metric_geom": 0.9,
+        "metric_num": 0.1,
+        "scale_tiny": 0.1,
+        "scale_small": 0.25,
+        "scale_large": 0.2,
+        "monotonic": 0.85,
+        "dependency": 0.15,
+        "multi_query": 0.15,
+        "preprocess": 0.15,
+        "optimization": 0.9,
+        "range_ops": 0.15,
+        "graph_path": 0.1
+      },
+      "direction_weights": {
+        "编码压缩": 0.05,
+        "传播松弛": 0.05,
+        "剪枝决策": 1.0,
+        "变换域映射": 0.05
+      }
+    },
+    {
+      "algorithm_name": "三维凸包",
+      "category": "计算几何",
+      "sub": "三维",
+      "cf_tags": [
+        "geometry"
+      ],
+      "dmoj_types": [
+        "Geometry"
+      ],
+      "prior_probability": 0.002735,
+      "profile": {
+        "shape_linear": 0.05,
+        "shape_graph": 0.05,
+        "shape_algebra": 0.9,
+        "dynamic": 0.1,
+        "metric_sum": 0.1,
+        "metric_xor": 0.1,
+        "metric_count": 0.1,
+        "metric_bool": 0.9,
+        "metric_geom": 0.9,
+        "metric_num": 0.1,
+        "scale_tiny": 0.1,
+        "scale_small": 0.25,
+        "scale_large": 0.2,
+        "monotonic": 0.15,
+        "dependency": 0.15,
+        "multi_query": 0.15,
+        "preprocess": 0.15,
+        "optimization": 0.2,
+        "range_ops": 0.15,
+        "graph_path": 0.1
+      },
+      "direction_weights": {
+        "编码压缩": 0.05,
+        "传播松弛": 0.05,
+        "剪枝决策": 1.0,
+        "变换域映射": 0.05
+      }
+    },
+    {
+      "algorithm_name": "支配树",
+      "category": "图论",
+      "sub": "支配树",
+      "cf_tags": [
+        "graphs"
+      ],
+      "dmoj_types": [
+        "Graph Theory"
+      ],
+      "prior_probability": 0.01094,
+      "profile": {
+        "shape_linear": 0.05,
+        "shape_graph": 0.9,
+        "shape_algebra": 0.05,
+        "dynamic": 0.1,
+        "metric_sum": 0.9,
+        "metric_xor": 0.1,
+        "metric_count": 0.1,
+        "metric_bool": 0.9,
+        "metric_geom": 0.1,
+        "metric_num": 0.1,
+        "scale_tiny": 0.1,
+        "scale_small": 0.25,
+        "scale_large": 0.8,
+        "monotonic": 0.15,
+        "dependency": 0.85,
+        "multi_query": 0.15,
+        "preprocess": 0.15,
+        "optimization": 0.2,
+        "range_ops": 0.15,
+        "graph_path": 0.85
+      },
+      "direction_weights": {
+        "编码压缩": 1.0,
+        "传播松弛": 1.0,
+        "剪枝决策": 0.05,
+        "变换域映射": 0.05
+      }
+    },
+    {
+      "algorithm_name": "点分治/边分治",
+      "category": "图论",
+      "sub": "树分治",
+      "cf_tags": [
+        "graphs"
+      ],
+      "dmoj_types": [
+        "Divide and Conquer",
+        "Graph Theory"
+      ],
+      "prior_probability": 0.007335,
+      "profile": {
+        "shape_linear": 0.05,
+        "shape_graph": 0.9,
+        "shape_algebra": 0.05,
+        "dynamic": 0.1,
+        "metric_sum": 0.9,
+        "metric_xor": 0.1,
+        "metric_count": 0.9,
+        "metric_bool": 0.1,
+        "metric_geom": 0.1,
+        "metric_num": 0.1,
+        "scale_tiny": 0.1,
+        "scale_small": 0.25,
+        "scale_large": 0.8,
+        "monotonic": 0.15,
+        "dependency": 0.15,
+        "multi_query": 0.15,
+        "preprocess": 0.15,
+        "optimization": 0.9,
+        "range_ops": 0.15,
+        "graph_path": 0.85
+      },
+      "direction_weights": {
+        "编码压缩": 0.05,
+        "传播松弛": 0.05,
+        "剪枝决策": 1.0,
+        "变换域映射": 1.0
+      }
+    },
+    {
+      "algorithm_name": "动态图连通性（离线）",
+      "category": "图论",
+      "sub": "离线动态图",
+      "cf_tags": [
+        "graphs"
+      ],
+      "dmoj_types": [
+        "Graph Theory"
+      ],
+      "prior_probability": 0.01094,
+      "profile": {
+        "shape_linear": 0.05,
+        "shape_graph": 0.9,
+        "shape_algebra": 0.05,
+        "dynamic": 0.9,
+        "metric_sum": 0.1,
+        "metric_xor": 0.1,
+        "metric_count": 0.1,
+        "metric_bool": 0.9,
+        "metric_geom": 0.1,
+        "metric_num": 0.1,
+        "scale_tiny": 0.1,
+        "scale_small": 0.25,
+        "scale_large": 0.8,
+        "monotonic": 0.15,
+        "dependency": 0.85,
+        "multi_query": 0.15,
+        "preprocess": 0.15,
+        "optimization": 0.2,
+        "range_ops": 0.15,
+        "graph_path": 0.85
+      },
+      "direction_weights": {
+        "编码压缩": 0.05,
+        "传播松弛": 1.0,
+        "剪枝决策": 0.05,
+        "变换域映射": 1.0
+      }
+    },
+    {
+      "algorithm_name": "插头 DP",
+      "category": "动态规划",
+      "sub": "插头 DP",
+      "cf_tags": [
+        "dp"
+      ],
+      "dmoj_types": [
+        "Dynamic Programming"
+      ],
+      "prior_probability": 0.012073,
+      "profile": {
+        "shape_linear": 0.05,
+        "shape_graph": 0.05,
+        "shape_algebra": 0.9,
+        "dynamic": 0.1,
+        "metric_sum": 0.1,
+        "metric_xor": 0.1,
+        "metric_count": 0.9,
+        "metric_bool": 0.9,
+        "metric_geom": 0.1,
+        "metric_num": 0.1,
+        "scale_tiny": 0.85,
+        "scale_small": 0.75,
+        "scale_large": 0.2,
+        "monotonic": 0.15,
+        "dependency": 0.15,
+        "multi_query": 0.15,
+        "preprocess": 0.15,
+        "optimization": 0.2,
+        "range_ops": 0.15,
+        "graph_path": 0.1
+      },
+      "direction_weights": {
+        "编码压缩": 1.0,
+        "传播松弛": 0.05,
+        "剪枝决策": 0.05,
+        "变换域映射": 1.0
+      }
+    },
+    {
+      "algorithm_name": "DP 套 DP",
+      "category": "动态规划",
+      "sub": "DP 套 DP",
+      "cf_tags": [
+        "dp"
+      ],
+      "dmoj_types": [
+        "Dynamic Programming"
+      ],
+      "prior_probability": 0.012073,
+      "profile": {
+        "shape_linear": 0.05,
+        "shape_graph": 0.05,
+        "shape_algebra": 0.9,
+        "dynamic": 0.1,
+        "metric_sum": 0.1,
+        "metric_xor": 0.1,
+        "metric_count": 0.9,
+        "metric_bool": 0.1,
+        "metric_geom": 0.1,
+        "metric_num": 0.1,
+        "scale_tiny": 0.1,
+        "scale_small": 0.75,
+        "scale_large": 0.2,
+        "monotonic": 0.15,
+        "dependency": 0.85,
+        "multi_query": 0.15,
+        "preprocess": 0.15,
+        "optimization": 0.9,
+        "range_ops": 0.15,
+        "graph_path": 0.1
+      },
+      "direction_weights": {
+        "编码压缩": 1.0,
+        "传播松弛": 1.0,
+        "剪枝决策": 0.05,
+        "变换域映射": 0.05
+      }
+    },
+    {
+      "algorithm_name": "分治 DP",
+      "category": "动态规划",
+      "sub": "分治 DP",
+      "cf_tags": [
+        "dp"
+      ],
+      "dmoj_types": [
+        "Dynamic Programming"
+      ],
+      "prior_probability": 0.012073,
+      "profile": {
+        "shape_linear": 0.9,
+        "shape_graph": 0.05,
+        "shape_algebra": 0.05,
+        "dynamic": 0.1,
+        "metric_sum": 0.9,
+        "metric_xor": 0.1,
+        "metric_count": 0.1,
+        "metric_bool": 0.1,
+        "metric_geom": 0.1,
+        "metric_num": 0.1,
+        "scale_tiny": 0.1,
+        "scale_small": 0.25,
+        "scale_large": 0.2,
+        "monotonic": 0.85,
+        "dependency": 0.15,
+        "multi_query": 0.15,
+        "preprocess": 0.15,
+        "optimization": 0.9,
+        "range_ops": 0.15,
+        "graph_path": 0.1
+      },
+      "direction_weights": {
+        "编码压缩": 0.05,
+        "传播松弛": 0.8,
+        "剪枝决策": 1.0,
+        "变换域映射": 1.0
+      }
+    },
+    {
+      "algorithm_name": "上下界网络流",
+      "category": "网络流",
+      "sub": "上下界网络流",
+      "cf_tags": [
+        "flows"
+      ],
+      "dmoj_types": [
+        "Graph Theory"
+      ],
+      "prior_probability": 0.008126,
+      "profile": {
+        "shape_linear": 0.05,
+        "shape_graph": 0.9,
+        "shape_algebra": 0.05,
+        "dynamic": 0.1,
+        "metric_sum": 0.9,
+        "metric_xor": 0.1,
+        "metric_count": 0.1,
+        "metric_bool": 0.1,
+        "metric_geom": 0.1,
+        "metric_num": 0.1,
+        "scale_tiny": 0.1,
+        "scale_small": 0.25,
+        "scale_large": 0.2,
+        "monotonic": 0.15,
+        "dependency": 0.85,
+        "multi_query": 0.15,
+        "preprocess": 0.15,
+        "optimization": 0.9,
+        "range_ops": 0.15,
+        "graph_path": 0.85
+      },
+      "direction_weights": {
+        "编码压缩": 0.05,
+        "传播松弛": 1.0,
+        "剪枝决策": 0.05,
+        "变换域映射": 1.0
+      }
+    },
+    {
+      "algorithm_name": "最小费用最大流",
+      "category": "网络流",
+      "sub": "费用流",
+      "cf_tags": [
+        "flows"
+      ],
+      "dmoj_types": [
+        "Graph Theory"
+      ],
+      "prior_probability": 0.008126,
+      "profile": {
+        "shape_linear": 0.05,
+        "shape_graph": 0.9,
+        "shape_algebra": 0.05,
+        "dynamic": 0.1,
+        "metric_sum": 0.9,
+        "metric_xor": 0.1,
+        "metric_count": 0.1,
+        "metric_bool": 0.1,
+        "metric_geom": 0.1,
+        "metric_num": 0.1,
+        "scale_tiny": 0.1,
+        "scale_small": 0.25,
+        "scale_large": 0.2,
+        "monotonic": 0.15,
+        "dependency": 0.85,
+        "multi_query": 0.15,
+        "preprocess": 0.15,
+        "optimization": 0.9,
+        "range_ops": 0.15,
+        "graph_path": 0.85
+      },
+      "direction_weights": {
+        "编码压缩": 0.05,
+        "传播松弛": 1.0,
+        "剪枝决策": 1.0,
+        "变换域映射": 0.05
+      }
+    }
+  ]
+}
