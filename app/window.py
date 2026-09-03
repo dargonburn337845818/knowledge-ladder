@@ -2,7 +2,7 @@
 """主窗口层：自定义标题栏、缩放手柄、主窗口与壁纸集成。
 
 对上层暴露的接口很薄：创建 MainWindow 后 show() 即可；
-所有页面/弹窗/进度状态都封装在 app.widgets 与 app.state 中。
+所有页面/弹窗/进度状态都封装在 app 深模块与 app.state 中。
 """
 
 import os
@@ -79,17 +79,10 @@ from .theme import (
 )
 from .state import ProgressStore
 from .utils import TOTAL_TAGS
-from .widgets import (
-    CodeDialog,
-    DissectPage,
-    FlowDiagram,
-    InfoGuideDialog,
-    InfoMiniDialog,
-    TagRow,
-    TierPage,
-    make_tier_icon,
-    tier_item_text,
-)
+from .dialogs import CodeDialog, InfoGuideDialog, InfoMiniDialog
+from .dissect_page import DissectPage
+from .flow import FlowDiagram
+from .tier_page import TagRow, TierPage, make_tier_icon, tier_item_text
 
 HAS_MEDIA = THEME_HAS_MEDIA
 

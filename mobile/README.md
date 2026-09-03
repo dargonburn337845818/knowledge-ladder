@@ -2,10 +2,9 @@
 
 这是从 `knowledge-ladder` 桌面版抽出的移动端版本，按“不能写代码、只能练拆题”的场景做了精简：
 
-- **两个功能：拆题 + 进度**，没有模板，保持轻量。
-- 拆题页：四种信息操作 + 四步选择题，选完马上给方向。
-- 进度页：按档位勾选已掌握，可点「信息」看算法的简洁说明（无 C++ 模板）。
-- 进度保存在 `localStorage`，离线可用。
+- **核心功能：动态熵减拆题 + 教师共识引导**，没有模板，保持轻量。
+- 拆题页：基线暴力 → 单一问题流 → 四大方向 → 教师共识线索。
+- 纯本地运行，数据由 `entropy_data.js` 提供，离线可用。
 - 要生成 Android APK 时，用 Capacitor 把它包装成原生 WebView 应用。
 
 ## 数据更新
@@ -16,7 +15,7 @@
 python3 export_mobile_data.py
 ```
 
-会重新生成 `mobile/www/data.js`。
+会重新生成 `mobile/www/entropy_data.js`（已删除不再使用的旧 `data.js`）。
 
 ## 本地预览
 
@@ -53,7 +52,7 @@ mobile/android/app/build/outputs/apk/debug/app-debug.apk
 
 仓库根目录已配置 `.github/workflows/build-apk.yml`。提交并推送到 GitHub 后，Actions 会自动：
 
-1. 重新生成 `mobile/www/data.js`
+1. 重新生成 `mobile/www/entropy_data.js`
 2. 安装 Capacitor
 3. 生成 Android 工程
 4. 构建 `app-debug.apk`
@@ -69,7 +68,8 @@ mobile/
 │   ├── index.html      # 移动端页面
 │   ├── style.css       # 移动端样式
 │   ├── app.js          # 交互逻辑
-│   ├── data.js         # 由 export_mobile_data.py 生成
+│   ├── entropy_engine.js  # 熵减引擎（JS）
+│   ├── entropy_data.js # 由 export_mobile_data.py 生成
 │   ├── manifest.json   # PWA 清单
 │   ├── sw.js           # 离线缓存
 │   └── icon.svg

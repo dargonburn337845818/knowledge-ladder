@@ -30,7 +30,7 @@ jobs:
 
       - name: Build EXE
         run: |
-          python -m PyInstaller --noconfirm --onefile --windowed --name KnowledgeLadder --collect-all PySide6 --add-data "style.qss;." --add-data "style_mac.qss;." --add-data "algorithm_prior.json;." --add-data "feature_algorithm_matrix.json;." --add-data "heuristics.json;." main.py
+          python -m PyInstaller --noconfirm --onefile --windowed --name KnowledgeLadder --collect-all PySide6 --add-data "style.qss;." --add-data "style_mac.qss;." --add-data "algorithm_prior.json;." --add-data "feature_algorithm_matrix.json;." --add-data "heuristics.json;." --add-data "teacher_consensus.json;." main.py
 
       - name: Upload EXE artifact
         uses: actions/upload-artifact@v4

@@ -26,4 +26,8 @@ jobs:
       - name: Regenerate mobile data
         run: |
           python export_mobile_data.py
-          test -f mobile/www/data.js
+          test -f mobile/www/entropy_data.js
+
+      - name: Unit tests
+        run: |
+          python -m unittest discover -s tests -v

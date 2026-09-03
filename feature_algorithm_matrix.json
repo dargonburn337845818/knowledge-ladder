@@ -1,13 +1,9 @@
 {
   "meta": {
-    "version": "0.1.0",
+    "version": "1.1.0",
     "generated_at": "2026-08-30T03:56:27.264828+00:00",
-    "description": "条件概率矩阵 P(feature|algorithm)。在熵减更新中以贝叶斯方式使用：P(algorithm|answer) ∝ P(algorithm) * P(feature|algorithm)。",
-    "source": [
-      "info_framework.py",
-      "algorithm_prior.json",
-      "人工排查规则"
-    ]
+    "description": "20 个基础特征 + 9 个教师共识特征；120 个算法 profile 与四方向权重。",
+    "source": "algorithm_prior + feature matrix + teacher-consensus-skill"
   },
   "features": [
     {
@@ -129,6 +125,60 @@
       "dimension": "排查",
       "question": "核心在树/图的路径、连通、最短路或流上吗？",
       "kind": "extra"
+    },
+    {
+      "id": "reverse_scan",
+      "dimension": "教师共识",
+      "question": "正向处理复杂，倒序/换序/线性化能否让结构可统计？",
+      "kind": "teacher"
+    },
+    {
+      "id": "graph_model",
+      "dimension": "教师共识",
+      "question": "关系/依赖/连通性能否建成图、树或约束图模型？",
+      "kind": "teacher"
+    },
+    {
+      "id": "complement_duality",
+      "dimension": "教师共识",
+      "question": "正面计数/构造难时，能否从补集、对偶或线性期望反面切入？",
+      "kind": "teacher"
+    },
+    {
+      "id": "offline",
+      "dimension": "教师共识",
+      "question": "所有查询/修改是否离线已知，可以重排、分治或批量处理？",
+      "kind": "teacher"
+    },
+    {
+      "id": "state_compress",
+      "dimension": "教师共识",
+      "question": "对象是否离散有界，能否用位、哈希、索引或状压紧凑编码？",
+      "kind": "teacher"
+    },
+    {
+      "id": "dp_state_design",
+      "dimension": "教师共识",
+      "question": "是否适合用 DP 只保留影响未来的必要状态，必要时交换状态与答案？",
+      "kind": "teacher"
+    },
+    {
+      "id": "greedy_exchange",
+      "dimension": "教师共识",
+      "question": "能否用排序/交换论证/反悔增量证明某个贪心选择最优？",
+      "kind": "teacher"
+    },
+    {
+      "id": "random_collision",
+      "dimension": "教师共识",
+      "question": "是否涉及字符串/随机哈希或概率算法的碰撞安全？",
+      "kind": "teacher"
+    },
+    {
+      "id": "constructive_separate",
+      "dimension": "教师共识",
+      "question": "是否能先做存在性判定，再用判定器信息重构构造？",
+      "kind": "teacher"
     }
   ],
   "directions": [
@@ -169,7 +219,16 @@
         "preprocess": 0.15,
         "optimization": 0.2,
         "range_ops": 0.15,
-        "graph_path": 0.1
+        "graph_path": 0.1,
+        "reverse_scan": 0.3,
+        "graph_model": 0.2,
+        "complement_duality": 0.3,
+        "offline": 0.3,
+        "state_compress": 0.3,
+        "dp_state_design": 0.2,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 0.35,
@@ -209,7 +268,16 @@
         "preprocess": 0.15,
         "optimization": 0.9,
         "range_ops": 0.15,
-        "graph_path": 0.1
+        "graph_path": 0.1,
+        "reverse_scan": 0.3,
+        "graph_model": 0.2,
+        "complement_duality": 0.3,
+        "offline": 0.3,
+        "state_compress": 0.3,
+        "dp_state_design": 0.2,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 0.35,
@@ -249,7 +317,16 @@
         "preprocess": 0.15,
         "optimization": 0.9,
         "range_ops": 0.85,
-        "graph_path": 0.1
+        "graph_path": 0.1,
+        "reverse_scan": 0.3,
+        "graph_model": 0.2,
+        "complement_duality": 0.3,
+        "offline": 0.3,
+        "state_compress": 0.3,
+        "dp_state_design": 0.2,
+        "greedy_exchange": 0.85,
+        "random_collision": 0.2,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 0.05,
@@ -289,7 +366,16 @@
         "preprocess": 0.15,
         "optimization": 0.9,
         "range_ops": 0.15,
-        "graph_path": 0.1
+        "graph_path": 0.1,
+        "reverse_scan": 0.3,
+        "graph_model": 0.2,
+        "complement_duality": 0.3,
+        "offline": 0.3,
+        "state_compress": 0.3,
+        "dp_state_design": 0.2,
+        "greedy_exchange": 0.85,
+        "random_collision": 0.2,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 0.05,
@@ -329,7 +415,16 @@
         "preprocess": 0.15,
         "optimization": 0.9,
         "range_ops": 0.15,
-        "graph_path": 0.1
+        "graph_path": 0.1,
+        "reverse_scan": 0.3,
+        "graph_model": 0.2,
+        "complement_duality": 0.3,
+        "offline": 0.3,
+        "state_compress": 0.3,
+        "dp_state_design": 0.2,
+        "greedy_exchange": 0.85,
+        "random_collision": 0.2,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 0.05,
@@ -370,7 +465,16 @@
         "preprocess": 0.15,
         "optimization": 0.9,
         "range_ops": 0.15,
-        "graph_path": 0.1
+        "graph_path": 0.1,
+        "reverse_scan": 0.3,
+        "graph_model": 0.2,
+        "complement_duality": 0.3,
+        "offline": 0.3,
+        "state_compress": 0.3,
+        "dp_state_design": 0.2,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 0.05,
@@ -411,7 +515,16 @@
         "preprocess": 0.15,
         "optimization": 0.2,
         "range_ops": 0.15,
-        "graph_path": 0.1
+        "graph_path": 0.1,
+        "reverse_scan": 0.3,
+        "graph_model": 0.2,
+        "complement_duality": 0.3,
+        "offline": 0.3,
+        "state_compress": 0.3,
+        "dp_state_design": 0.2,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.8
       },
       "direction_weights": {
         "编码压缩": 0.05,
@@ -451,7 +564,16 @@
         "preprocess": 0.85,
         "optimization": 0.9,
         "range_ops": 0.15,
-        "graph_path": 0.1
+        "graph_path": 0.1,
+        "reverse_scan": 0.3,
+        "graph_model": 0.85,
+        "complement_duality": 0.3,
+        "offline": 0.8,
+        "state_compress": 0.3,
+        "dp_state_design": 0.2,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 0.05,
@@ -491,7 +613,16 @@
         "preprocess": 0.85,
         "optimization": 0.9,
         "range_ops": 0.15,
-        "graph_path": 0.1
+        "graph_path": 0.1,
+        "reverse_scan": 0.3,
+        "graph_model": 0.2,
+        "complement_duality": 0.3,
+        "offline": 0.3,
+        "state_compress": 0.3,
+        "dp_state_design": 0.2,
+        "greedy_exchange": 0.85,
+        "random_collision": 0.2,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 1.0,
@@ -531,7 +662,16 @@
         "preprocess": 0.85,
         "optimization": 0.9,
         "range_ops": 0.85,
-        "graph_path": 0.1
+        "graph_path": 0.1,
+        "reverse_scan": 0.3,
+        "graph_model": 0.2,
+        "complement_duality": 0.3,
+        "offline": 0.65,
+        "state_compress": 0.3,
+        "dp_state_design": 0.2,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 1.0,
@@ -571,7 +711,16 @@
         "preprocess": 0.85,
         "optimization": 0.9,
         "range_ops": 0.85,
-        "graph_path": 0.1
+        "graph_path": 0.1,
+        "reverse_scan": 0.3,
+        "graph_model": 0.2,
+        "complement_duality": 0.3,
+        "offline": 0.65,
+        "state_compress": 0.3,
+        "dp_state_design": 0.2,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 1.0,
@@ -611,7 +760,16 @@
         "preprocess": 0.85,
         "optimization": 0.9,
         "range_ops": 0.85,
-        "graph_path": 0.1
+        "graph_path": 0.1,
+        "reverse_scan": 0.3,
+        "graph_model": 0.2,
+        "complement_duality": 0.3,
+        "offline": 0.65,
+        "state_compress": 0.3,
+        "dp_state_design": 0.2,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 1.0,
@@ -651,7 +809,16 @@
         "preprocess": 0.15,
         "optimization": 0.9,
         "range_ops": 0.85,
-        "graph_path": 0.1
+        "graph_path": 0.1,
+        "reverse_scan": 0.55,
+        "graph_model": 0.2,
+        "complement_duality": 0.3,
+        "offline": 0.3,
+        "state_compress": 0.3,
+        "dp_state_design": 0.2,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 0.05,
@@ -691,7 +858,16 @@
         "preprocess": 0.15,
         "optimization": 0.2,
         "range_ops": 0.15,
-        "graph_path": 0.1
+        "graph_path": 0.1,
+        "reverse_scan": 0.3,
+        "graph_model": 0.2,
+        "complement_duality": 0.3,
+        "offline": 0.3,
+        "state_compress": 0.3,
+        "dp_state_design": 0.2,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.8
       },
       "direction_weights": {
         "编码压缩": 0.35,
@@ -733,7 +909,16 @@
         "preprocess": 0.15,
         "optimization": 0.2,
         "range_ops": 0.15,
-        "graph_path": 0.1
+        "graph_path": 0.1,
+        "reverse_scan": 0.3,
+        "graph_model": 0.2,
+        "complement_duality": 0.3,
+        "offline": 0.3,
+        "state_compress": 0.8,
+        "dp_state_design": 0.2,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 1.0,
@@ -774,7 +959,16 @@
         "preprocess": 0.15,
         "optimization": 0.2,
         "range_ops": 0.15,
-        "graph_path": 0.1
+        "graph_path": 0.1,
+        "reverse_scan": 0.3,
+        "graph_model": 0.2,
+        "complement_duality": 0.3,
+        "offline": 0.3,
+        "state_compress": 0.8,
+        "dp_state_design": 0.2,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 1.0,
@@ -814,7 +1008,16 @@
         "preprocess": 0.15,
         "optimization": 0.9,
         "range_ops": 0.85,
-        "graph_path": 0.1
+        "graph_path": 0.1,
+        "reverse_scan": 0.55,
+        "graph_model": 0.2,
+        "complement_duality": 0.3,
+        "offline": 0.3,
+        "state_compress": 0.3,
+        "dp_state_design": 0.2,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 0.05,
@@ -854,7 +1057,16 @@
         "preprocess": 0.15,
         "optimization": 0.2,
         "range_ops": 0.15,
-        "graph_path": 0.1
+        "graph_path": 0.1,
+        "reverse_scan": 0.55,
+        "graph_model": 0.2,
+        "complement_duality": 0.3,
+        "offline": 0.3,
+        "state_compress": 0.3,
+        "dp_state_design": 0.2,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 0.35,
@@ -894,7 +1106,16 @@
         "preprocess": 0.15,
         "optimization": 0.9,
         "range_ops": 0.85,
-        "graph_path": 0.1
+        "graph_path": 0.1,
+        "reverse_scan": 0.55,
+        "graph_model": 0.2,
+        "complement_duality": 0.3,
+        "offline": 0.3,
+        "state_compress": 0.3,
+        "dp_state_design": 0.2,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 0.05,
@@ -934,7 +1155,16 @@
         "preprocess": 0.15,
         "optimization": 0.2,
         "range_ops": 0.15,
-        "graph_path": 0.1
+        "graph_path": 0.1,
+        "reverse_scan": 0.55,
+        "graph_model": 0.2,
+        "complement_duality": 0.3,
+        "offline": 0.3,
+        "state_compress": 0.3,
+        "dp_state_design": 0.2,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 0.05,
@@ -974,7 +1204,16 @@
         "preprocess": 0.15,
         "optimization": 0.9,
         "range_ops": 0.15,
-        "graph_path": 0.1
+        "graph_path": 0.1,
+        "reverse_scan": 0.3,
+        "graph_model": 0.2,
+        "complement_duality": 0.3,
+        "offline": 0.3,
+        "state_compress": 0.3,
+        "dp_state_design": 0.2,
+        "greedy_exchange": 0.85,
+        "random_collision": 0.2,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 0.05,
@@ -1014,7 +1253,16 @@
         "preprocess": 0.15,
         "optimization": 0.2,
         "range_ops": 0.15,
-        "graph_path": 0.85
+        "graph_path": 0.85,
+        "reverse_scan": 0.3,
+        "graph_model": 0.8,
+        "complement_duality": 0.3,
+        "offline": 0.3,
+        "state_compress": 0.3,
+        "dp_state_design": 0.2,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 1.0,
@@ -1054,7 +1302,16 @@
         "preprocess": 0.15,
         "optimization": 0.9,
         "range_ops": 0.15,
-        "graph_path": 0.85
+        "graph_path": 0.85,
+        "reverse_scan": 0.3,
+        "graph_model": 0.8,
+        "complement_duality": 0.3,
+        "offline": 0.3,
+        "state_compress": 0.3,
+        "dp_state_design": 0.2,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 1.0,
@@ -1094,7 +1351,16 @@
         "preprocess": 0.15,
         "optimization": 0.9,
         "range_ops": 0.85,
-        "graph_path": 0.1
+        "graph_path": 0.1,
+        "reverse_scan": 0.3,
+        "graph_model": 0.85,
+        "complement_duality": 0.3,
+        "offline": 0.65,
+        "state_compress": 0.3,
+        "dp_state_design": 0.2,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 1.0,
@@ -1134,7 +1400,16 @@
         "preprocess": 0.85,
         "optimization": 0.9,
         "range_ops": 0.85,
-        "graph_path": 0.1
+        "graph_path": 0.1,
+        "reverse_scan": 0.3,
+        "graph_model": 0.85,
+        "complement_duality": 0.3,
+        "offline": 0.65,
+        "state_compress": 0.3,
+        "dp_state_design": 0.2,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 1.0,
@@ -1174,7 +1449,16 @@
         "preprocess": 0.15,
         "optimization": 0.9,
         "range_ops": 0.85,
-        "graph_path": 0.1
+        "graph_path": 0.1,
+        "reverse_scan": 0.3,
+        "graph_model": 0.85,
+        "complement_duality": 0.3,
+        "offline": 0.65,
+        "state_compress": 0.3,
+        "dp_state_design": 0.2,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 1.0,
@@ -1214,7 +1498,16 @@
         "preprocess": 0.15,
         "optimization": 0.9,
         "range_ops": 0.85,
-        "graph_path": 0.1
+        "graph_path": 0.1,
+        "reverse_scan": 0.3,
+        "graph_model": 0.85,
+        "complement_duality": 0.3,
+        "offline": 0.65,
+        "state_compress": 0.3,
+        "dp_state_design": 0.2,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 1.0,
@@ -1254,7 +1547,16 @@
         "preprocess": 0.15,
         "optimization": 0.9,
         "range_ops": 0.15,
-        "graph_path": 0.1
+        "graph_path": 0.1,
+        "reverse_scan": 0.3,
+        "graph_model": 0.2,
+        "complement_duality": 0.3,
+        "offline": 0.3,
+        "state_compress": 0.8,
+        "dp_state_design": 0.2,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 1.0,
@@ -1294,7 +1596,16 @@
         "preprocess": 0.15,
         "optimization": 0.9,
         "range_ops": 0.15,
-        "graph_path": 0.85
+        "graph_path": 0.85,
+        "reverse_scan": 0.3,
+        "graph_model": 0.2,
+        "complement_duality": 0.3,
+        "offline": 0.65,
+        "state_compress": 0.8,
+        "dp_state_design": 0.2,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 0.05,
@@ -1334,7 +1645,16 @@
         "preprocess": 0.15,
         "optimization": 0.2,
         "range_ops": 0.15,
-        "graph_path": 0.85
+        "graph_path": 0.85,
+        "reverse_scan": 0.3,
+        "graph_model": 0.8,
+        "complement_duality": 0.3,
+        "offline": 0.8,
+        "state_compress": 0.3,
+        "dp_state_design": 0.2,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 0.05,
@@ -1374,7 +1694,16 @@
         "preprocess": 0.15,
         "optimization": 0.9,
         "range_ops": 0.15,
-        "graph_path": 0.85
+        "graph_path": 0.85,
+        "reverse_scan": 0.3,
+        "graph_model": 0.85,
+        "complement_duality": 0.3,
+        "offline": 0.3,
+        "state_compress": 0.3,
+        "dp_state_design": 0.2,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 0.05,
@@ -1414,7 +1743,16 @@
         "preprocess": 0.15,
         "optimization": 0.9,
         "range_ops": 0.15,
-        "graph_path": 0.85
+        "graph_path": 0.85,
+        "reverse_scan": 0.3,
+        "graph_model": 0.85,
+        "complement_duality": 0.3,
+        "offline": 0.3,
+        "state_compress": 0.3,
+        "dp_state_design": 0.2,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 0.05,
@@ -1454,7 +1792,16 @@
         "preprocess": 0.15,
         "optimization": 0.9,
         "range_ops": 0.15,
-        "graph_path": 0.85
+        "graph_path": 0.85,
+        "reverse_scan": 0.3,
+        "graph_model": 0.85,
+        "complement_duality": 0.3,
+        "offline": 0.3,
+        "state_compress": 0.3,
+        "dp_state_design": 0.2,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 0.05,
@@ -1494,7 +1841,16 @@
         "preprocess": 0.15,
         "optimization": 0.2,
         "range_ops": 0.15,
-        "graph_path": 0.85
+        "graph_path": 0.85,
+        "reverse_scan": 0.3,
+        "graph_model": 0.85,
+        "complement_duality": 0.3,
+        "offline": 0.3,
+        "state_compress": 0.3,
+        "dp_state_design": 0.2,
+        "greedy_exchange": 0.85,
+        "random_collision": 0.2,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 0.05,
@@ -1534,7 +1890,16 @@
         "preprocess": 0.15,
         "optimization": 0.9,
         "range_ops": 0.15,
-        "graph_path": 0.85
+        "graph_path": 0.85,
+        "reverse_scan": 0.3,
+        "graph_model": 0.85,
+        "complement_duality": 0.3,
+        "offline": 0.3,
+        "state_compress": 0.3,
+        "dp_state_design": 0.2,
+        "greedy_exchange": 0.85,
+        "random_collision": 0.2,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 0.05,
@@ -1574,7 +1939,16 @@
         "preprocess": 0.15,
         "optimization": 0.9,
         "range_ops": 0.15,
-        "graph_path": 0.85
+        "graph_path": 0.85,
+        "reverse_scan": 0.3,
+        "graph_model": 0.85,
+        "complement_duality": 0.8,
+        "offline": 0.3,
+        "state_compress": 0.3,
+        "dp_state_design": 0.2,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.8
       },
       "direction_weights": {
         "编码压缩": 0.05,
@@ -1614,7 +1988,16 @@
         "preprocess": 0.15,
         "optimization": 0.2,
         "range_ops": 0.15,
-        "graph_path": 0.85
+        "graph_path": 0.85,
+        "reverse_scan": 0.3,
+        "graph_model": 0.85,
+        "complement_duality": 0.8,
+        "offline": 0.3,
+        "state_compress": 0.3,
+        "dp_state_design": 0.2,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.8
       },
       "direction_weights": {
         "编码压缩": 0.05,
@@ -1654,7 +2037,16 @@
         "preprocess": 0.15,
         "optimization": 0.2,
         "range_ops": 0.15,
-        "graph_path": 0.85
+        "graph_path": 0.85,
+        "reverse_scan": 0.3,
+        "graph_model": 0.85,
+        "complement_duality": 0.3,
+        "offline": 0.3,
+        "state_compress": 0.8,
+        "dp_state_design": 0.2,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 1.0,
@@ -1694,7 +2086,16 @@
         "preprocess": 0.15,
         "optimization": 0.2,
         "range_ops": 0.15,
-        "graph_path": 0.85
+        "graph_path": 0.85,
+        "reverse_scan": 0.3,
+        "graph_model": 0.85,
+        "complement_duality": 0.3,
+        "offline": 0.3,
+        "state_compress": 0.3,
+        "dp_state_design": 0.2,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 0.05,
@@ -1734,7 +2135,16 @@
         "preprocess": 0.15,
         "optimization": 0.2,
         "range_ops": 0.15,
-        "graph_path": 0.85
+        "graph_path": 0.85,
+        "reverse_scan": 0.3,
+        "graph_model": 0.85,
+        "complement_duality": 0.3,
+        "offline": 0.3,
+        "state_compress": 0.3,
+        "dp_state_design": 0.2,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.6
       },
       "direction_weights": {
         "编码压缩": 0.05,
@@ -1774,7 +2184,16 @@
         "preprocess": 0.15,
         "optimization": 0.2,
         "range_ops": 0.15,
-        "graph_path": 0.85
+        "graph_path": 0.85,
+        "reverse_scan": 0.3,
+        "graph_model": 0.85,
+        "complement_duality": 0.3,
+        "offline": 0.3,
+        "state_compress": 0.3,
+        "dp_state_design": 0.2,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.6
       },
       "direction_weights": {
         "编码压缩": 0.05,
@@ -1814,7 +2233,16 @@
         "preprocess": 0.15,
         "optimization": 0.2,
         "range_ops": 0.15,
-        "graph_path": 0.85
+        "graph_path": 0.85,
+        "reverse_scan": 0.3,
+        "graph_model": 0.85,
+        "complement_duality": 0.3,
+        "offline": 0.3,
+        "state_compress": 0.3,
+        "dp_state_design": 0.2,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 0.05,
@@ -1854,7 +2282,16 @@
         "preprocess": 0.15,
         "optimization": 0.2,
         "range_ops": 0.15,
-        "graph_path": 0.85
+        "graph_path": 0.85,
+        "reverse_scan": 0.3,
+        "graph_model": 0.85,
+        "complement_duality": 0.3,
+        "offline": 0.3,
+        "state_compress": 0.3,
+        "dp_state_design": 0.2,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 1.0,
@@ -1894,7 +2331,16 @@
         "preprocess": 0.15,
         "optimization": 0.9,
         "range_ops": 0.15,
-        "graph_path": 0.85
+        "graph_path": 0.85,
+        "reverse_scan": 0.3,
+        "graph_model": 0.85,
+        "complement_duality": 0.3,
+        "offline": 0.3,
+        "state_compress": 0.75,
+        "dp_state_design": 0.85,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 0.05,
@@ -1934,7 +2380,16 @@
         "preprocess": 0.15,
         "optimization": 0.2,
         "range_ops": 0.15,
-        "graph_path": 0.85
+        "graph_path": 0.85,
+        "reverse_scan": 0.3,
+        "graph_model": 0.85,
+        "complement_duality": 0.3,
+        "offline": 0.3,
+        "state_compress": 0.3,
+        "dp_state_design": 0.2,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.8
       },
       "direction_weights": {
         "编码压缩": 0.05,
@@ -1974,7 +2429,16 @@
         "preprocess": 0.15,
         "optimization": 0.9,
         "range_ops": 0.15,
-        "graph_path": 0.85
+        "graph_path": 0.85,
+        "reverse_scan": 0.3,
+        "graph_model": 0.85,
+        "complement_duality": 0.3,
+        "offline": 0.3,
+        "state_compress": 0.3,
+        "dp_state_design": 0.2,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 0.05,
@@ -2014,7 +2478,16 @@
         "preprocess": 0.15,
         "optimization": 0.2,
         "range_ops": 0.15,
-        "graph_path": 0.85
+        "graph_path": 0.85,
+        "reverse_scan": 0.8,
+        "graph_model": 0.85,
+        "complement_duality": 0.3,
+        "offline": 0.3,
+        "state_compress": 0.3,
+        "dp_state_design": 0.2,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.8
       },
       "direction_weights": {
         "编码压缩": 0.05,
@@ -2054,7 +2527,16 @@
         "preprocess": 0.85,
         "optimization": 0.9,
         "range_ops": 0.15,
-        "graph_path": 0.85
+        "graph_path": 0.85,
+        "reverse_scan": 0.3,
+        "graph_model": 0.85,
+        "complement_duality": 0.3,
+        "offline": 0.65,
+        "state_compress": 0.3,
+        "dp_state_design": 0.2,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 1.0,
@@ -2094,7 +2576,16 @@
         "preprocess": 0.85,
         "optimization": 0.9,
         "range_ops": 0.15,
-        "graph_path": 0.85
+        "graph_path": 0.85,
+        "reverse_scan": 0.3,
+        "graph_model": 0.85,
+        "complement_duality": 0.3,
+        "offline": 0.3,
+        "state_compress": 0.3,
+        "dp_state_design": 0.2,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 1.0,
@@ -2134,7 +2625,16 @@
         "preprocess": 0.15,
         "optimization": 0.9,
         "range_ops": 0.15,
-        "graph_path": 0.85
+        "graph_path": 0.85,
+        "reverse_scan": 0.3,
+        "graph_model": 0.85,
+        "complement_duality": 0.3,
+        "offline": 0.3,
+        "state_compress": 0.3,
+        "dp_state_design": 0.2,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 0.05,
@@ -2174,7 +2674,16 @@
         "preprocess": 0.15,
         "optimization": 0.9,
         "range_ops": 0.15,
-        "graph_path": 0.85
+        "graph_path": 0.85,
+        "reverse_scan": 0.3,
+        "graph_model": 0.85,
+        "complement_duality": 0.3,
+        "offline": 0.3,
+        "state_compress": 0.75,
+        "dp_state_design": 0.85,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 0.05,
@@ -2215,7 +2724,16 @@
         "preprocess": 0.15,
         "optimization": 0.2,
         "range_ops": 0.15,
-        "graph_path": 0.85
+        "graph_path": 0.85,
+        "reverse_scan": 0.3,
+        "graph_model": 0.85,
+        "complement_duality": 0.3,
+        "offline": 0.3,
+        "state_compress": 0.3,
+        "dp_state_design": 0.2,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 1.0,
@@ -2255,7 +2773,16 @@
         "preprocess": 0.15,
         "optimization": 0.9,
         "range_ops": 0.85,
-        "graph_path": 0.1
+        "graph_path": 0.1,
+        "reverse_scan": 0.55,
+        "graph_model": 0.2,
+        "complement_duality": 0.3,
+        "offline": 0.3,
+        "state_compress": 0.3,
+        "dp_state_design": 0.85,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 0.05,
@@ -2295,7 +2822,16 @@
         "preprocess": 0.15,
         "optimization": 0.9,
         "range_ops": 0.85,
-        "graph_path": 0.1
+        "graph_path": 0.1,
+        "reverse_scan": 0.55,
+        "graph_model": 0.2,
+        "complement_duality": 0.3,
+        "offline": 0.3,
+        "state_compress": 0.3,
+        "dp_state_design": 0.85,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 0.05,
@@ -2335,7 +2871,16 @@
         "preprocess": 0.15,
         "optimization": 0.9,
         "range_ops": 0.15,
-        "graph_path": 0.1
+        "graph_path": 0.1,
+        "reverse_scan": 0.55,
+        "graph_model": 0.2,
+        "complement_duality": 0.3,
+        "offline": 0.3,
+        "state_compress": 0.3,
+        "dp_state_design": 0.85,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 0.05,
@@ -2375,7 +2920,16 @@
         "preprocess": 0.15,
         "optimization": 0.9,
         "range_ops": 0.15,
-        "graph_path": 0.1
+        "graph_path": 0.1,
+        "reverse_scan": 0.55,
+        "graph_model": 0.2,
+        "complement_duality": 0.3,
+        "offline": 0.3,
+        "state_compress": 0.3,
+        "dp_state_design": 0.85,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 0.05,
@@ -2415,7 +2969,16 @@
         "preprocess": 0.15,
         "optimization": 0.9,
         "range_ops": 0.85,
-        "graph_path": 0.1
+        "graph_path": 0.1,
+        "reverse_scan": 0.3,
+        "graph_model": 0.2,
+        "complement_duality": 0.3,
+        "offline": 0.3,
+        "state_compress": 0.3,
+        "dp_state_design": 0.85,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 0.05,
@@ -2455,7 +3018,16 @@
         "preprocess": 0.15,
         "optimization": 0.9,
         "range_ops": 0.15,
-        "graph_path": 0.85
+        "graph_path": 0.85,
+        "reverse_scan": 0.3,
+        "graph_model": 0.85,
+        "complement_duality": 0.3,
+        "offline": 0.3,
+        "state_compress": 0.3,
+        "dp_state_design": 0.85,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 0.05,
@@ -2496,7 +3068,16 @@
         "preprocess": 0.15,
         "optimization": 0.9,
         "range_ops": 0.15,
-        "graph_path": 0.1
+        "graph_path": 0.1,
+        "reverse_scan": 0.3,
+        "graph_model": 0.2,
+        "complement_duality": 0.3,
+        "offline": 0.3,
+        "state_compress": 0.8,
+        "dp_state_design": 0.85,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 1.0,
@@ -2536,7 +3117,16 @@
         "preprocess": 0.15,
         "optimization": 0.9,
         "range_ops": 0.15,
-        "graph_path": 0.1
+        "graph_path": 0.1,
+        "reverse_scan": 0.3,
+        "graph_model": 0.2,
+        "complement_duality": 0.3,
+        "offline": 0.3,
+        "state_compress": 0.75,
+        "dp_state_design": 0.85,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 1.0,
@@ -2576,7 +3166,16 @@
         "preprocess": 0.15,
         "optimization": 0.9,
         "range_ops": 0.15,
-        "graph_path": 0.1
+        "graph_path": 0.1,
+        "reverse_scan": 0.3,
+        "graph_model": 0.2,
+        "complement_duality": 0.3,
+        "offline": 0.3,
+        "state_compress": 0.3,
+        "dp_state_design": 0.85,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 0.05,
@@ -2616,7 +3215,16 @@
         "preprocess": 0.15,
         "optimization": 0.9,
         "range_ops": 0.15,
-        "graph_path": 0.1
+        "graph_path": 0.1,
+        "reverse_scan": 0.3,
+        "graph_model": 0.2,
+        "complement_duality": 0.3,
+        "offline": 0.3,
+        "state_compress": 0.3,
+        "dp_state_design": 0.85,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 0.05,
@@ -2656,7 +3264,16 @@
         "preprocess": 0.15,
         "optimization": 0.2,
         "range_ops": 0.15,
-        "graph_path": 0.1
+        "graph_path": 0.1,
+        "reverse_scan": 0.3,
+        "graph_model": 0.2,
+        "complement_duality": 0.3,
+        "offline": 0.3,
+        "state_compress": 0.8,
+        "dp_state_design": 0.85,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 1.0,
@@ -2696,7 +3313,16 @@
         "preprocess": 0.85,
         "optimization": 0.2,
         "range_ops": 0.85,
-        "graph_path": 0.1
+        "graph_path": 0.1,
+        "reverse_scan": 0.8,
+        "graph_model": 0.85,
+        "complement_duality": 0.3,
+        "offline": 0.3,
+        "state_compress": 0.3,
+        "dp_state_design": 0.2,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 1.0,
@@ -2736,7 +3362,16 @@
         "preprocess": 0.85,
         "optimization": 0.9,
         "range_ops": 0.85,
-        "graph_path": 0.1
+        "graph_path": 0.1,
+        "reverse_scan": 0.8,
+        "graph_model": 0.85,
+        "complement_duality": 0.3,
+        "offline": 0.3,
+        "state_compress": 0.3,
+        "dp_state_design": 0.2,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 1.0,
@@ -2776,7 +3411,16 @@
         "preprocess": 0.85,
         "optimization": 0.2,
         "range_ops": 0.15,
-        "graph_path": 0.85
+        "graph_path": 0.85,
+        "reverse_scan": 0.8,
+        "graph_model": 0.85,
+        "complement_duality": 0.3,
+        "offline": 0.3,
+        "state_compress": 0.3,
+        "dp_state_design": 0.2,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 1.0,
@@ -2817,7 +3461,16 @@
         "preprocess": 0.15,
         "optimization": 0.9,
         "range_ops": 0.15,
-        "graph_path": 0.85
+        "graph_path": 0.85,
+        "reverse_scan": 0.8,
+        "graph_model": 0.85,
+        "complement_duality": 0.3,
+        "offline": 0.3,
+        "state_compress": 0.3,
+        "dp_state_design": 0.2,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 1.0,
@@ -2857,7 +3510,16 @@
         "preprocess": 0.85,
         "optimization": 0.9,
         "range_ops": 0.85,
-        "graph_path": 0.1
+        "graph_path": 0.1,
+        "reverse_scan": 0.8,
+        "graph_model": 0.2,
+        "complement_duality": 0.3,
+        "offline": 0.3,
+        "state_compress": 0.8,
+        "dp_state_design": 0.2,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 1.0,
@@ -2897,7 +3559,16 @@
         "preprocess": 0.85,
         "optimization": 0.9,
         "range_ops": 0.85,
-        "graph_path": 0.1
+        "graph_path": 0.1,
+        "reverse_scan": 0.8,
+        "graph_model": 0.2,
+        "complement_duality": 0.3,
+        "offline": 0.3,
+        "state_compress": 0.3,
+        "dp_state_design": 0.2,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 1.0,
@@ -2937,7 +3608,16 @@
         "preprocess": 0.15,
         "optimization": 0.9,
         "range_ops": 0.15,
-        "graph_path": 0.85
+        "graph_path": 0.85,
+        "reverse_scan": 0.8,
+        "graph_model": 0.2,
+        "complement_duality": 0.3,
+        "offline": 0.3,
+        "state_compress": 0.8,
+        "dp_state_design": 0.2,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 1.0,
@@ -2977,7 +3657,16 @@
         "preprocess": 0.85,
         "optimization": 0.2,
         "range_ops": 0.15,
-        "graph_path": 0.85
+        "graph_path": 0.85,
+        "reverse_scan": 0.8,
+        "graph_model": 0.85,
+        "complement_duality": 0.3,
+        "offline": 0.3,
+        "state_compress": 0.8,
+        "dp_state_design": 0.2,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.6,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 1.0,
@@ -3017,7 +3706,16 @@
         "preprocess": 0.85,
         "optimization": 0.2,
         "range_ops": 0.85,
-        "graph_path": 0.1
+        "graph_path": 0.1,
+        "reverse_scan": 0.8,
+        "graph_model": 0.85,
+        "complement_duality": 0.3,
+        "offline": 0.3,
+        "state_compress": 0.3,
+        "dp_state_design": 0.2,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.8,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 1.0,
@@ -3057,7 +3755,16 @@
         "preprocess": 0.15,
         "optimization": 0.9,
         "range_ops": 0.15,
-        "graph_path": 0.1
+        "graph_path": 0.1,
+        "reverse_scan": 0.3,
+        "graph_model": 0.2,
+        "complement_duality": 0.75,
+        "offline": 0.3,
+        "state_compress": 0.3,
+        "dp_state_design": 0.2,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 1.0,
@@ -3097,7 +3804,16 @@
         "preprocess": 0.15,
         "optimization": 0.2,
         "range_ops": 0.15,
-        "graph_path": 0.1
+        "graph_path": 0.1,
+        "reverse_scan": 0.3,
+        "graph_model": 0.2,
+        "complement_duality": 0.75,
+        "offline": 0.3,
+        "state_compress": 0.3,
+        "dp_state_design": 0.2,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 0.05,
@@ -3137,7 +3853,16 @@
         "preprocess": 0.15,
         "optimization": 0.2,
         "range_ops": 0.15,
-        "graph_path": 0.1
+        "graph_path": 0.1,
+        "reverse_scan": 0.3,
+        "graph_model": 0.2,
+        "complement_duality": 0.75,
+        "offline": 0.3,
+        "state_compress": 0.3,
+        "dp_state_design": 0.2,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.6
       },
       "direction_weights": {
         "编码压缩": 0.35,
@@ -3177,7 +3902,16 @@
         "preprocess": 0.15,
         "optimization": 0.9,
         "range_ops": 0.15,
-        "graph_path": 0.1
+        "graph_path": 0.1,
+        "reverse_scan": 0.3,
+        "graph_model": 0.2,
+        "complement_duality": 0.75,
+        "offline": 0.3,
+        "state_compress": 0.3,
+        "dp_state_design": 0.2,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 1.0,
@@ -3217,7 +3951,16 @@
         "preprocess": 0.15,
         "optimization": 0.9,
         "range_ops": 0.15,
-        "graph_path": 0.1
+        "graph_path": 0.1,
+        "reverse_scan": 0.3,
+        "graph_model": 0.2,
+        "complement_duality": 0.75,
+        "offline": 0.3,
+        "state_compress": 0.3,
+        "dp_state_design": 0.2,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 0.05,
@@ -3257,7 +4000,16 @@
         "preprocess": 0.15,
         "optimization": 0.9,
         "range_ops": 0.15,
-        "graph_path": 0.1
+        "graph_path": 0.1,
+        "reverse_scan": 0.3,
+        "graph_model": 0.2,
+        "complement_duality": 0.75,
+        "offline": 0.3,
+        "state_compress": 0.3,
+        "dp_state_design": 0.2,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 0.05,
@@ -3297,7 +4049,16 @@
         "preprocess": 0.15,
         "optimization": 0.9,
         "range_ops": 0.15,
-        "graph_path": 0.1
+        "graph_path": 0.1,
+        "reverse_scan": 0.3,
+        "graph_model": 0.2,
+        "complement_duality": 0.75,
+        "offline": 0.3,
+        "state_compress": 0.3,
+        "dp_state_design": 0.2,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 0.05,
@@ -3337,7 +4098,16 @@
         "preprocess": 0.15,
         "optimization": 0.9,
         "range_ops": 0.15,
-        "graph_path": 0.1
+        "graph_path": 0.1,
+        "reverse_scan": 0.3,
+        "graph_model": 0.2,
+        "complement_duality": 0.8,
+        "offline": 0.3,
+        "state_compress": 0.3,
+        "dp_state_design": 0.2,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 1.0,
@@ -3377,7 +4147,16 @@
         "preprocess": 0.15,
         "optimization": 0.9,
         "range_ops": 0.15,
-        "graph_path": 0.1
+        "graph_path": 0.1,
+        "reverse_scan": 0.3,
+        "graph_model": 0.2,
+        "complement_duality": 0.8,
+        "offline": 0.3,
+        "state_compress": 0.3,
+        "dp_state_design": 0.2,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 0.05,
@@ -3417,7 +4196,16 @@
         "preprocess": 0.15,
         "optimization": 0.9,
         "range_ops": 0.15,
-        "graph_path": 0.1
+        "graph_path": 0.1,
+        "reverse_scan": 0.3,
+        "graph_model": 0.2,
+        "complement_duality": 0.8,
+        "offline": 0.3,
+        "state_compress": 0.3,
+        "dp_state_design": 0.2,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 0.05,
@@ -3457,7 +4245,16 @@
         "preprocess": 0.15,
         "optimization": 0.9,
         "range_ops": 0.15,
-        "graph_path": 0.1
+        "graph_path": 0.1,
+        "reverse_scan": 0.3,
+        "graph_model": 0.2,
+        "complement_duality": 0.8,
+        "offline": 0.3,
+        "state_compress": 0.3,
+        "dp_state_design": 0.2,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 0.05,
@@ -3497,7 +4294,16 @@
         "preprocess": 0.15,
         "optimization": 0.9,
         "range_ops": 0.15,
-        "graph_path": 0.1
+        "graph_path": 0.1,
+        "reverse_scan": 0.3,
+        "graph_model": 0.2,
+        "complement_duality": 0.8,
+        "offline": 0.3,
+        "state_compress": 0.3,
+        "dp_state_design": 0.2,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 1.0,
@@ -3537,7 +4343,16 @@
         "preprocess": 0.15,
         "optimization": 0.9,
         "range_ops": 0.15,
-        "graph_path": 0.1
+        "graph_path": 0.1,
+        "reverse_scan": 0.3,
+        "graph_model": 0.2,
+        "complement_duality": 0.75,
+        "offline": 0.3,
+        "state_compress": 0.3,
+        "dp_state_design": 0.2,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 1.0,
@@ -3577,7 +4392,16 @@
         "preprocess": 0.15,
         "optimization": 0.2,
         "range_ops": 0.15,
-        "graph_path": 0.1
+        "graph_path": 0.1,
+        "reverse_scan": 0.3,
+        "graph_model": 0.2,
+        "complement_duality": 0.75,
+        "offline": 0.3,
+        "state_compress": 0.3,
+        "dp_state_design": 0.2,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 0.05,
@@ -3617,7 +4441,16 @@
         "preprocess": 0.15,
         "optimization": 0.9,
         "range_ops": 0.15,
-        "graph_path": 0.1
+        "graph_path": 0.1,
+        "reverse_scan": 0.3,
+        "graph_model": 0.2,
+        "complement_duality": 0.8,
+        "offline": 0.3,
+        "state_compress": 0.3,
+        "dp_state_design": 0.2,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 0.05,
@@ -3657,7 +4490,16 @@
         "preprocess": 0.15,
         "optimization": 0.9,
         "range_ops": 0.15,
-        "graph_path": 0.1
+        "graph_path": 0.1,
+        "reverse_scan": 0.3,
+        "graph_model": 0.2,
+        "complement_duality": 0.8,
+        "offline": 0.3,
+        "state_compress": 0.8,
+        "dp_state_design": 0.2,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 1.0,
@@ -3697,7 +4539,16 @@
         "preprocess": 0.15,
         "optimization": 0.9,
         "range_ops": 0.15,
-        "graph_path": 0.1
+        "graph_path": 0.1,
+        "reverse_scan": 0.3,
+        "graph_model": 0.2,
+        "complement_duality": 0.75,
+        "offline": 0.3,
+        "state_compress": 0.3,
+        "dp_state_design": 0.2,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 0.05,
@@ -3737,7 +4588,16 @@
         "preprocess": 0.15,
         "optimization": 0.9,
         "range_ops": 0.15,
-        "graph_path": 0.1
+        "graph_path": 0.1,
+        "reverse_scan": 0.3,
+        "graph_model": 0.2,
+        "complement_duality": 0.3,
+        "offline": 0.3,
+        "state_compress": 0.3,
+        "dp_state_design": 0.2,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 0.05,
@@ -3777,7 +4637,16 @@
         "preprocess": 0.15,
         "optimization": 0.9,
         "range_ops": 0.15,
-        "graph_path": 0.1
+        "graph_path": 0.1,
+        "reverse_scan": 0.3,
+        "graph_model": 0.2,
+        "complement_duality": 0.3,
+        "offline": 0.3,
+        "state_compress": 0.3,
+        "dp_state_design": 0.2,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 1.0,
@@ -3817,7 +4686,16 @@
         "preprocess": 0.15,
         "optimization": 0.9,
         "range_ops": 0.15,
-        "graph_path": 0.1
+        "graph_path": 0.1,
+        "reverse_scan": 0.3,
+        "graph_model": 0.2,
+        "complement_duality": 0.3,
+        "offline": 0.3,
+        "state_compress": 0.3,
+        "dp_state_design": 0.2,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 0.05,
@@ -3857,7 +4735,16 @@
         "preprocess": 0.15,
         "optimization": 0.9,
         "range_ops": 0.15,
-        "graph_path": 0.1
+        "graph_path": 0.1,
+        "reverse_scan": 0.3,
+        "graph_model": 0.2,
+        "complement_duality": 0.3,
+        "offline": 0.8,
+        "state_compress": 0.3,
+        "dp_state_design": 0.2,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 0.05,
@@ -3897,7 +4784,16 @@
         "preprocess": 0.15,
         "optimization": 0.2,
         "range_ops": 0.15,
-        "graph_path": 0.1
+        "graph_path": 0.1,
+        "reverse_scan": 0.3,
+        "graph_model": 0.2,
+        "complement_duality": 0.3,
+        "offline": 0.3,
+        "state_compress": 0.3,
+        "dp_state_design": 0.2,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.6
       },
       "direction_weights": {
         "编码压缩": 0.35,
@@ -3937,7 +4833,16 @@
         "preprocess": 0.15,
         "optimization": 0.9,
         "range_ops": 0.15,
-        "graph_path": 0.1
+        "graph_path": 0.1,
+        "reverse_scan": 0.3,
+        "graph_model": 0.2,
+        "complement_duality": 0.3,
+        "offline": 0.3,
+        "state_compress": 0.3,
+        "dp_state_design": 0.2,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 0.35,
@@ -3978,7 +4883,16 @@
         "preprocess": 0.15,
         "optimization": 0.2,
         "range_ops": 0.15,
-        "graph_path": 0.1
+        "graph_path": 0.1,
+        "reverse_scan": 0.3,
+        "graph_model": 0.2,
+        "complement_duality": 0.8,
+        "offline": 0.3,
+        "state_compress": 0.3,
+        "dp_state_design": 0.2,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 1.0,
@@ -4018,7 +4932,16 @@
         "preprocess": 0.15,
         "optimization": 0.9,
         "range_ops": 0.15,
-        "graph_path": 0.1
+        "graph_path": 0.1,
+        "reverse_scan": 0.3,
+        "graph_model": 0.2,
+        "complement_duality": 0.8,
+        "offline": 0.3,
+        "state_compress": 0.75,
+        "dp_state_design": 0.85,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.6,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 0.05,
@@ -4059,7 +4982,16 @@
         "preprocess": 0.85,
         "optimization": 0.9,
         "range_ops": 0.85,
-        "graph_path": 0.1
+        "graph_path": 0.1,
+        "reverse_scan": 0.3,
+        "graph_model": 0.2,
+        "complement_duality": 0.3,
+        "offline": 0.8,
+        "state_compress": 0.3,
+        "dp_state_design": 0.2,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 0.05,
@@ -4100,7 +5032,16 @@
         "preprocess": 0.15,
         "optimization": 0.9,
         "range_ops": 0.85,
-        "graph_path": 0.1
+        "graph_path": 0.1,
+        "reverse_scan": 0.3,
+        "graph_model": 0.85,
+        "complement_duality": 0.3,
+        "offline": 0.8,
+        "state_compress": 0.3,
+        "dp_state_design": 0.2,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 1.0,
@@ -4140,7 +5081,16 @@
         "preprocess": 0.15,
         "optimization": 0.9,
         "range_ops": 0.15,
-        "graph_path": 0.85
+        "graph_path": 0.85,
+        "reverse_scan": 0.3,
+        "graph_model": 0.85,
+        "complement_duality": 0.3,
+        "offline": 0.3,
+        "state_compress": 0.3,
+        "dp_state_design": 0.2,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 0.05,
@@ -4180,7 +5130,16 @@
         "preprocess": 0.85,
         "optimization": 0.9,
         "range_ops": 0.15,
-        "graph_path": 0.85
+        "graph_path": 0.85,
+        "reverse_scan": 0.3,
+        "graph_model": 0.85,
+        "complement_duality": 0.3,
+        "offline": 0.65,
+        "state_compress": 0.3,
+        "dp_state_design": 0.2,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 1.0,
@@ -4220,7 +5179,16 @@
         "preprocess": 0.15,
         "optimization": 0.9,
         "range_ops": 0.85,
-        "graph_path": 0.1
+        "graph_path": 0.1,
+        "reverse_scan": 0.3,
+        "graph_model": 0.2,
+        "complement_duality": 0.3,
+        "offline": 0.8,
+        "state_compress": 0.8,
+        "dp_state_design": 0.2,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 1.0,
@@ -4260,7 +5228,16 @@
         "preprocess": 0.15,
         "optimization": 0.9,
         "range_ops": 0.15,
-        "graph_path": 0.85
+        "graph_path": 0.85,
+        "reverse_scan": 0.8,
+        "graph_model": 0.2,
+        "complement_duality": 0.3,
+        "offline": 0.3,
+        "state_compress": 0.8,
+        "dp_state_design": 0.2,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 1.0,
@@ -4300,7 +5277,16 @@
         "preprocess": 0.15,
         "optimization": 0.9,
         "range_ops": 0.15,
-        "graph_path": 0.85
+        "graph_path": 0.85,
+        "reverse_scan": 0.8,
+        "graph_model": 0.2,
+        "complement_duality": 0.3,
+        "offline": 0.3,
+        "state_compress": 0.8,
+        "dp_state_design": 0.2,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 1.0,
@@ -4340,7 +5326,16 @@
         "preprocess": 0.15,
         "optimization": 0.9,
         "range_ops": 0.15,
-        "graph_path": 0.1
+        "graph_path": 0.1,
+        "reverse_scan": 0.3,
+        "graph_model": 0.2,
+        "complement_duality": 0.75,
+        "offline": 0.3,
+        "state_compress": 0.3,
+        "dp_state_design": 0.2,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 0.05,
@@ -4380,7 +5375,16 @@
         "preprocess": 0.15,
         "optimization": 0.9,
         "range_ops": 0.15,
-        "graph_path": 0.1
+        "graph_path": 0.1,
+        "reverse_scan": 0.3,
+        "graph_model": 0.2,
+        "complement_duality": 0.75,
+        "offline": 0.3,
+        "state_compress": 0.3,
+        "dp_state_design": 0.2,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 0.05,
@@ -4420,7 +5424,16 @@
         "preprocess": 0.15,
         "optimization": 0.9,
         "range_ops": 0.15,
-        "graph_path": 0.1
+        "graph_path": 0.1,
+        "reverse_scan": 0.3,
+        "graph_model": 0.2,
+        "complement_duality": 0.8,
+        "offline": 0.3,
+        "state_compress": 0.3,
+        "dp_state_design": 0.2,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 1.0,
@@ -4460,7 +5473,16 @@
         "preprocess": 0.15,
         "optimization": 0.9,
         "range_ops": 0.15,
-        "graph_path": 0.1
+        "graph_path": 0.1,
+        "reverse_scan": 0.3,
+        "graph_model": 0.2,
+        "complement_duality": 0.8,
+        "offline": 0.3,
+        "state_compress": 0.3,
+        "dp_state_design": 0.2,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 0.05,
@@ -4500,7 +5522,16 @@
         "preprocess": 0.15,
         "optimization": 0.9,
         "range_ops": 0.15,
-        "graph_path": 0.1
+        "graph_path": 0.1,
+        "reverse_scan": 0.3,
+        "graph_model": 0.2,
+        "complement_duality": 0.8,
+        "offline": 0.3,
+        "state_compress": 0.8,
+        "dp_state_design": 0.2,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 1.0,
@@ -4540,7 +5571,16 @@
         "preprocess": 0.15,
         "optimization": 0.2,
         "range_ops": 0.15,
-        "graph_path": 0.1
+        "graph_path": 0.1,
+        "reverse_scan": 0.3,
+        "graph_model": 0.2,
+        "complement_duality": 0.3,
+        "offline": 0.3,
+        "state_compress": 0.3,
+        "dp_state_design": 0.2,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 0.05,
@@ -4580,7 +5620,16 @@
         "preprocess": 0.15,
         "optimization": 0.9,
         "range_ops": 0.15,
-        "graph_path": 0.1
+        "graph_path": 0.1,
+        "reverse_scan": 0.3,
+        "graph_model": 0.2,
+        "complement_duality": 0.3,
+        "offline": 0.3,
+        "state_compress": 0.3,
+        "dp_state_design": 0.2,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 0.05,
@@ -4620,7 +5669,16 @@
         "preprocess": 0.15,
         "optimization": 0.2,
         "range_ops": 0.15,
-        "graph_path": 0.1
+        "graph_path": 0.1,
+        "reverse_scan": 0.3,
+        "graph_model": 0.2,
+        "complement_duality": 0.3,
+        "offline": 0.3,
+        "state_compress": 0.3,
+        "dp_state_design": 0.2,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 0.05,
@@ -4660,7 +5718,16 @@
         "preprocess": 0.15,
         "optimization": 0.2,
         "range_ops": 0.15,
-        "graph_path": 0.85
+        "graph_path": 0.85,
+        "reverse_scan": 0.3,
+        "graph_model": 0.85,
+        "complement_duality": 0.3,
+        "offline": 0.3,
+        "state_compress": 0.3,
+        "dp_state_design": 0.2,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 1.0,
@@ -4701,7 +5768,16 @@
         "preprocess": 0.15,
         "optimization": 0.9,
         "range_ops": 0.15,
-        "graph_path": 0.85
+        "graph_path": 0.85,
+        "reverse_scan": 0.3,
+        "graph_model": 0.85,
+        "complement_duality": 0.3,
+        "offline": 0.8,
+        "state_compress": 0.3,
+        "dp_state_design": 0.2,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 0.05,
@@ -4741,7 +5817,16 @@
         "preprocess": 0.15,
         "optimization": 0.2,
         "range_ops": 0.15,
-        "graph_path": 0.85
+        "graph_path": 0.85,
+        "reverse_scan": 0.3,
+        "graph_model": 0.85,
+        "complement_duality": 0.3,
+        "offline": 0.8,
+        "state_compress": 0.3,
+        "dp_state_design": 0.2,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 0.05,
@@ -4781,7 +5866,16 @@
         "preprocess": 0.15,
         "optimization": 0.2,
         "range_ops": 0.15,
-        "graph_path": 0.1
+        "graph_path": 0.1,
+        "reverse_scan": 0.3,
+        "graph_model": 0.2,
+        "complement_duality": 0.3,
+        "offline": 0.3,
+        "state_compress": 0.8,
+        "dp_state_design": 0.85,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 1.0,
@@ -4821,7 +5915,16 @@
         "preprocess": 0.15,
         "optimization": 0.9,
         "range_ops": 0.15,
-        "graph_path": 0.1
+        "graph_path": 0.1,
+        "reverse_scan": 0.3,
+        "graph_model": 0.2,
+        "complement_duality": 0.3,
+        "offline": 0.3,
+        "state_compress": 0.8,
+        "dp_state_design": 0.85,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 1.0,
@@ -4861,7 +5964,16 @@
         "preprocess": 0.15,
         "optimization": 0.9,
         "range_ops": 0.15,
-        "graph_path": 0.1
+        "graph_path": 0.1,
+        "reverse_scan": 0.3,
+        "graph_model": 0.85,
+        "complement_duality": 0.3,
+        "offline": 0.8,
+        "state_compress": 0.75,
+        "dp_state_design": 0.85,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 0.05,
@@ -4901,7 +6013,16 @@
         "preprocess": 0.15,
         "optimization": 0.9,
         "range_ops": 0.15,
-        "graph_path": 0.85
+        "graph_path": 0.85,
+        "reverse_scan": 0.3,
+        "graph_model": 0.85,
+        "complement_duality": 0.3,
+        "offline": 0.3,
+        "state_compress": 0.3,
+        "dp_state_design": 0.2,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.8
       },
       "direction_weights": {
         "编码压缩": 0.05,
@@ -4941,7 +6062,16 @@
         "preprocess": 0.15,
         "optimization": 0.9,
         "range_ops": 0.15,
-        "graph_path": 0.85
+        "graph_path": 0.85,
+        "reverse_scan": 0.3,
+        "graph_model": 0.85,
+        "complement_duality": 0.8,
+        "offline": 0.3,
+        "state_compress": 0.3,
+        "dp_state_design": 0.2,
+        "greedy_exchange": 0.3,
+        "random_collision": 0.2,
+        "constructive_separate": 0.3
       },
       "direction_weights": {
         "编码压缩": 0.05,

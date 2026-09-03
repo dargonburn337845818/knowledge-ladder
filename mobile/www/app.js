@@ -30,9 +30,27 @@
   }
 
   const HEURISTICS = (window.ENTROPY_DATA && window.ENTROPY_DATA.heuristics) || { directions: [] };
+  const TEACHER_CONSENSUS = (window.ENTROPY_DATA && window.ENTROPY_DATA.teacher_consensus) || { themes: [] };
 
   function heuristicObj(name) {
     return HEURISTICS.directions.find(h => h.id === name) || null;
+  }
+
+  function teacherThemesForDirection(dir) {
+    return (TEACHER_CONSENSUS.themes || [])
+      .filter(t => t.direction === dir)
+      .sort((a, b) => (b.confidence || 0) - (a.confidence || 0))
+      .slice(0, 3);
+  }
+
+  function topTeacherThemes(n) {
+    if (!engine) return [];
+    const probs = engine.directionProbs(state.weights);
+    const scored = (TEACHER_CONSENSUS.themes || [])
+      .filter(t => probs[t.direction] != null)
+      .map(t => ({ t, score: probs[t.direction] * (t.confidence || 0.5) }));
+    scored.sort((a, b) => b.score - a.score);
+    return scored.slice(0, n).map(x => x.t);
   }
 
   function fillTemplate(tpl, top) {
@@ -232,6 +250,19 @@
             <div class="algo-row"><span>${a.algorithm_name}</span><b>${(a.weight * 100).toFixed(1)}%</b></div>
           `).join("") : '<div class="muted-text">当前候选都低于阈值，请点击方向继续。</div>'}
         </div>
+        ${topTeacherThemes(2).length ? `
+          <div class="heuristic-block">
+            <div class="algo-list-title">教师共识线索</div>
+            ${topTeacherThemes(2).map(t => `
+              <div style="margin-top:8px;border-top:1px solid rgba(255,255,255,0.08);padding-top:6px;">
+                <div style="font-weight:600;">${t.name}</div>
+                <div class="muted-text">触发：${t.trigger || ""}</div>
+                <div class="muted-text">动作：${t.action || ""}</div>
+                ${t.counterexample ? `<div class="muted-text">失效：${t.counterexample}</div>` : ""}
+              </div>
+            `).join("")}
+          </div>
+        ` : ""}
         <div style="display:flex;gap:8px;margin-top:8px;">
           ${state.history.length ? '<button class="think-back" id="backBtn" style="flex:1;">‹ 上一步</button>' : ""}
           <button class="think-back" id="debugBtn" style="flex:1;">调试信息</button>
@@ -273,6 +304,19 @@
           <div class="heuristic-block">
             <div class="algo-list-title">该问自己</div>
             ${questions.map(q => `<div class="muted-text" style="margin-top:4px;">· ${q}</div>`).join("")}
+          </div>
+        ` : ""}
+        ${teacherThemesForDirection(dir).length ? `
+          <div class="heuristic-block">
+            <div class="algo-list-title">教师共识线索</div>
+            ${teacherThemesForDirection(dir).map(t => `
+              <div style="margin-top:8px;border-top:1px solid rgba(255,255,255,0.08);padding-top:6px;">
+                <div style="font-weight:600;">${t.name}</div>
+                <div class="muted-text">触发：${t.trigger || ""}</div>
+                <div class="muted-text">动作：${t.action || ""}</div>
+                ${t.counterexample ? `<div class="muted-text">失效：${t.counterexample}</div>` : ""}
+              </div>
+            `).join("")}
           </div>
         ` : ""}
         <div style="display:flex;gap:8px;margin-top:16px;">

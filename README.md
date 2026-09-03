@@ -28,7 +28,7 @@
     ↓
 四大方向 + 候选算法权重
     ↓
-详细启发（可选算法名，鼓励自己想）
+详细启发 + 教师共识线索（触发 / 动作 / 失效边界）
 ```
 
 - 每步自动选择 **IG 最大的未问问题**，类似 Wordle 猜词。
@@ -47,8 +47,9 @@
 数据全部清洗成静态 JSON：
 
 - `algorithm_prior.json`：先验概率、难度区间、组合频次、可调参数
-- `feature_algorithm_matrix.json`：20 个特征问题 × 120 算法条件概率
+- `feature_algorithm_matrix.json`：29 个特征问题（20 基础 + 9 教师共识）× 120 算法条件概率
 - `heuristics.json`：四大方向的深度启发话术
+- `teacher_consensus.json`：`teacher-consensus-skill` 蒸馏出的 24 条教师共识主题 + 元纪律
 
 ---
 
@@ -59,6 +60,7 @@
 - 打开就是拆题，极简三按钮
 - 问题流实时显示当前 Top3 候选算法权重
 - 最终页展示四大方向 + 权重 ≥2% 的候选算法清单
+- 方向页追加“教师共识线索”：触发条件 / 动作 / 失效边界
 - 支持 Editorial / Glass 双主题
 - 完全离线可用
 
@@ -66,6 +68,7 @@
 
 - 同一套熵减状态机
 - 保留深色亚克力界面、算法模板导航、壁纸功能
+- 方向页追加“教师共识线索”；信息论微缩模块新增“教师共识”页签
 - 支持回退、重新开始、隐藏调试信息
 - PyInstaller 打包为 Windows EXE
 
@@ -157,16 +160,22 @@ build_windows.bat
 │   ├── theme.py               # 视觉常量 / QSS / 壁纸模式
 │   ├── state.py               # 本地进度持久化
 │   ├── utils.py               # 标签聚合与纯数据工具
-│   ├── widgets.py             # 对话框 / 标签行 / 档位页 / 拆题页
+│   ├── dialogs.py             # 算法模板 / 信息论导论 / 微缩模块
+│   ├── tier_page.py           # 档位知识树 / 掌握勾选 / 分组展开
+│   ├── flow.py                # 拆题流程图
+│   ├── dissect_page.py        # 动态熵减拆题页
+│   ├── teacher_consensus.py   # 教师共识数据层
 │   └── window.py              # 主窗口 / 标题栏 / 壁纸集成
-├── entropy_engine.py          # 桌面端熵减引擎
+├── entropy_engine.py          # 桌面端熵减引擎（预计算矩阵）
 ├── algorithm_prior.json       # 多源先验与参数
 ├── feature_algorithm_matrix.json
-├── heuristics.json            # 四大方向深度启发
+├── heuristics.json            # 四大方向深度启发 + 教师主题引用
+├── teacher_consensus.json     # 24 条教师共识主题 + 元纪律
 ├── knowledge_data.py          # 120 个算法数据
 ├── tiers_data.py              # 8 档难度数据
 ├── info_framework.py          # 信息论标签
-├── export_mobile_data.py      # 生成移动端静态数据
+├── export_mobile_data.py      # 生成 mobile/www/entropy_data.js
+├── tests/                     # 熵减引擎 / 数据完整性 / 教师共识测试
 ├── mobile/                    # PWA + Capacitor
 │   └── www/
 └── .github/workflows/         # CI / APK / EXE 自动构建

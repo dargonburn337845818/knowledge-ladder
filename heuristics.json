@@ -1,8 +1,12 @@
 {
   "meta": {
-    "version": "1.0.0",
-    "description": "四大方向的深度启发话术库。最终页动态引用，可手工调整语气与内容。",
-    "placeholders": ["{top1}", "{top2}", "{top3}"]
+    "version": "1.1.0",
+    "description": "四大方向的深度启发话术库；已接入 teacher-consensus-skill 的 24 条教师共识主题，最终页可展示线索。",
+    "placeholders": [
+      "{top1}",
+      "{top2}",
+      "{top3}"
+    ]
   },
   "directions": [
     {
@@ -26,7 +30,13 @@
         "先试最简单的预处理，再看查询能否 O(1)",
         "若状态空间大，先找最小可编码表示"
       ],
-      "dynamic_template": "你当前最接近的是 {top1}，这类方向往往藏着一个“重复信息源头”。别急着上复杂结构，先问自己：哪一步正在被反复做？如果能把它只做一次，后面的复杂度会被直接砍掉。"
+      "dynamic_template": "你当前最接近的是 {top1}，这类方向往往藏着一个“重复信息源头”。别急着上复杂结构，先问自己：哪一步正在被反复做？如果能把它只做一次，后面的复杂度会被直接砍掉。",
+      "teacher_theme_ids": [
+        "preprocess-summary-acceleration",
+        "state-compression-encoding",
+        "dp-state-design-swap",
+        "random-hash-collision-safety"
+      ]
     },
     {
       "id": "传播松弛",
@@ -49,7 +59,10 @@
         "先写 O(n²) 朴素递推验证",
         "再观察前驱集合是否能用单调窗口/前缀/队列压缩"
       ],
-      "dynamic_template": "你当前最接近的是 {top1}，它通常不是直接枚举，而是“让前面的结果替后面的路铺路”。先确认顺序，再问：前驱的最优值能不能被一个窗口/队列持续维护？"
+      "dynamic_template": "你当前最接近的是 {top1}，它通常不是直接枚举，而是“让前面的结果替后面的路铺路”。先确认顺序，再问：前驱的最优值能不能被一个窗口/队列持续维护？",
+      "teacher_theme_ids": [
+        "propagation-relaxation-potential"
+      ]
     },
     {
       "id": "剪枝决策",
@@ -72,7 +85,15 @@
         "找单调区间并二分答案",
         "再找“永远不是最优”的候选并剪掉"
       ],
-      "dynamic_template": "当前最接近 {top1}，关键是先证明“什么候选永远不可能赢”，然后让每次选择砍掉一大块。如果答案有单调性，先别枚举，直接改成问系统“这个值行不行？”"
+      "dynamic_template": "当前最接近 {top1}，关键是先证明“什么候选永远不可能赢”，然后让每次选择砍掉一大块。如果答案有单调性，先别枚举，直接改成问系统“这个值行不行？”",
+      "teacher_theme_ids": [
+        "monotonic-binary-ternary",
+        "sliding-window-monotone-stack",
+        "greedy-exchange-reverse-incremental",
+        "practice-design-delayed-feedback",
+        "contest-strategy-parallel",
+        "existence-vs-constructive"
+      ]
     },
     {
       "id": "变换域映射",
@@ -95,7 +116,31 @@
         "把修改/查询拆到新坐标系",
         "从最简单的形式先重述，再验证等价性"
       ],
-      "dynamic_template": "你离 {top1} 最近的，可能不是硬算，而是把问题翻个面再算。试着把区间操作变成点操作，或者把当前模型重述成另一个你更熟悉的模型。"
+      "dynamic_template": "你离 {top1} 最近的，可能不是硬算，而是把问题翻个面再算。试着把区间操作变成点操作，或者把当前模型重述成另一个你更熟悉的模型。",
+      "teacher_theme_ids": [
+        "read-model-reformulate",
+        "reverse-linearize-transform",
+        "graph-model-conversion",
+        "duality-complement-expectation",
+        "combinatorial-number-theoretic-transform",
+        "geometry-constraint-extremes",
+        "offline-divide-conquer-batch",
+        "heuristic-scoring-search",
+        "construct-proof-reorder-relax-reduce",
+        "mitm-scale-reduction"
+      ]
+    }
+  ],
+  "meta_disciplines": [
+    {
+      "id": "judge-then-construct",
+      "name": "先判定再重构",
+      "description": "遇到存在性与构造性混合题，先写一个最简判定器，再用判定过程留下的信息重构答案；这比直接写复杂生成逻辑更稳。"
+    },
+    {
+      "id": "human-takeover",
+      "name": "人类接管 / 应急退出",
+      "description": "这不是解题方法，也不是四大方向之一。它是元纪律：当用户感觉模型方向不对、出现环境/术语异常、或需要人工介入时，允许无条件退出自动拆题流程。不要把它当成算法选项来教。"
     }
   ]
 }

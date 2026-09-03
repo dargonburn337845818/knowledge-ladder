@@ -20,7 +20,7 @@ jobs:
       - name: Regenerate mobile data
         run: |
           python3 export_mobile_data.py
-          test -f mobile/www/data.js
+          test -f mobile/www/entropy_data.js
 
       - name: Setup Node.js
         uses: actions/setup-node@v4

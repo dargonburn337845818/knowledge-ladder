@@ -3,9 +3,13 @@
 
 数据来源：
 - algorithm_prior.json：初始先验 + 可调 params
-- feature_algorithm_matrix.json：20 个特征问题 + 120 算法 profile + 四方向权重
+- feature_algorithm_matrix.json：29 个特征问题（20 基础 + 9 教师共识）+ 120 算法 profile + 四方向权重
 
 只使用 math.log2、加减乘除、归一化，不调用任何模型或外部 API。
+
+性能设计：
+- 构造函数把 profile / direction_weights 预计算成矩阵，避免每次更新都反复查 dict。
+- feature_by_id 使用索引字典。
 """
 
 import json
@@ -55,20 +59,37 @@ class EntropyEngine:
         for alg in self.algorithms:
             alg.setdefault("prior_probability", priors.get(alg["algorithm_name"], 0))
 
+        # ---- 预计算矩阵：让每次更新只做乘法，不做 dict 查找 ----
+        self._feature_index = {f["id"]: i for i, f in enumerate(self.features)}
+        self._profile_matrix = [
+            [float(alg.get("profile", {}).get(fid, 0.5)) for fid in self._feature_index]
+            for alg in self.algorithms
+        ]
+        self._direction_matrix = [
+            [float(alg.get("direction_weights", {}).get(d, 0.0)) for d in self.directions]
+            for alg in self.algorithms
+        ]
         self._weights_cache = None
 
     # ---------- 基础工具 ----------
     def initial_weights(self):
-        return [max(0.0, a.get("prior_probability", 0)) for a in self.algorithms]
+        return _norm([max(0.0, a.get("prior_probability", 0)) for a in self.algorithms])
 
     def feature_by_id(self, fid):
-        for f in self.features:
-            if f["id"] == fid:
-                return f
-        return None
+        idx = self._feature_index.get(fid)
+        if idx is None:
+            return None
+        return self.features[idx]
+
+    def feature_index(self, fid):
+        return self._feature_index.get(fid)
 
     def profile(self, alg_index, fid):
-        return float(self.algorithms[alg_index].get("profile", {}).get(fid, 0.5))
+        """保留原接口：按特征 id 取 P(feature | algorithm)。"""
+        idx = self._feature_index.get(fid)
+        if idx is None:
+            return 0.5
+        return self._profile_matrix[alg_index][idx]
 
     def entropy(self, weights):
         return _entropy(_norm(weights))
@@ -76,50 +97,83 @@ class EntropyEngine:
     def normalize(self, weights):
         return _norm(weights)
 
-    def answer_probability(self, weights, fid, answer):
-        w = self.normalize(weights)
-        if answer == "yes":
-            return sum(wi * self.profile(i, fid) for i, wi in enumerate(w))
-        if answer == "no":
-            return sum(wi * (1.0 - self.profile(i, fid)) for i, wi in enumerate(w))
-        # uncertain 的“惊讶度”按参数化弱证据混合期望
-        decay = self.params.get("uncertain_decay", 0.5)
-        py = self.answer_probability(weights, fid, "yes")
-        pn = self.answer_probability(weights, fid, "no")
-        return decay * py + (1.0 - decay) * pn
+    def _py(self, fid_idx, w):
+        """P(yes | feature) 对已归一化权重求和。"""
+        total = 0.0
+        for i, wi in enumerate(w):
+            total += wi * self._profile_matrix[i][fid_idx]
+        return total
 
-    def posterior(self, weights, fid, answer):
-        w = self.normalize(weights)
-        if answer == "yes":
-            out = [wi * self.profile(i, fid) for i, wi in enumerate(w)]
-        elif answer == "no":
-            out = [wi * (1.0 - self.profile(i, fid)) for i, wi in enumerate(w)]
-        else:  # uncertain
+    def answer_probability(self, weights, fid, answer):
+        if answer == "uncertain":
+            # uncertain 的“惊讶度”按参数化弱证据混合期望
             decay = self.params.get("uncertain_decay", 0.5)
-            wy = self.posterior(weights, fid, "yes")
-            wn = self.posterior(weights, fid, "no")
-            out = [decay * a + (1.0 - decay) * b for a, b in zip(wy, wn)]
+            py = self.answer_probability(weights, fid, "yes")
+            pn = self.answer_probability(weights, fid, "no")
+            return decay * py + (1.0 - decay) * pn
+        w = self.normalize(weights)
+        fid_idx = self._feature_index.get(fid)
+        if fid_idx is None:
+            return 1.0
+        if answer == "yes":
+            return self._py(fid_idx, w)
+        return 1.0 - self._py(fid_idx, w)
+
+    def _posterior_from_normalized(self, w, fid_idx, answer):
+        if answer == "uncertain":
+            decay = self.params.get("uncertain_decay", 0.5)
+            wy = self._posterior_from_normalized(w, fid_idx, "yes")
+            wn = self._posterior_from_normalized(w, fid_idx, "no")
+            return self.normalize([decay * a + (1.0 - decay) * b for a, b in zip(wy, wn)])
+        out = []
+        if answer == "yes":
+            for i, wi in enumerate(w):
+                out.append(wi * self._profile_matrix[i][fid_idx])
+        else:
+            for i, wi in enumerate(w):
+                out.append(wi * (1.0 - self._profile_matrix[i][fid_idx]))
         return self.normalize(out)
 
-    def information_gain(self, weights, fid):
+    def posterior(self, weights, fid, answer):
+        fid_idx = self._feature_index.get(fid)
+        if fid_idx is None:
+            return self.normalize(weights)
         w = self.normalize(weights)
-        py = self.answer_probability(w, fid, "yes")
+        return self._posterior_from_normalized(w, fid_idx, answer)
+
+    def information_gain(self, weights, fid):
+        fid_idx = self._feature_index.get(fid)
+        if fid_idx is None:
+            return 0.0
+        w = self.normalize(weights)
+        py = self._py(fid_idx, w)
         pn = 1.0 - py
         if py <= 0 or pn <= 0:
             return 0.0
-        hy = self.entropy(self.posterior(w, fid, "yes"))
-        hn = self.entropy(self.posterior(w, fid, "no"))
+        hy = _entropy(self._posterior_from_normalized(w, fid_idx, "yes"))
+        hn = _entropy(self._posterior_from_normalized(w, fid_idx, "no"))
         expected = py * hy + pn * hn
-        return self.entropy(w) - expected
+        return _entropy(w) - expected
 
     def choose_next(self, weights, asked):
         best_id = None
         best_ig = -1.0
+        w = self.normalize(weights)
+        w_entropy = _entropy(w)
         for f in self.features:
             fid = f["id"]
             if fid in asked:
                 continue
-            ig = self.information_gain(weights, fid)
+            fid_idx = self._feature_index.get(fid)
+            if fid_idx is None:
+                continue
+            py = self._py(fid_idx, w)
+            pn = 1.0 - py
+            if py <= 0 or pn <= 0:
+                continue
+            hy = _entropy(self._posterior_from_normalized(w, fid_idx, "yes"))
+            hn = _entropy(self._posterior_from_normalized(w, fid_idx, "no"))
+            ig = w_entropy - (py * hy + pn * hn)
             if ig > best_ig:
                 best_ig = ig
                 best_id = fid
@@ -143,7 +197,6 @@ class EntropyEngine:
         surprise = self.answer_probability(weights, fid, answer)
         new_asked = list(asked) + [fid]
         return new_weights, new_asked, surprise
-
 
     def heuristic_direction(self, name):
         for h in self.heuristics.get("directions", []):
@@ -183,10 +236,10 @@ class EntropyEngine:
     def direction_probs(self, weights):
         w = self.normalize(weights)
         out = {}
-        for d in self.directions:
+        for di, d in enumerate(self.directions):
             total = 0.0
             for i, wi in enumerate(w):
-                total += wi * float(self.algorithms[i].get("direction_weights", {}).get(d, 0.0))
+                total += wi * self._direction_matrix[i][di]
             out[d] = total
         # 归一化，方便展示
         s = sum(out.values()) or 1.0
