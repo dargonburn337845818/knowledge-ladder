@@ -1,0 +1,29 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  python-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Compile Python sources
+        run: |
+          python -m py_compile main.py app/*.py entropy_engine.py info_framework.py knowledge_data.py tiers_data.py tier8_thoughts.py generate_report.py export_mobile_data.py
+
+      - name: Regenerate mobile data
+        run: |
+          python export_mobile_data.py
+          test -f mobile/www/data.js

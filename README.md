@@ -152,7 +152,13 @@ build_windows.bat
 ## 项目结构
 
 ```text
-├── main.py                    # 桌面端 PySide6
+├── main.py                    # 入口：只负责启动
+├── app/
+│   ├── theme.py               # 视觉常量 / QSS / 壁纸模式
+│   ├── state.py               # 本地进度持久化
+│   ├── utils.py               # 标签聚合与纯数据工具
+│   ├── widgets.py             # 对话框 / 标签行 / 档位页 / 拆题页
+│   └── window.py              # 主窗口 / 标题栏 / 壁纸集成
 ├── entropy_engine.py          # 桌面端熵减引擎
 ├── algorithm_prior.json       # 多源先验与参数
 ├── feature_algorithm_matrix.json
@@ -163,7 +169,7 @@ build_windows.bat
 ├── export_mobile_data.py      # 生成移动端静态数据
 ├── mobile/                    # PWA + Capacitor
 │   └── www/
-└── .github/workflows/         # APK / EXE 自动构建
+└── .github/workflows/         # CI / APK / EXE 自动构建
 ```
 
 ---
