@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 """Codeforces 难度阶梯 · 8 档知识树数据。"""
 
-from tier8_thoughts import TIER8_THOUGHTS
-
 TIERS = [
     {
         "id": 1,
@@ -480,7 +478,6 @@ TIERS = [
                 "detail": "严谨表达：把原问题等价转化为更熟悉的模型（图、代数、计数等）。\n\n通俗化解释：区间变图论、序列变括号序列、计数变生成函数、最值变二分判定；转换后原题的复杂约束常常自动消失。\n\n使用提示：多问“这个模型还有没有另一种表示？”",
                 "algorithms": [],
             },
-            *TIER8_THOUGHTS,
         ],
     },
 ]

@@ -21,7 +21,7 @@ jobs:
 
       - name: Compile Python sources
         run: |
-          python -m py_compile main.py app/*.py entropy_engine.py info_framework.py knowledge_data.py tiers_data.py tier8_thoughts.py generate_report.py export_mobile_data.py
+          python -m py_compile main.py app/*.py entropy_engine.py info_framework.py knowledge_data.py tiers_data.py export_mobile_data.py
 
       - name: Regenerate mobile data
         run: |

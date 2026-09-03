@@ -43,24 +43,7 @@ try:
 except ImportError:
     HAS_MEDIA = False
 
-from info_framework import (
-    ANATOMY_STEPS,
-    DYN_DYNAMIC,
-    DYN_STATIC,
-    INFO_OPS,
-    INFO_OP_COLORS,
-    OP_BASELINE,
-    OP_ENCODE,
-    OP_PROPAGATE,
-    OP_PRUNE,
-    OP_TRANSFORM,
-    PHASES,
-    TOPOLOGIES,
-    get_alg_info,
-)
-from knowledge_data import ALGORITHMS, ALGORITHM_BY_NAME
 from tiers_data import TIERS
-from entropy_engine import EntropyEngine
 
 from .theme import (
     APP_NAME,
@@ -79,10 +62,9 @@ from .theme import (
 )
 from .state import ProgressStore
 from .utils import TOTAL_TAGS
-from .dialogs import CodeDialog, InfoGuideDialog, InfoMiniDialog
+from .dialogs import InfoMiniDialog
 from .dissect_page import DissectPage
-from .flow import FlowDiagram
-from .tier_page import TagRow, TierPage, make_tier_icon, tier_item_text
+from .tier_page import TierPage, make_tier_icon, tier_item_text
 
 HAS_MEDIA = THEME_HAS_MEDIA
 
@@ -275,19 +257,12 @@ class MainWindow(QMainWindow):
         self.tier_list.setIconSize(QSize(18, 18))
         self.tier_list.currentRowChanged.connect(self._on_tier_changed)
 
-        # 拆题主入口：桌面端也以“拆题引导”为主
+        # 拆题主入口：桌面端以“动态熵减拆题”为主
         self.dissect_btn = QPushButton("拆题", left)
         self.dissect_btn.setObjectName("dissectBtn")
-        self.dissect_btn.setToolTip("打开拆题引导：四步拆解 + 引导式思考")
+        self.dissect_btn.setToolTip("打开动态熵减拆题：一次只问一个问题")
         self.dissect_btn.clicked.connect(self._show_dissect)
         left_layout.addWidget(self.dissect_btn)
-
-        # 算法模板导航：从拆题主界面进入，查看算法信息/C++模板
-        self.template_btn = QPushButton("算法模板", left)
-        self.template_btn.setObjectName("templateBtn")
-        self.template_btn.setToolTip("查看算法信息与 C++ 模板")
-        self.template_btn.clicked.connect(self._show_templates)
-        left_layout.addWidget(self.template_btn)
 
         # 壁纸：桌面端玻璃拟态可链接本地 wallpaper 图片
         self.wallpaper_btn = QPushButton("壁纸", left)
@@ -296,10 +271,10 @@ class MainWindow(QMainWindow):
         self.wallpaper_btn.clicked.connect(self._choose_wallpaper)
         left_layout.addWidget(self.wallpaper_btn)
 
-        # 信息论导论入口：常驻一个小按钮，不占太多空间
+        # 信息论/教师共识入口：常驻一个小按钮，不占太多空间
         self.info_btn = QPushButton("导论", left)
         self.info_btn.setObjectName("infoBtn")
-        self.info_btn.setToolTip("打开信息论总纲：四操作 / 四阶段 / 拆题四步")
+        self.info_btn.setToolTip("信息论：四操作 / 四阶段 / 教师共识")
         self.info_btn.clicked.connect(self._show_guide)
         left_layout.addWidget(self.info_btn)
 
@@ -491,10 +466,10 @@ class MainWindow(QMainWindow):
     def _show_dissect(self):
         self.tier_list.setVisible(False)
         self._clear_right()
-        page = DissectPage(on_back=self._show_templates, parent=self)
+        page = DissectPage(on_back=self._show_tier_list, parent=self)
         self.right_layout.addWidget(page, 1)
 
-    def _show_templates(self):
+    def _show_tier_list(self):
         self.tier_list.setVisible(True)
         if self.tier_list.currentRow() < 0:
             self.tier_list.setCurrentRow(0)

@@ -49,11 +49,10 @@ class DataIntegrityTest(unittest.TestCase):
         heur_ids = {h["id"] for h in self.heuristics["directions"]}
         self.assertEqual(matrix_dirs, heur_ids)
 
-    def test_teacher_features_present_in_matrix(self):
+    def test_no_uncalibrated_teacher_features_in_matrix(self):
+        # 教师共识不拍脑袋进概率矩阵；只在方向末页作为未校准线索展示。
         teacher_features = [f for f in self.matrix["features"] if f.get("kind") == "teacher"]
-        self.assertGreaterEqual(len(teacher_features), 9)
-        for fid in ("reverse_scan", "graph_model", "offline", "dp_state_design", "greedy_exchange"):
-            self.assertIn(fid, {f["id"] for f in teacher_features})
+        self.assertEqual(teacher_features, [])
 
     def test_teacher_consensus_shape(self):
         themes = self.teacher["themes"]

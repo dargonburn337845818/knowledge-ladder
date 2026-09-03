@@ -8,7 +8,6 @@ from PySide6.QtWidgets import (
     QFrame,
     QHBoxLayout,
     QLabel,
-    QMessageBox,
     QProgressBar,
     QPushButton,
     QScrollArea,
@@ -18,17 +17,13 @@ from PySide6.QtWidgets import (
 )
 
 from info_framework import INFO_OPS, INFO_OP_COLORS
-from knowledge_data import ALGORITHM_BY_NAME
-
-from .dialogs import CodeDialog
 from .theme import ANIM_OFF, ANIM_LIGHT
 from .utils import aggregate_tag_info
 
 class TagRow(QFrame):
-    """单个知识点行：勾选 + 名称 + 描述 + 模板/详情按钮。
+    """单个知识点行：勾选 + 名称 + 描述 + 可展开详情。
 
-    带 ``detail`` 的条目会显示“展开/收起”，把详情原地展开；
-    没有关联算法的条目不再显示无效的“模板”按钮。
+    带 ``detail`` 的条目会显示“展开/收起”，把详情原地展开。
     """
 
     def __init__(self, tag, store, on_change):
@@ -94,7 +89,7 @@ class TagRow(QFrame):
             cf_label.setObjectName("cfTag")
             layout.addWidget(cf_label, alignment=Qt.AlignmentFlag.AlignTop)
 
-        # 无算法但有详情的思维模式：显示“展开”而不是无效的“模板”
+        # 有详情的思维模式：显示“展开”
         self.detail_btn = None
         if tag.get("detail"):
             self.detail_btn = QPushButton("展开")
@@ -102,14 +97,6 @@ class TagRow(QFrame):
             self.detail_btn.setFixedWidth(56)
             self.detail_btn.clicked.connect(self._toggle_detail)
             layout.addWidget(self.detail_btn, alignment=Qt.AlignmentFlag.AlignTop)
-
-        # 有算法模板的条目：显示“模板”
-        if tag.get("algorithms"):
-            template_btn = QPushButton("模板")
-            template_btn.setObjectName("detailBtn")
-            template_btn.setFixedWidth(56)
-            template_btn.clicked.connect(self._show_template)
-            layout.addWidget(template_btn, alignment=Qt.AlignmentFlag.AlignTop)
 
         outer.addLayout(layout)
 
@@ -179,15 +166,6 @@ class TagRow(QFrame):
         if not op:
             return True
         return op in self.info_ops
-
-    def _show_template(self):
-        names = self.tag.get("algorithms", [])
-        algs = [ALGORITHM_BY_NAME[n] for n in names if n in ALGORITHM_BY_NAME]
-        if not algs:
-            QMessageBox.information(self, "暂无模板", "该知识点暂未关联具体模板。")
-            return
-        dialog = CodeDialog(self, algs, self.store.animation_level)
-        dialog.exec()
 
 class TierPage(QWidget):
     """单个档位的详情页。"""
