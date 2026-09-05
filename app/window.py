@@ -429,7 +429,7 @@ class MainWindow(QMainWindow):
     def _show_dissect(self):
         self.tier_list.setVisible(False)
         self._clear_right()
-        page = DissectPage(on_back=self._show_tier_list, parent=self)
+        page = DissectPage(on_back=self._show_tier_list, parent=self, store=self.store)
         self.right_layout.addWidget(page, 1)
 
     def _show_tier_list(self):

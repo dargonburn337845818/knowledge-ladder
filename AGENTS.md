@@ -27,7 +27,7 @@ maximizing question at a time and converges to four directions.
 | `tiers_data.py` | 8-tier knowledge tree |
 | `teacher_consensus.json` | Uncalibrated teacher guidance (display only) |
 | `app/` | PySide6 deep modules: theme/state/utils/dialogs/tier/dissect/window/wallpaper |
-| `mobile/www/` | Offline-capable PWA and Capacitor web assets |
+| `mobile/www/` | Offline-capable PWA and Capacitor web assets (app.js / entropy_engine.js / card_store.js / entropy_data.js) |
 | `scripts/` | Dev/CI tools: data schema, engine parity, release body |
 | `pyproject.toml` | Project metadata + ruff/mypy/pytest config |
 | `.github/workflows/` | CI, Android APK, Desktop EXE |
@@ -57,7 +57,9 @@ python export_mobile_data.py                            # keep data in sync
 python scripts/engine_parity.py
 node --check mobile/www/entropy_engine.js
 node --check mobile/www/app.js
+node --check mobile/www/card_store.js
 node --check mobile/www/sw.js
+node tests/test_card_store.js
 QT_QPA_PLATFORM=offscreen python -c "...MainWindow smoke..."
 ```
 
