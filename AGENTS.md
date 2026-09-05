@@ -70,6 +70,9 @@ QT_QPA_PLATFORM=offscreen python -c "...MainWindow smoke..."
 ## Workflow conventions
 
 - `main` is protected; changes go through PRs.
+- Agent-driven changes: after the local verification commands pass, commit and
+  push to the current non-protected branch automatically; if the current branch is
+  protected `main`, create a short-lived feature branch and open a PR instead.
 - GitHub Actions must keep `contents: read` by default and only elevate for
   release jobs.
 - Do not add secrets to workflow files; use GitHub Secrets only when needed
