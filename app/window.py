@@ -26,8 +26,9 @@ from resource_paths import find_data
 from tiers_data import TIERS
 
 from .dialogs import InfoMiniDialog
-from .dissect_page import DissectPage
+from .reflection import ReflectionPage, ReflectionStore
 from .state import ProgressStore
+from .stats_page import StatsPage
 from .theme import (
     ANIM_LIGHT,
     ANIM_NAMES,
@@ -186,6 +187,7 @@ class MainWindow(QMainWindow):
         self.setMinimumSize(860, 560)
 
         self.store = ProgressStore()
+        self.reflection_store = ReflectionStore()
         self.wallpaper = WallpaperManager(self)
 
         central = QWidget()
@@ -235,13 +237,6 @@ class MainWindow(QMainWindow):
         self.tier_list.setIconSize(QSize(18, 18))
         self.tier_list.currentRowChanged.connect(self._on_tier_changed)
 
-        # 拆题主入口：桌面端以“动态熵减拆题”为主
-        self.dissect_btn = QPushButton("拆题", left)
-        self.dissect_btn.setObjectName("dissectBtn")
-        self.dissect_btn.setToolTip("打开动态熵减拆题：一次只问一个问题")
-        self.dissect_btn.clicked.connect(self._show_dissect)
-        left_layout.addWidget(self.dissect_btn)
-
         # 壁纸：桌面端玻璃拟态可链接本地 wallpaper 图片
         self.wallpaper_btn = QPushButton("壁纸", left)
         self.wallpaper_btn.setObjectName("wallpaperBtn")
@@ -255,6 +250,20 @@ class MainWindow(QMainWindow):
         self.info_btn.setToolTip("信息论：四操作 / 四阶段 / 教师共识")
         self.info_btn.clicked.connect(self._show_guide)
         left_layout.addWidget(self.info_btn)
+
+        # 复盘记事本入口：写题后自然记录感悟，专家点评从 D 盘记忆本写回
+        self.reflection_btn = QPushButton("复盘", left)
+        self.reflection_btn.setObjectName("reflectionBtn")
+        self.reflection_btn.setToolTip("写今日复盘，保存后标记待专家点评")
+        self.reflection_btn.clicked.connect(self._show_reflection)
+        left_layout.addWidget(self.reflection_btn)
+
+        # 成长统计入口：知识面覆盖 + 量化趋势 + 复盘状态
+        self.stats_btn = QPushButton("统计", left)
+        self.stats_btn.setObjectName("statsBtn")
+        self.stats_btn.setToolTip("查看知识面覆盖 / 量化趋势 / 复盘状态")
+        self.stats_btn.clicked.connect(self._show_stats)
+        left_layout.addWidget(self.stats_btn)
 
         # 导航按钮放在左上，和预览保持一致；8 档列表保持紧凑，不撑满左侧
         self.tier_list.setMaximumHeight(320)
@@ -307,7 +316,7 @@ class MainWindow(QMainWindow):
         self._apply_style(self.store.style_mode)
         self._apply_wallpaper()
         self._update_maximized_mode()
-        self._show_dissect()
+        self._show_tier_list()
 
     def _install_resize_handles(self):
         central = self.centralWidget()
@@ -425,10 +434,25 @@ class MainWindow(QMainWindow):
         page = TierPage(tier, self.store, self._update_global_progress)
         self.right_layout.addWidget(page, 1)
 
-    def _show_dissect(self):
+    def _show_reflection(self):
         self.tier_list.setVisible(False)
         self._clear_right()
-        page = DissectPage(on_back=self._show_tier_list, parent=self, store=self.store)
+        page = ReflectionPage(
+            self.reflection_store,
+            on_back=self._show_tier_list,
+            parent=self,
+        )
+        self.right_layout.addWidget(page, 1)
+
+    def _show_stats(self):
+        self.tier_list.setVisible(False)
+        self._clear_right()
+        page = StatsPage(
+            self.reflection_store,
+            self.store,
+            on_back=self._show_tier_list,
+            parent=self,
+        )
         self.right_layout.addWidget(page, 1)
 
     def _show_tier_list(self):

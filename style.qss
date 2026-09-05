@@ -50,7 +50,7 @@ QPushButton#next {
     color: #F3DCA8;
 }
 
-QPushButton#dissectBtn, QPushButton#infoBtn, QPushButton#templateBtn, QPushButton#wallpaperBtn {
+QPushButton#dissectBtn, QPushButton#infoBtn, QPushButton#templateBtn, QPushButton#wallpaperBtn, QPushButton#reflectionBtn, QPushButton#statsBtn {
     background: rgba(30,33,38,0.7);
     border: 1px solid rgba(255,255,255,0.08);
     border-radius: 8px;
@@ -75,6 +75,9 @@ QListWidget#tierList::item:selected {
 
 QProgressBar#tierProgress { background: rgba(255,255,255,0.08); border: none; border-radius: 4px; height: 6px; }
 QProgressBar#tierProgress::chunk { background: #E4B863; border-radius: 4px; }
+
+QProgressBar#statsTierBar { background: rgba(255,255,255,0.08); border: none; border-radius: 5px; height: 10px; }
+QProgressBar#statsTierBar::chunk { background: #E4B863; border-radius: 5px; }
 
 QLabel#tagName { font-weight: 600; font-size: 16px; color: rgba(255,255,255,0.95); }
 QLabel#tagDesc, QLabel#phaseLabel { color: rgba(255,255,255,0.5); font-size: 12px; }
