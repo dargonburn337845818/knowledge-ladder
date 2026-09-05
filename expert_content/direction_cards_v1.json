@@ -1,0 +1,596 @@
+{
+  "meta": {
+    "version": "1.4.0",
+    "description": "四方向内容资产定稿：卡片主文案 + 安全触发摘要 + 三层递进点拨 + 反例/失效边界 + 专家来源台账。",
+    "generator": "teacher_discussion algorithm/product-ux/writing/math/physics sessions",
+    "session_ids": [
+      "teacher_1788604576323_2h7r90",
+      "teacher_1788604602152_xuvutu",
+      "teacher_1788604602206_b53sn5",
+      "teacher_1788604614464_cai5eh",
+      "teacher_1788604614524_04piwh"
+    ],
+    "note": "文案为风格化/方法论归纳，非专家本人原话；sourceRefs 指向公开资料、官方题解与专家公开材料。",
+    "review_marks": [
+      {
+        "expert_id": "don-norman",
+        "expert_name": "Don Norman",
+        "note": "四方向应建立“四个思考动作”的心理模型，用动作化标题。"
+      },
+      {
+        "expert_id": "jakob-nielsen",
+        "expert_name": "Jakob Nielsen",
+        "note": "卡片可扫读：价值一行、触发 3~5 条、锚点 1 个；详情页显示层级。"
+      },
+      {
+        "expert_id": "julie-zhuo",
+        "expert_name": "Julie Zhuo",
+        "note": "触发用“你看到……”的处境句式，让学习者对号入座。"
+      },
+      {
+        "expert_id": "william-zinsser",
+        "expert_name": "William Zinsser",
+        "note": "短句、动词、第二人称；价值句控制在 20 字内；锚点不剧透。"
+      },
+      {
+        "expert_id": "terence-tao",
+        "expert_name": "Terence Tao",
+        "note": "方向对应结构性质：重复/偏序/单调/同构，是启发入口而非完备分类。"
+      },
+      {
+        "expert_id": "richard-feynman",
+        "expert_name": "Richard Feynman",
+        "note": "直觉图像：缓存、波前、边界排除、换坐标。"
+      }
+    ],
+    "boundary_conflicts": [
+      {
+        "conflict_id": "edge-c1",
+        "topic": "边界应写成可构造反例还是适用前提",
+        "claim_a": {
+          "expert_id": "ecnerwala",
+          "expert_name": "ecnerwala",
+          "stance": "给可构造反例"
+        },
+        "claim_b": {
+          "expert_id": "radewoosh",
+          "expert_name": "Radewoosh",
+          "stance": "给适用前提，避免吓唬"
+        },
+        "decision": "merge",
+        "adjudicator": "主持人",
+        "reason": "每条边界用“反例形态 + 额外前提/先做什么”两段式，既可构造又可行动。"
+      }
+    ],
+    "term_glossary": {
+      "direction_card": "方向卡片：value/triggers/anchor 组成的方向级摘要",
+      "condition": "三层第一层：判断条件，是否值得进入该方向",
+      "action": "三层第二层：可执行动作，落到草稿/模型的下一步",
+      "self_question": "三层第三层：自问/验证，用小样例或反例检查",
+      "edge_case": "反例/失效边界：误导信号 + 反例形态 + 额外前提"
+    },
+    "source_ledger": [
+      {
+        "domain": "algorithm",
+        "session_id": "teacher_1788604576323_2h7r90",
+        "rounds": [
+          1,
+          2,
+          3
+        ],
+        "topics": [
+          "四方向卡片主文案：价值一句话、触发信号、典型例题锚点",
+          "三层递进点拨：条件→动作→自问的边界与顺序",
+          "四方向的反例与失效边界：何时不适用"
+        ],
+        "conclusion_ids": [
+          "alg-1",
+          "alg-2",
+          "alg-3",
+          "alg-4",
+          "alg-5",
+          "alg-6",
+          "alg-l1",
+          "alg-l2",
+          "alg-l3",
+          "edge-1",
+          "edge-2",
+          "edge-3"
+        ],
+        "source_refs": [
+          "https://codeforces.com/profile/tourist",
+          "https://codeforces.com/profile/Um_nik",
+          "https://codeforces.com/blog/entry/64311",
+          "https://github.com/mtuann/competitive-programming-cpp/blob/main/topics/foundations/patterns/prefix-sums/README.md",
+          "https://github.com/mtuann/competitive-programming-cpp/blob/main/topics/dp/foundations/README.md",
+          "https://github.com/mtuann/competitive-programming-cpp/blob/main/topics/foundations/patterns/binary-search/README.md",
+          "https://github.com/mtuann/competitive-programming-cpp/blob/main/topics/math/fft-ntt/README.md"
+        ]
+      },
+      {
+        "domain": "product-ux",
+        "session_id": "teacher_1788604602152_xuvutu",
+        "rounds": [
+          1,
+          2
+        ],
+        "topics": [
+          "四方向卡片主文案的用户认知与可扫读性",
+          "三层渐进披露的交互与认知负担"
+        ],
+        "conclusion_ids": [
+          "ux-1",
+          "ux-2",
+          "ux-3",
+          "ux-l1",
+          "ux-l2",
+          "ux-l3"
+        ],
+        "source_refs": [
+          "https://www.nngroup.com/articles/mental-models/",
+          "https://www.nngroup.com/articles/ten-usability-heuristics/",
+          "https://www.nngroup.com/articles/progressive-disclosure/",
+          "https://www.juliezhuo.com/"
+        ]
+      },
+      {
+        "domain": "writing",
+        "session_id": "teacher_1788604602206_b53sn5",
+        "rounds": [
+          1,
+          2
+        ],
+        "topics": [
+          "四方向卡片文案的简洁、准确与非剧透",
+          "三层各一句话的句法与节奏"
+        ],
+        "conclusion_ids": [
+          "write-1",
+          "write-l1"
+        ],
+        "source_refs": [
+          "https://en.wikipedia.org/wiki/William_Zinsser",
+          "https://www.amazon.com/On-Writing-Well-Classic-Nonfiction/dp/0060891548"
+        ]
+      },
+      {
+        "domain": "math",
+        "session_id": "teacher_1788604614464_cai5eh",
+        "rounds": [
+          1,
+          2,
+          3
+        ],
+        "topics": [
+          "四大方向背后的一般化结构：何时可判定、何时只是启发",
+          "三层对应的数学动作：判定→规范化→验证",
+          "失效边界的数学形式：前提不成立时启发失效"
+        ],
+        "conclusion_ids": [
+          "math-1",
+          "math-l1",
+          "edge-math-1"
+        ],
+        "source_refs": [
+          "https://terrytao.wordpress.com/",
+          "https://en.wikipedia.org/wiki/Mathematical_structure"
+        ]
+      },
+      {
+        "domain": "physics",
+        "session_id": "teacher_1788604614524_04piwh",
+        "rounds": [
+          1,
+          2,
+          3
+        ],
+        "topics": [
+          "四大方向的物理直觉：守恒、波前、相空间与坐标变换",
+          "三层递进的物理图像：看见→尝试→检验",
+          "失效边界的直觉检验：图像在小样例里是否崩塌"
+        ],
+        "conclusion_ids": [
+          "phy-1",
+          "phy-l1",
+          "edge-phy-1"
+        ],
+        "source_refs": [
+          "https://en.wikipedia.org/wiki/Richard_Feynman",
+          "https://www.feynmanlectures.caltech.edu/"
+        ]
+      }
+    ]
+  },
+  "directions": [
+    {
+      "id": "coding_compression",
+      "title": "编码压缩",
+      "value": "重复信息只算一次，把慢查询变成快查询。",
+      "triggers": [
+        "你看到多次区间/前缀/后缀查询，数据是静态只读的。",
+        "你看到同一个量会被反复算，想先存下来 O(1) 查。",
+        "你看到查询多、修改少，适合预处理换查询。",
+        "你看到状态/集合很大，但真正用到的表示可以压小。"
+      ],
+      "anchor": {
+        "name": "一维前缀和（静态数组多次区间求和）",
+        "note": "教科书式锚点：先预处理，每次查询 O(1)；不剧透更深入解法。",
+        "source": "https://github.com/mtuann/competitive-programming-cpp/blob/main/topics/foundations/patterns/prefix-sums/README.md"
+      },
+      "expert_marks": [
+        {
+          "expert_id": "um-nik",
+          "expert_name": "Um_nik",
+          "note": "编码压缩=重复信息只算一次/提前存好；不要与状态压缩混淆。"
+        },
+        {
+          "expert_id": "benq",
+          "expert_name": "Benq",
+          "note": "触发形态：静态只读、区间/前缀/后缀查询、状态空间大。"
+        },
+        {
+          "expert_id": "terence-tao",
+          "expert_name": "Terence Tao",
+          "note": "对应结构：重复性/可交换性→预计算。"
+        }
+      ],
+      "source_refs": [
+        "https://github.com/mtuann/competitive-programming-cpp/blob/main/topics/foundations/patterns/prefix-sums/README.md",
+        "https://codeforces.com/topic/117775/diff/en3/en4",
+        "https://github.com/cp-algorithms/cp-algorithms/pull/383/files/4e56f6b16fdd63fe74213a0d03aea431f98dd7ab"
+      ],
+      "layers": {
+        "condition": "你看到同一个量或区间会被反复查询/反复计算吗？",
+        "action": "在草稿上标出所有重复计算的量，先写一个预处理把它们存好。",
+        "self_question": "用小样例数一遍：预处理后每次查询是否真的不再重复算？",
+        "expert_marks": [
+          {
+            "expert_id": "petr",
+            "expert_name": "Petr",
+            "note": "条件=是否值得进入，动作=可执行实验，自问=验证/反例；不出现完整算法名。"
+          },
+          {
+            "expert_id": "um-nik",
+            "expert_name": "Um_nik",
+            "note": "动作层可提“预处理”等方向级动作，不提前给完整算法名。"
+          },
+          {
+            "expert_id": "william-zinsser",
+            "expert_name": "William Zinsser",
+            "note": "条件用短问句，动作用祈使句，自问用一个问句。"
+          }
+        ],
+        "source_refs": [
+          "https://github.com/mtuann/competitive-programming-cpp/blob/main/topics/foundations/patterns/prefix-sums/README.md",
+          "https://codeforces.com/blog/entry/64311"
+        ]
+      },
+      "edge_cases": [
+        {
+          "trigger_signal": "数据会被动态修改，或预处理结果需要频繁重建。",
+          "counterexample": "带单点修改的区间求和：静态前缀和在修改后会给出已过期的答案。",
+          "extra_precondition": "如果数据会变，先判断能否用可更新结构或分块/重建策略；否则不要只做一次性预处理。",
+          "expert_marks": [
+            {
+              "expert_id": "um-nik",
+              "expert_name": "Um_nik",
+              "note": "失效信号：动态更新、缓存失效。"
+            },
+            {
+              "expert_id": "ecnerwala",
+              "expert_name": "ecnerwala",
+              "note": "反例形态：带修改的区间和，静态预处理会错。"
+            },
+            {
+              "expert_id": "terence-tao",
+              "expert_name": "Terence Tao",
+              "note": "数学前提：重复消费且对象近似静态。"
+            }
+          ],
+          "source_refs": [
+            "https://codeforces.com/topic/117775/diff/en3/en4",
+            "https://github.com/cp-algorithms/cp-algorithms/pull/383/files/4e56f6b16fdd63fe74213a0d03aea431f98dd7ab"
+          ]
+        }
+      ],
+      "card_triggers": [
+        "多次区间/前缀/后缀查询，数据静态只读",
+        "同一个量反复计算，可先存后查",
+        "查询多、修改少，适合预处理换查询",
+        "状态大但真正用到的表示可以压小"
+      ]
+    },
+    {
+      "id": "propagation_relaxation",
+      "title": "传播松弛",
+      "value": "沿依赖一层层推，让前驱替后继铺路。",
+      "triggers": [
+        "你看到 DAG/树/图上存在顺序或依赖关系。",
+        "你看到步数/距离/路径/背包/DP 的递推关系。",
+        "你看到 BFS/DFS 逐层扩散，或滑动窗口取前驱最值。",
+        "你看到状态由前面的状态决定，能按阶段/拓扑序推进。"
+      ],
+      "anchor": {
+        "name": "DAG 上拓扑序 DP（最长路/方案数）",
+        "note": "教科书式锚点：先定顺序，再让前驱向后继传值。",
+        "source": "https://github.com/mtuann/competitive-programming-cpp/blob/main/topics/dp/foundations/README.md"
+      },
+      "expert_marks": [
+        {
+          "expert_id": "errichto",
+          "expert_name": "Errichto",
+          "note": "触发三词：有顺序、有前驱、能递推。"
+        },
+        {
+          "expert_id": "benq",
+          "expert_name": "Benq",
+          "note": "触发形态：树/图/DAG、步数/距离/DP。"
+        },
+        {
+          "expert_id": "terence-tao",
+          "expert_name": "Terence Tao",
+          "note": "对应结构：偏序依赖→沿序传递。"
+        }
+      ],
+      "source_refs": [
+        "https://github.com/mtuann/competitive-programming-cpp/blob/main/topics/dp/foundations/README.md",
+        "http://homes.di.unimi.it/righini/Didattica/OttimizzazioneCombinatoria/MaterialeOC/13%20-%20Dynamic%20programming.pdf"
+      ],
+      "layers": {
+        "condition": "你看到题目中存在顺序、依赖或前驱关系吗？",
+        "action": "把依赖画成图或队列，按顺序让前驱先算完，再算后继。",
+        "self_question": "按这个顺序推进时，每个状态需要的前驱是不是都已经算好了？",
+        "expert_marks": [
+          {
+            "expert_id": "errichto",
+            "expert_name": "Errichto",
+            "note": "触发三词：有顺序、有前驱、能递推；逐层推进。"
+          },
+          {
+            "expert_id": "terence-tao",
+            "expert_name": "Terence Tao",
+            "note": "三层=判定结构存在→规范到该结构→验证不变量。"
+          },
+          {
+            "expert_id": "william-zinsser",
+            "expert_name": "William Zinsser",
+            "note": "每层一句话，动词开头。"
+          }
+        ],
+        "source_refs": [
+          "https://github.com/mtuann/competitive-programming-cpp/blob/main/topics/dp/foundations/README.md",
+          "https://codeforces.com/blog/entry/64311"
+        ]
+      },
+      "edge_cases": [
+        {
+          "trigger_signal": "依赖关系存在环，或状态不满足无后效性。",
+          "counterexample": "带环图上的最长路：直接按拓扑/单遍顺序推进会循环或漏掉更优路径。",
+          "extra_precondition": "如果可能有环，先判环/分层/用迭代松弛，或改用可处理环的多次松弛；否则不要只做单遍顺序推进。",
+          "expert_marks": [
+            {
+              "expert_id": "tourist",
+              "expert_name": "Tourist",
+              "note": "失效条件：环/无后效，单遍推进会错。"
+            },
+            {
+              "expert_id": "ecnerwala",
+              "expert_name": "ecnerwala",
+              "note": "反例形态：带环图最长路，直接拓扑会死循环。"
+            },
+            {
+              "expert_id": "terence-tao",
+              "expert_name": "Terence Tao",
+              "note": "数学前提：存在偏序/无环/无后效。"
+            }
+          ],
+          "source_refs": [
+            "https://github.com/mtuann/competitive-programming-cpp/blob/main/topics/dp/foundations/README.md",
+            "http://homes.di.unimi.it/righini/Didattica/OttimizzazioneCombinatoria/MaterialeOC/13%20-%20Dynamic%20programming.pdf"
+          ]
+        }
+      ],
+      "card_triggers": [
+        "题目中存在顺序、依赖或前驱关系",
+        "步数/距离/路径可以递推",
+        "逐层扩散或由前驱决定当前",
+        "状态之间存在先后关系"
+      ]
+    },
+    {
+      "id": "pruning_decision",
+      "title": "剪枝决策",
+      "value": "证明候选不可能赢，一次排除，不再逐个试。",
+      "triggers": [
+        "你看到“最大化最小值 / 最小化最大值”。",
+        "你看到答案随 x 单调，能写 check(x)。",
+        "你看到有序数组/排序后取最值，或单调栈/队列。",
+        "你看到有些候选永远不可能最优，可用交换/贪心论证排除。"
+      ],
+      "anchor": {
+        "name": "二分答案（最大值最小化 / 可行性判定）",
+        "note": "教科书式锚点：把求最优改成 check(x)，利用单调性缩小区间。",
+        "source": "https://github.com/mtuann/competitive-programming-cpp/blob/main/topics/foundations/patterns/binary-search/README.md"
+      },
+      "expert_marks": [
+        {
+          "expert_id": "ecnerwala",
+          "expert_name": "ecnerwala",
+          "note": "不只二分：单调性、可行性、永不优候选都算剪枝。"
+        },
+        {
+          "expert_id": "neal",
+          "expert_name": "neal",
+          "note": "主触发：单调/可判/可排除。"
+        },
+        {
+          "expert_id": "terence-tao",
+          "expert_name": "Terence Tao",
+          "note": "对应结构：序结构与可行性→排除。"
+        }
+      ],
+      "source_refs": [
+        "https://github.com/mtuann/competitive-programming-cpp/blob/main/topics/foundations/patterns/binary-search/README.md",
+        "https://codeforces.com/topic/156211/diff/en3/en4"
+      ],
+      "layers": {
+        "condition": "你看到答案或判定随某个量单调，或存在明显不可能优的候选吗？",
+        "action": "先写一个 check(x)，再找出哪些候选永远不可能赢，直接排除。",
+        "self_question": "用一个边界小样例检查：被排除的候选真的不可能比当前更好吗？",
+        "expert_marks": [
+          {
+            "expert_id": "ecnerwala",
+            "expert_name": "ecnerwala",
+            "note": "自问可证伪：小样例/反例验证，而非空泛反思。"
+          },
+          {
+            "expert_id": "petr",
+            "expert_name": "Petr",
+            "note": "条件=是否值得进入；动作=可执行实验；自问=验证。"
+          },
+          {
+            "expert_id": "terence-tao",
+            "expert_name": "Terence Tao",
+            "note": "对应序结构与可行性，验证隐藏前提。"
+          }
+        ],
+        "source_refs": [
+          "https://github.com/mtuann/competitive-programming-cpp/blob/main/topics/foundations/patterns/binary-search/README.md",
+          "https://codeforces.com/blog/entry/64311"
+        ]
+      },
+      "edge_cases": [
+        {
+          "trigger_signal": "check(x) 不单调，或“永不优”的排除证明有隐藏反例。",
+          "counterexample": "多峰函数上直接二分答案：check 真值区间不连续，会跳到错误区间。",
+          "extra_precondition": "先证明单调性/可判定性，再用小样例验证被排除集合；否则不要仅凭“最值”二字就二分。",
+          "expert_marks": [
+            {
+              "expert_id": "benq",
+              "expert_name": "Benq",
+              "note": "闭环：写 check 前先证单调。"
+            },
+            {
+              "expert_id": "ecnerwala",
+              "expert_name": "ecnerwala",
+              "note": "反例形态：多峰函数上二分答案会错。"
+            },
+            {
+              "expert_id": "terence-tao",
+              "expert_name": "Terence Tao",
+              "note": "数学前提：判定函数单调且排除证明正确。"
+            }
+          ],
+          "source_refs": [
+            "https://github.com/mtuann/competitive-programming-cpp/blob/main/topics/foundations/patterns/binary-search/README.md",
+            "https://codeforces.com/topic/156211/diff/en3/en4"
+          ]
+        }
+      ],
+      "card_triggers": [
+        "答案或判定随某个量单调",
+        "能把求最优改成判可行",
+        "有序之后取最值更方便",
+        "有些候选永远不可能最优"
+      ]
+    },
+    {
+      "id": "transform_domain_mapping",
+      "title": "变换域映射",
+      "value": "正面难算就换个表示、坐标或等价问题。",
+      "triggers": [
+        "你看到区间加减，想试点差分/端点变化。",
+        "你看到线性递推，想试矩阵快速幂。",
+        "你看到计数/匹配，想试卷积/生成函数/自动机。",
+        "你看到异或/几何/图，想试线性基/对偶/图建模。"
+      ],
+      "anchor": {
+        "name": "差分数组 / FFT 卷积",
+        "note": "教科书式锚点：区间操作换点操作；多项式乘法换卷积。",
+        "source": "https://github.com/mtuann/competitive-programming-cpp/blob/main/topics/math/fft-ntt/README.md"
+      },
+      "expert_marks": [
+        {
+          "expert_id": "radewoosh",
+          "expert_name": "Radewoosh",
+          "note": "换表示：差分、矩阵快速幂、FFT/生成函数、自动机/图建模。"
+        },
+        {
+          "expert_id": "richard-feynman",
+          "expert_name": "Richard Feynman",
+          "note": "像换坐标系：同一个问题换个坐标方程就简单。"
+        },
+        {
+          "expert_id": "terence-tao",
+          "expert_name": "Terence Tao",
+          "note": "对应结构：同构/等价表示→复杂度不变但可算性提高。"
+        }
+      ],
+      "source_refs": [
+        "https://github.com/mtuann/competitive-programming-cpp/blob/main/topics/math/fft-ntt/README.md",
+        "https://codeforces.com/topic/111995/en4?mobile=false&locale=en",
+        "https://github.com/cp-algorithms/cp-algorithms/pull/383/files/4e56f6b16fdd63fe74213a0d03aea431f98dd7ab"
+      ],
+      "layers": {
+        "condition": "你看到正面难算，但可能有另一种表示、坐标或等价问题更简单吗？",
+        "action": "在草稿上把题面重述成另一个模型，再写下这个模型里的等价条件。",
+        "self_question": "重述后的模型和原题是否一一对应？有没有丢失或增加情况？",
+        "expert_marks": [
+          {
+            "expert_id": "radewoosh",
+            "expert_name": "Radewoosh",
+            "note": "换表示/坐标/等价问题；动作层给重述而非完整算法。"
+          },
+          {
+            "expert_id": "richard-feynman",
+            "expert_name": "Richard Feynman",
+            "note": "看见→尝试→检验；第一层只给图像，不给答案。"
+          },
+          {
+            "expert_id": "william-zinsser",
+            "expert_name": "William Zinsser",
+            "note": "短句、动词、第二人称，不用弱词。"
+          }
+        ],
+        "source_refs": [
+          "https://github.com/mtuann/competitive-programming-cpp/blob/main/topics/math/fft-ntt/README.md",
+          "https://codeforces.com/blog/entry/64311"
+        ]
+      },
+      "edge_cases": [
+        {
+          "trigger_signal": "重述后的模型与原题不等价，或碰到精度/模数/规模限制。",
+          "counterexample": "计数题直接套模意义下的卷积/生成函数：若模数不支持或一一对应失败，答案偏差。",
+          "extra_precondition": "先证明重述是一一对应/语义保持，并检查模数、精度、规模；否则换表示只会带来新错误。",
+          "expert_marks": [
+            {
+              "expert_id": "radewoosh",
+              "expert_name": "Radewoosh",
+              "note": "失效条件：等价性/精度/模数/规模。"
+            },
+            {
+              "expert_id": "richard-feynman",
+              "expert_name": "Richard Feynman",
+              "note": "图像崩溃点：重述后与原题不等价。"
+            },
+            {
+              "expert_id": "terence-tao",
+              "expert_name": "Terence Tao",
+              "note": "数学前提：存在语义保持的同构/等价表示。"
+            }
+          ],
+          "source_refs": [
+            "https://github.com/mtuann/competitive-programming-cpp/blob/main/topics/math/fft-ntt/README.md",
+            "https://codeforces.com/topic/111995/en4?mobile=false&locale=en"
+          ]
+        }
+      ],
+      "card_triggers": [
+        "区间操作可以换成点操作",
+        "线性递推可以换一种写法",
+        "计数/匹配可以换一个模型",
+        "异或/几何/图可以换一个视角"
+      ]
+    }
+  ]
+}

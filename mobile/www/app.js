@@ -5,10 +5,11 @@
     weights: engine ? engine.initialWeights() : [],
     asked: [],
     history: [],
-    mode: "baseline",
+    mode: "question",
     currentQuestion: null,
     lastSurprise: 1,
-    anomalyFlag: false
+    anomalyFlag: false,
+    layerUnlocked: 1
   };
 
   const stage = document.getElementById("stage");
@@ -23,6 +24,11 @@
   }
 
   const HEURISTICS = (window.ENTROPY_DATA && window.ENTROPY_DATA.heuristics) || { directions: [] };
+  const DIRECTION_CONTENT = (window.ENTROPY_DATA && window.ENTROPY_DATA.direction_content) || { directions: [] };
+
+  function directionContentByName(name) {
+    return DIRECTION_CONTENT.directions.find(d => d.title === name) || null;
+  }
 
   function heuristicObj(name) {
     return HEURISTICS.directions.find(h => h.id === name) || null;
@@ -102,43 +108,15 @@
       weights: engine ? engine.initialWeights() : [],
       asked: [],
       history: [],
-      mode: "baseline",
+      mode: "question",
       currentQuestion: null,
       lastSurprise: 1,
-      anomalyFlag: false
+      anomalyFlag: false,
+      layerUnlocked: 1
     };
-    renderBaseline();
+    renderQuestion();
   }
 
-  function renderBaseline() {
-    stepCount.style.display = "";
-    stepCount.textContent = "基线";
-    stage.innerHTML = `
-      <div class="card">
-        <div class="card-title">先写暴力</div>
-        <div style="font-size:18px;margin-bottom:18px;">写一个最直接的暴力/模拟方案</div>
-        <div class="options">
-          <button class="option" data-answer="yes">写好了</button>
-          <button class="option" data-answer="no">还没写</button>
-        </div>
-        <div id="baselineWarn" class="warn-text" style="display:none;margin-top:14px;">
-          先写，再继续。
-        </div>
-      </div>
-    `;
-    stage.querySelectorAll(".option").forEach(btn => {
-      btn.addEventListener("click", () => {
-        const a = btn.dataset.answer;
-        if (a === "yes") {
-          state.mode = "question";
-          renderQuestion();
-        } else {
-          const warn = document.getElementById("baselineWarn");
-          if (warn) warn.style.display = "block";
-        }
-      });
-    });
-  }
 
   function questionText(fid) {
     const f = engine.features.find(x => x.id === fid);
@@ -221,18 +199,44 @@
   function renderFinish() {
     state.mode = "finished";
     stepCount.style.display = "none";
-    const probs = engine.directionProbs(state.weights);
-    const dirs = Object.keys(probs).sort((a, b) => probs[b] - probs[a]);
+    const dirs = DIRECTION_CONTENT.directions;
     if (dirs.length) {
-      renderDirection(dirs[0]);
+      stage.innerHTML = `
+        <div class="card">
+          <div class="card-title">四个方向，点一个进入</div>
+          <div class="card-hint">卡片只给线索，不展示算法权重。</div>
+          <div class="direction-grid">
+            ${dirs.map(d => `
+              <button class="option direction-card" data-dir="${d.title}">
+                <div class="direction-card-title">${d.title}</div>
+                <div class="direction-card-value">${d.value}</div>
+                <div class="direction-card-triggers">${(d.card_triggers || d.triggers || []).slice(0, 2).join("；")}</div>
+              </button>
+            `).join("")}
+          </div>
+          <div style="display:flex;gap:8px;margin-top:8px;">
+            ${state.history.length ? '<button class="think-back" id="backBtn" style="flex:1;">‹ 上一步</button>' : ""}
+            <button class="restart-btn" id="restartBtn" style="flex:1;margin-top:0;">重新开始</button>
+          </div>
+        </div>
+      `;
+      stage.querySelectorAll(".direction-card").forEach(btn => {
+        btn.addEventListener("click", () => renderDirection(btn.dataset.dir));
+      });
+      document.getElementById("restartBtn").addEventListener("click", restart);
+      const backBtn = document.getElementById("backBtn");
+      if (backBtn) backBtn.addEventListener("click", goBack);
       return;
     }
+    // 兜底：无 direction_content 时保留旧方向选择
+    const probs = engine.directionProbs(state.weights);
+    const legacyDirs = Object.keys(probs).sort((a, b) => probs[b] - probs[a]);
     stage.innerHTML = `
       <div class="card">
         <div class="card-title">最可能的方向</div>
         <div class="card-hint">选一个最像的方向</div>
         <div class="options">
-          ${dirs.map(d => `
+          ${legacyDirs.map(d => `
             <button class="option direction-option" data-dir="${d}">
               ${d}
             </button>
@@ -243,11 +247,6 @@
           <button class="think-back" id="debugBtn" style="flex:1;">状态</button>
           <button class="restart-btn" id="restartBtn" style="flex:1;margin-top:0;">重新开始</button>
         </div>
-        <div id="debugPanel" class="debug-text" style="display:none;margin-top:12px;">
-          当前熵：${entropy().toFixed(3)}<br>
-          已问问题数：${state.asked.length}<br>
-          候选数：${state.weights.length}
-        </div>
       </div>
     `;
     stage.querySelectorAll("[data-dir]").forEach(btn => {
@@ -256,19 +255,77 @@
     document.getElementById("restartBtn").addEventListener("click", restart);
     const backBtn = document.getElementById("backBtn");
     if (backBtn) backBtn.addEventListener("click", goBack);
-    document.getElementById("debugBtn").addEventListener("click", () => {
-      const panel = document.getElementById("debugPanel");
-      if (panel) panel.style.display = panel.style.display === "none" ? "block" : "none";
-    });
   }
 
-  function renderDirection(dir) {
+  function renderDirection(dir, resetLayers = true) {
     state.mode = "direction";
+    if (resetLayers) state.layerUnlocked = 1;
     stepCount.style.display = "none";
-    const h = heuristicObj(dir);
-    const firstAction = h && h.next_actions && h.next_actions[0] ? h.next_actions[0] : "";
+    const d = directionContentByName(dir);
     const probs = engine.directionProbs(state.weights);
     const others = Object.keys(probs).sort((a, b) => probs[b] - probs[a]).filter(x => x !== dir).slice(0, 2);
+    if (d) {
+      const layers = d.layers || {};
+      const disp = (n) => state.layerUnlocked >= n ? "block" : "none";
+      stage.innerHTML = `
+        <div class="card">
+          <div class="card-title">最可能：${dir}</div>
+          <div class="card-hint">${d.value}</div>
+          <div class="card-title" style="margin-top:16px;">三层点拨</div>
+          <div id="layerProgress" class="card-hint">第 ${state.layerUnlocked}/3 层</div>
+          <div id="layerCondition" class="layer-text" style="display:${disp(1)};">条件：${layers.condition || ""}</div>
+          <div id="layerAction" class="layer-text" style="display:${disp(2)};">动作：${layers.action || ""}</div>
+          <div id="layerSelfQuestion" class="layer-text" style="display:${disp(3)};">自问：${layers.self_question || ""}</div>
+          <div style="display:flex;gap:8px;margin-top:8px;">
+            ${state.layerUnlocked < 3 ? '<button class="think-back" id="nextLayerBtn" style="flex:1;">下一步</button>' : ""}
+            ${state.layerUnlocked > 1 ? '<button class="think-back" id="prevLayerBtn" style="flex:1;">‹ 上一层</button>' : ""}
+          </div>
+          <div class="card-title" style="margin-top:16px;">卡点自查</div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;">
+            ${cardPoints().map(p => `
+              <button class="think-back card-point-btn" data-card="${p.id}" style="flex:1;min-width:30%;">${p.name}</button>
+            `).join("")}
+          </div>
+          <div id="cardHint" class="muted-text" style="display:none;margin-top:10px;"></div>
+          <div id="cardSummary" class="muted-text" style="margin-top:10px;"></div>
+          <div style="display:flex;gap:8px;margin-top:16px;">
+            ${others.map(o => `<button class="think-back" id="other-${o}" style="flex:1;">看别的：${o}</button>`).join("")}
+            <button class="restart-btn" id="restartBtn" style="flex:1;margin-top:0;">重新开始</button>
+          </div>
+        </div>
+      `;
+      const nextBtn = document.getElementById("nextLayerBtn");
+      if (nextBtn) {
+        nextBtn.addEventListener("click", () => {
+          if (state.layerUnlocked < 3) {
+            state.layerUnlocked += 1;
+            renderDirection(dir, false);
+          }
+        });
+      }
+      const prevBtn = document.getElementById("prevLayerBtn");
+      if (prevBtn) {
+        prevBtn.addEventListener("click", () => {
+          if (state.layerUnlocked > 1) {
+            state.layerUnlocked -= 1;
+            renderDirection(dir, false);
+          }
+        });
+      }
+      stage.querySelectorAll(".card-point-btn").forEach(btn => {
+        btn.addEventListener("click", () => onCardClick(btn.dataset.card));
+      });
+      others.forEach(o => {
+        const btn = document.getElementById("other-" + o);
+        if (btn) btn.addEventListener("click", () => renderDirection(o));
+      });
+      document.getElementById("restartBtn").addEventListener("click", restart);
+      renderCardSummary();
+      return;
+    }
+    // 兜底：旧启发式详情
+    const h = heuristicObj(dir);
+    const firstAction = h && h.next_actions && h.next_actions[0] ? h.next_actions[0] : "";
     stage.innerHTML = `
       <div class="card">
         <div class="card-title">最可能：${dir}</div>
@@ -303,11 +360,10 @@
 
   function render() {
     if (!engine) return showError("未加载熵减引擎");
-    if (state.mode === "baseline") renderBaseline();
     else if (state.mode === "question") renderQuestion();
     else if (state.mode === "finished") renderFinish();
     else if (state.mode === "direction") renderDirection("编码压缩");
   }
 
-  renderBaseline();
+  renderQuestion();
 })();

@@ -1,4 +1,4 @@
-"""导出移动端熵减数据：只导出运行所需的最小字段 + 教师共识。"""
+"""导出移动端熵减数据：只导出运行所需的最小字段 + 教师共识 + 专家方向内容。"""
 import json
 import os
 
@@ -14,12 +14,15 @@ with open(os.path.join(ROOT, "heuristics.json"), encoding="utf-8") as f:
     heuristics = json.load(f)
 with open(os.path.join(ROOT, "teacher_consensus.json"), encoding="utf-8") as f:
     teacher_consensus = json.load(f)
+with open(os.path.join(ROOT, "expert_content", "direction_cards_v1.json"), encoding="utf-8") as f:
+    direction_content = json.load(f)
 
 entropy = {
     "params": prior.get("params", {}),
     "features": matrix.get("features", []),
     "directions": matrix.get("directions", []),
     "heuristics": heuristics,
+    "direction_content": direction_content,
     "teacher_consensus": teacher_consensus,
     "algorithms": [
         {
@@ -38,6 +41,7 @@ versions = {
     "matrix": matrix.get("meta", {}).get("version", "?"),
     "heuristics": heuristics.get("meta", {}).get("version", "?"),
     "teacher": teacher_consensus.get("meta", {}).get("version", "?"),
+    "direction_content": direction_content.get("meta", {}).get("version", "?"),
 }
 with open(entropy_path, "w", encoding="utf-8") as f:
     f.write("// 由 export_mobile_data.py 自动生成，请勿手改。\n")
@@ -46,4 +50,25 @@ with open(entropy_path, "w", encoding="utf-8") as f:
     json.dump(entropy, f, ensure_ascii=False, separators=(",", ":"))
     f.write(";\n")
 
+
+def _parse_generated(path):
+    text = open(path, encoding="utf-8").read()
+    prefix = "window.ENTROPY_DATA = "
+    suffix = ";\n"
+    idx = text.find(prefix)
+    if idx < 0 or not text.endswith(suffix):
+        raise SystemExit("generated entropy_data.js has unexpected shape")
+    body = text[idx + len(prefix):-len(suffix)]
+    return json.loads(body)
+
+
+# 自动一致性比较：生成文件中的 heuristics / direction_content 必须等于源 JSON
+generated = _parse_generated(entropy_path)
+if generated.get("heuristics") != heuristics:
+    raise SystemExit("MOBILE SYNC FAILED: heuristics mismatch")
+if generated.get("direction_content") != direction_content:
+    raise SystemExit("MOBILE SYNC FAILED: direction_content mismatch")
+
 print(f"Written: {entropy_path}")
+print(f"MOBILE DATA SYNC OK: heuristics={heuristics.get('meta', {}).get('version')}, "
+      f"direction_content={direction_content.get('meta', {}).get('version')}")

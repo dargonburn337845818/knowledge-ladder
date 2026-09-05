@@ -42,7 +42,7 @@ jobs:
 
       - name: Type-check pure logic
         run: |
-          mypy --ignore-missing-imports entropy_engine.py info_framework.py knowledge_data.py tiers_data.py export_mobile_data.py app/teacher_consensus.py
+          mypy --ignore-missing-imports entropy_engine.py info_framework.py knowledge_data.py tiers_data.py export_mobile_data.py app/teacher_consensus.py app/direction_content.py
 
       - name: Compile Python sources
         run: |
@@ -73,9 +73,10 @@ jobs:
           node --check mobile/www/card_store.js
           node --check mobile/www/sw.js
 
-      - name: Card store Node test
+      - name: Card store & app flow Node tests
         run: |
           node tests/test_card_store.js
+          node tests/test_app_flow.js
 
       - name: Engine parity (Python vs JS)
         run: |

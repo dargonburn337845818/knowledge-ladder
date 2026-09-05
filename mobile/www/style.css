@@ -798,3 +798,33 @@ body.theme-editorial .debug-text,
 body.theme-editorial .direction-body {
   color: rgba(26,23,18,0.65);
 }
+
+/* 四方向卡片平铺 + 三层递进点拨（本地生成样式，无外部资源） */
+.direction-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-top: 12px;
+}
+.direction-card {
+  text-align: left;
+  padding: 10px;
+}
+.direction-card-title {
+  font-weight: 700;
+  font-size: 17px;
+}
+.direction-card-value {
+  margin: 4px 0;
+  font-size: 14px;
+}
+.direction-card-triggers {
+  font-size: 12px;
+  opacity: 0.75;
+}
+.layer-text {
+  margin: 6px 0;
+  padding: 10px;
+  border-radius: 8px;
+  background: rgba(127, 127, 127, 0.08);
+}

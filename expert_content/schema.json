@@ -1,0 +1,100 @@
+{
+  "$comment": "Knowledge Ladder 四方向专家内容资产 schema。非标准 JSON Schema，由 scripts/check_data_schema.py 按本文件字段定义校验。",
+  "meta": {
+    "version": {
+      "type": "string",
+      "required": true
+    },
+    "description": {
+      "type": "string",
+      "required": true
+    }
+  },
+  "direction": {
+    "type": "object",
+    "required_fields": [
+      "id",
+      "title",
+      "value",
+      "triggers",
+      "anchor",
+      "layers",
+      "edge_cases",
+      "expert_marks",
+      "source_refs",
+      "card_triggers"
+    ],
+    "field_types": {
+      "id": "string",
+      "title": "string",
+      "value": "string",
+      "triggers": "array<string>",
+      "anchor": "object",
+      "layers": "object",
+      "edge_cases": "array<object>",
+      "expert_marks": "array<object>",
+      "source_refs": "array<string>",
+      "card_triggers": "array<string>"
+    }
+  },
+  "anchor": {
+    "required_fields": [
+      "name",
+      "source"
+    ],
+    "field_types": {
+      "name": "string",
+      "source": "string"
+    }
+  },
+  "layers": {
+    "required_fields": [
+      "condition",
+      "action",
+      "self_question",
+      "expert_marks",
+      "source_refs"
+    ],
+    "field_types": {
+      "condition": "string",
+      "action": "string",
+      "self_question": "string",
+      "expert_marks": "array<object>",
+      "source_refs": "array<string>"
+    }
+  },
+  "edge_case": {
+    "required_fields": [
+      "trigger_signal",
+      "counterexample",
+      "extra_precondition",
+      "expert_marks",
+      "source_refs"
+    ],
+    "field_types": {
+      "trigger_signal": "string",
+      "counterexample": "string",
+      "extra_precondition": "string",
+      "expert_marks": "array<object>",
+      "source_refs": "array<string>"
+    }
+  },
+  "expert_mark": {
+    "required_fields": [
+      "expert_id",
+      "expert_name"
+    ],
+    "field_types": {
+      "expert_id": "string",
+      "expert_name": "string"
+    }
+  },
+  "required_direction_count": 4,
+  "legacy_mapping": {
+    "summary": "value",
+    "signals": "triggers",
+    "next_actions": "layers.action",
+    "self_questions": "layers.self_question",
+    "dynamic_template": "保留在 heuristics.json，不在新内容资产迁移"
+  }
+}

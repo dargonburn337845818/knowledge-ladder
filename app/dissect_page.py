@@ -1,8 +1,9 @@
-"""桌面端动态熵减拆题页：基线暴力 → 单一问题流 → 四方向引导。"""
+"""桌面端动态熵减拆题页：直接问题流 → 四方向引导。"""
 
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QFrame,
+    QGridLayout,
     QHBoxLayout,
     QLabel,
     QPushButton,
@@ -11,11 +12,12 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from app.direction_content import directions as _direction_content_directions
 from entropy_engine import EntropyEngine
 
 
 class DissectPage(QWidget):
-    """桌面端动态熵减拆题页：基线暴力 -> 单一问题流 -> 四方向引导。"""
+    """桌面端动态熵减拆题页：直接问题流 -> 四方向引导。"""
 
     VAGUE_TEXT = {
         "编码压缩": "重复信息提前存好；把状态压缩成更小表示；用预处理换取更快查询。",
@@ -29,7 +31,8 @@ class DissectPage(QWidget):
         self.on_back = on_back
         self.store = store
         self.engine = EntropyEngine()
-        self.mode = "baseline"
+        self.mode = "question"
+        self._layer_unlocked = 1
         self.weights = self.engine.initial_weights()
         self.asked = []
         self.history = []
@@ -84,6 +87,7 @@ class DissectPage(QWidget):
             item = layout.takeAt(0)
             w = item.widget()
             if w is not None:
+                w.setParent(None)
                 w.deleteLater()
                 continue
             sub = item.layout()
@@ -120,9 +124,7 @@ class DissectPage(QWidget):
     # ---------- 渲染分发 ----------
     def _render(self):
         self._clear_content()
-        if self.mode == "baseline":
-            self._render_baseline()
-        elif self.mode == "question":
+        if self.mode == "question":
             self._render_question()
         elif self.mode == "finished":
             self._render_finish()
@@ -144,7 +146,7 @@ class DissectPage(QWidget):
         self.mode = "question"
 
     def _reset(self):
-        self.mode = "baseline"
+        self.mode = "question"
         self.weights = self.engine.initial_weights()
         self.asked = []
         self.history = []
@@ -163,34 +165,12 @@ class DissectPage(QWidget):
         elif self.mode == "finished" and self.history:
             self._restore_snapshot(self.history.pop())
             self._render()
-        elif self.mode == "baseline" and self.on_back:
+        elif self.on_back:
             self.on_back()
 
     def _finish_reason(self):
         stop, reason = self.engine.should_stop(self.weights, self.asked)
         return stop, reason
-
-    # ---------- Baseline ----------
-    def _render_baseline(self):
-        self.step_label.setText("基线")
-        self._add_title("先写暴力")
-        self._add_body("写一个最直接的暴力/模拟方案")
-        self._add_button("写好了", lambda: self._baseline_answer(True))
-        self._add_button("还没写", lambda: self._baseline_answer(False))
-        self._baseline_warning = QLabel("先写，再继续。")
-        self._baseline_warning.setObjectName("dissectHint")
-        self._baseline_warning.setWordWrap(True)
-        self._baseline_warning.hide()
-        self.content_layout.addWidget(self._baseline_warning)
-        self.content_layout.addStretch(1)
-
-    def _baseline_answer(self, ok):
-        if ok:
-            self.mode = "question"
-            self._render()
-        else:
-            if hasattr(self, "_baseline_warning"):
-                self._baseline_warning.show()
 
     # ---------- Question ----------
     def _render_question(self):
@@ -259,16 +239,33 @@ class DissectPage(QWidget):
     # ---------- Finish ----------
     def _render_finish(self):
         self.mode = "finished"
-        self.step_label.setText("")
-        probs = self.engine.direction_probs(self.weights)
-        top = sorted(probs.items(), key=lambda kv: kv[1], reverse=True)
-        if not top:
-            self._add_body("暂时没有收敛方向，重新开始。")
-            self._add_button("重新开始", self._reset, "dissectRestart")
-            return
-        # 机器根据熵/方向概率自动给出最可能方向，不再让用户“选”。
-        self._current_direction = top[0][0]
-        self._render_direction()
+        self._render_direction_cards()
+
+    def _render_direction_cards(self):
+        """最终页：四张方向卡片同屏平铺，点击进入详情。"""
+        self.mode = "finished"
+        self.step_label.setText("方向")
+        self._add_title("四个方向，点一个进入")
+        self._add_hint("卡片只给线索，不展示算法权重。")
+        grid = QGridLayout()
+        grid.setSpacing(12)
+        for i, d in enumerate(_direction_content_directions()):
+            card = QPushButton()
+            card.setObjectName("directionCard")
+            card.setProperty("direction_id", d.get("id", ""))
+            triggers = d.get("card_triggers", d.get("triggers", []))
+            snippet = "\n".join(triggers[:2])
+            title = d.get("title", "")
+            card.setText(f"{title}\n\n{d.get('value', '')}\n\n{snippet}")
+            card.clicked.connect(
+                lambda checked=False, t=title: self._open_direction(t)
+            )
+            grid.addWidget(card, i // 2, i % 2)
+        self.content_layout.addLayout(grid)
+        if self.history:
+            self._add_button("‹ 上一步", self._go_back, "dissectBack")
+        self._add_button("重新开始", self._reset, "dissectRestart")
+        self.content_layout.addStretch(1)
 
     def _toggle_debug(self):
         if not hasattr(self, "_debug_label"):
@@ -287,7 +284,18 @@ class DissectPage(QWidget):
     def _open_direction(self, direction):
         self.mode = "direction"
         self._current_direction = direction
+        self._layer_unlocked = 1
         self._render()
+
+    def _next_layer(self):
+        if self._layer_unlocked < 3:
+            self._layer_unlocked += 1
+            self._render()
+
+    def _prev_layer(self):
+        if self._layer_unlocked > 1:
+            self._layer_unlocked -= 1
+            self._render()
 
     # ---------- 卡点自查 ----------
     def _card_points(self):
@@ -323,16 +331,45 @@ class DissectPage(QWidget):
         direction = getattr(self, "_current_direction", "编码压缩")
         self.step_label.setText("")
         self._add_title(f"最可能：{direction}")
-        self._add_hint("先做一句")
-        h = self.engine.heuristic_direction(direction)
-        if h:
-            actions = h.get("next_actions", [])
-            if actions:
-                self._add_body(f"先做：{actions[0]}")
+        direction_data = next(
+            (d for d in _direction_content_directions() if d.get("title") == direction),
+            None,
+        )
+        if direction_data:
+            self._add_hint(direction_data.get("value", ""))
+            self._add_title("三层点拨")
+            layer_progress = QLabel(f"第 {self._layer_unlocked}/3 层")
+            layer_progress.setObjectName("layerProgress")
+            self.content_layout.addWidget(layer_progress)
+            layers = direction_data.get("layers", {})
+            layer_items = [
+                ("layerCondition", "条件", layers.get("condition", "")),
+                ("layerAction", "动作", layers.get("action", "")),
+                ("layerSelfQuestion", "自问", layers.get("self_question", "")),
+            ]
+            self._layer_labels = []
+            for i, (obj_name, prefix, text) in enumerate(layer_items):
+                label = QLabel(f"{prefix}：{text}")
+                label.setObjectName(obj_name)
+                label.setWordWrap(True)
+                label.setVisible(i < self._layer_unlocked)
+                self._layer_labels.append(label)
+                self.content_layout.addWidget(label)
+            if self._layer_unlocked < 3:
+                self._add_button("下一步", self._next_layer, "dissectBack")
+            if self._layer_unlocked > 1:
+                self._add_button("‹ 上一层", self._prev_layer, "dissectBack")
+        else:
+            self._add_hint("先做一句")
+            h = self.engine.heuristic_direction(direction)
+            if h:
+                actions = h.get("next_actions", [])
+                if actions:
+                    self._add_body(f"先做：{actions[0]}")
+                else:
+                    self._add_body(self.VAGUE_TEXT.get(direction, ""))
             else:
                 self._add_body(self.VAGUE_TEXT.get(direction, ""))
-        else:
-            self._add_body(self.VAGUE_TEXT.get(direction, ""))
 
         card_points = self._card_points()
         if card_points:
