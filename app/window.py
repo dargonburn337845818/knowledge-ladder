@@ -25,7 +25,6 @@ from PySide6.QtWidgets import (
 from resource_paths import find_data
 from tiers_data import TIERS
 
-from .dialogs import InfoMiniDialog
 from .reflection import ReflectionPage, ReflectionStore
 from .state import ProgressStore
 from .stats_page import StatsPage
@@ -243,13 +242,6 @@ class MainWindow(QMainWindow):
         self.wallpaper_btn.setToolTip("选择壁纸：支持 mp4 / webm / mov / m4v 视频、GIF 与图片；有壁纸时透出背景，清除后恢复默认亚克力")
         self.wallpaper_btn.clicked.connect(self._choose_wallpaper)
         left_layout.addWidget(self.wallpaper_btn)
-
-        # 信息论/教师共识入口：常驻一个小按钮，不占太多空间
-        self.info_btn = QPushButton("导论", left)
-        self.info_btn.setObjectName("infoBtn")
-        self.info_btn.setToolTip("信息论：四操作 / 四阶段 / 教师共识")
-        self.info_btn.clicked.connect(self._show_guide)
-        left_layout.addWidget(self.info_btn)
 
         # 复盘记事本入口：写题后自然记录感悟，专家点评从 D 盘记忆本写回
         self.reflection_btn = QPushButton("复盘", left)
@@ -506,10 +498,6 @@ class MainWindow(QMainWindow):
         QApplication.instance().setStyleSheet(qss)
         self.style_btn.setText(f"风格：{STYLE_NAMES[mode]}")
         self.style_btn.setToolTip("点击切换 深色现代 / 浅色现代 风格")
-
-    def _show_guide(self):
-        dlg = InfoMiniDialog(self)
-        dlg.exec()
 
     def _apply_wallpaper(self):
         self.wallpaper.apply()

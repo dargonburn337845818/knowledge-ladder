@@ -15,6 +15,7 @@ assert(code.includes("layerUnlocked"), "missing layer state");
 assert(code.includes("layerCondition"), "missing condition layer");
 assert(code.includes("nextLayerBtn"), "missing next layer button");
 assert(code.includes("prevLayerBtn"), "missing prev layer button");
+assert(code.includes("nudge-text"), "missing one-line nudge rendering");
 
 // --- 最小 DOM / 引擎桩 ---
 function fakeEl() {
@@ -85,6 +86,7 @@ const fourDirs = [
   {
     title: "编码压缩",
     value: "重复信息只算一次，把慢查询变成快查询。",
+    nudge: "重复的信息只算一次；先问：哪个量会被反复查？",
     triggers: ["触发1", "触发2"],
     card_triggers: ["安全触发1", "安全触发2"],
     layers: { condition: "条件1", action: "动作1", self_question: "自问1" },
@@ -145,6 +147,7 @@ assert(/id="layerCondition"[^>]*display:block;/.test(html), "condition layer not
 assert(/id="layerAction"[^>]*display:none;/.test(html), "action layer visible initially");
 assert(html.includes("第 1/3 层"), "layer progress not shown initially");
 assert(html.includes("常见信号"), "common signal keywords not shown");
+assert(html.includes("一句话点拨"), "one-line nudge not shown");
 assert(!/算法理解|信息论视角|经典模式|关键观察/.test(html), "mobile should stay lean without desktop deep understanding");
 assert(/id="layerSelfQuestion"[^>]*display:none;/.test(html), "self-question layer visible initially");
 

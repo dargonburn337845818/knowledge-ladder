@@ -29,7 +29,7 @@ maximizing question at a time and converges to four directions.
 | `teacher_consensus.json` | Uncalibrated teacher guidance (display only) |
 | `expert_content/` | Versioned expert direction content: cards/layers/edge cases + schema |
 | `app/direction_content.py` | Four-direction content data layer (desktop loader / legacy bridge) |
-| `app/` | PySide6 deep modules: theme/state/utils/dialogs/tier/dissect/window/wallpaper |
+| `app/` | PySide6 deep modules: theme/state/utils/tier/algorithm_card/reflection/stats/window/wallpaper |
 | `mobile/www/` | Offline-capable PWA and Capacitor web assets (app.js / entropy_engine.js / card_store.js / entropy_data.js) |
 | `scripts/` | Dev/CI tools: data schema, engine parity, release body, content validation |
 | `pyproject.toml` | Project metadata + ruff/mypy/pytest config |

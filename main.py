@@ -3,10 +3,9 @@
 入口只保留应用启动；UI/逻辑已拆到 app/ 深模块：
 - app.theme           视觉常量与 QSS
 - app.state           本地进度
-- app.dialogs         信息论微缩模块
-- app.tier_page       档位知识树
-- app.dissect_page    动态熵减拆题页
-- app.teacher_consensus 教师共识数据层
+- app.tier_page       档位知识树 + 算法卡
+- app.reflection      复盘记事本
+- app.stats_page      成长统计
 - app.window          主窗口
 """
 

@@ -233,6 +233,8 @@ class StatsPage(QWidget):
         week_dates = [d for d in dates if week_start <= d <= today]
         attempts = ac = minutes = 0
         no_idea_days = 0
+        cards_days = 0
+        cards_total = 0
         for d in week_dates:
             m = all_metrics.get(d.isoformat(), {})
             attempts += int(m.get("attempts", 0))
@@ -240,11 +242,16 @@ class StatsPage(QWidget):
             minutes += int(m.get("minutes", 0))
             if _split_topics(str(m.get("no_idea", ""))) > 0:
                 no_idea_days += 1
+            card_text = str(m.get("cards", ""))
+            if card_text.strip():
+                cards_days += 1
+                cards_total += _split_topics(card_text)
         reflection_days = sum(1 for d in week_dates if self.reflection_store.read_reflection(d))
         reviewed = sum(1 for d in week_dates if self.reflection_store.read_review(d))
         self.summary_label.setText(
             f"近7天：尝试 {attempts} 题 / AC {ac} 题 / 训练 {minutes} 分钟\n"
-            f"复盘 {reflection_days} 天 / 有30分钟无思路 {no_idea_days} 天 / 已点评 {reviewed} 天"
+            f"复盘 {reflection_days} 天 / 有30分钟无思路 {no_idea_days} 天 / 已点评 {reviewed} 天\n"
+            f"算法卡摄入 {cards_total} 个（{cards_days} 天）"
         )
 
         # 近 14 天趋势

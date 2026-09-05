@@ -1,6 +1,6 @@
 {
   "meta": {
-    "version": "1.8.0",
+    "version": "1.9.0",
     "description": "四方向内容资产：拆题引导 + PC端算法理解深挖（信息论视角/经典模式/关键观察/证明思路/常见误区/来源）。",
     "generator": "teacher_discussion algorithm/product-ux/writing/math/physics sessions",
     "session_ids": [
@@ -207,6 +207,7 @@
       "id": "coding_compression",
       "title": "编码压缩",
       "value": "重复信息只算一次，把慢查询变成快查询。",
+      "nudge": "重复的信息只算一次；先问：哪个量会被反复查？",
       "triggers": [
         "你看到多次区间/前缀/后缀查询，数据是静态只读的。",
         "你看到同一个量会被反复算，想先存下来 O(1) 查。",
@@ -373,6 +374,7 @@
       "id": "propagation_relaxation",
       "title": "传播松弛",
       "value": "沿依赖一层层推，让前驱替后继铺路。",
+      "nudge": "有依赖就先排顺序；先问：谁算好了，我才能算？",
       "triggers": [
         "你看到 DAG/树/图上存在顺序或依赖关系。",
         "你看到步数/距离/路径/背包/DP 的递推关系。",
@@ -538,6 +540,7 @@
       "id": "pruning_decision",
       "title": "剪枝决策",
       "value": "证明候选不可能赢，一次排除，不再逐个试。",
+      "nudge": "先证明单调，再二分；先问：哪些候选永远不可能赢？",
       "triggers": [
         "你看到“最大化最小值 / 最小化最大值”。",
         "你看到答案随 x 单调，能写 check(x)。",
@@ -706,6 +709,7 @@
       "id": "transform_domain_mapping",
       "title": "变换域映射",
       "value": "正面难算就换个表示、坐标或等价问题。",
+      "nudge": "正面难算就换坐标；先问：这个运算在哪个表示下是逐点/单点？",
       "triggers": [
         "你看到区间加减，想试点差分/端点变化。",
         "你看到线性递推，想试矩阵快速幂。",

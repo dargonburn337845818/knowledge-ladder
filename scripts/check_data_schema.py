@@ -19,6 +19,7 @@ DATA_FILES = [
     "heuristics.json",
     "teacher_consensus.json",
     "expert_content/direction_cards_v1.json",
+    "expert_content/algorithm_cards.json",
 ]
 
 SCHEMA_PATH = "expert_content/schema.json"

@@ -117,8 +117,9 @@
         </div>
         <button class="action-btn" id="detectorBtn" style="width:100%;margin-top:4px;">不像？再想想</button>
         <div id="detectorHint" class="warn-text" style="display:none;margin-top:10px;">
-          先回答一两个，再想。
+          卡住很正常，先挑一个能确定的信号回答；没把握就选“不确定”。
         </div>
+        ${state.asked.length ? `<div class="muted-text" style="margin-top:8px;">已确认 ${state.asked.length} 个信号。</div>` : ""}
         ${state.anomalyFlag ? '<div class="muted-text" style="margin-top:10px;">刚才有点反常。</div>' : ""}
         <div style="display:flex;gap:8px;margin-top:16px;">
           ${hasBack ? '<button class="think-back" id="backBtn" style="flex:1;">‹ 上一步</button>' : ""}
@@ -215,6 +216,7 @@
         <div class="card">
           <div class="card-title">你选择：${dir}</div>
           <div class="card-hint">${d.value}</div>
+          ${d.nudge ? `<div class="nudge-text">一句话点拨：${d.nudge}</div>` : ""}
           <div class="card-hint">常见信号：${(d.signal_keywords || []).slice(0, 3).join("、")}</div>
           <div class="card-title" style="margin-top:16px;">三层点拨</div>
           <div id="layerProgress" class="card-hint">第 ${state.layerUnlocked}/3 层</div>

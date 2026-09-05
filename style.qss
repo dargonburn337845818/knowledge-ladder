@@ -50,7 +50,7 @@ QPushButton#next {
     color: #F3DCA8;
 }
 
-QPushButton#dissectBtn, QPushButton#infoBtn, QPushButton#templateBtn, QPushButton#wallpaperBtn, QPushButton#reflectionBtn, QPushButton#statsBtn {
+QPushButton#dissectBtn, QPushButton#templateBtn, QPushButton#wallpaperBtn, QPushButton#reflectionBtn, QPushButton#statsBtn {
     background: rgba(30,33,38,0.7);
     border: 1px solid rgba(255,255,255,0.08);
     border-radius: 8px;
@@ -89,6 +89,79 @@ QFrame#tagRow {
     margin: 4px 0;
 }
 
+QPushButton#algoBtn, QPushButton#detailBtn {
+    background: rgba(228,184,99,0.10);
+    border: 1px solid rgba(228,184,99,0.28);
+    border-radius: 6px;
+    color: #F3DCA8;
+    font-size: 12px;
+}
+
+QFrame#algoBox {
+    background: rgba(18,20,24,0.80);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 8px;
+    margin: 4px 0;
+}
+
+QFrame#algoCardFrame {
+    background: rgba(24,27,33,0.72);
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 8px;
+}
+
+QLabel#algoAdvBadge {
+    background: rgba(198,120,221,0.14);
+    border: 1px solid rgba(198,120,221,0.35);
+    border-radius: 6px;
+    color: #E6B8F0;
+    font-size: 10px;
+    padding: 2px 8px;
+}
+
+QLabel#algoPriorityBadge {
+    background: rgba(108,140,255,0.12);
+    border: 1px solid rgba(108,140,255,0.30);
+    border-radius: 6px;
+    color: #B8C8FF;
+    font-size: 10px;
+    padding: 2px 8px;
+}
+QLabel#algoPriorityBadge[priority="common"] {
+    background: rgba(78,201,176,0.12);
+    border-color: rgba(78,201,176,0.32);
+    color: #AEE8DC;
+}
+QLabel#algoPriorityBadge[priority="aware"] {
+    background: rgba(255,255,255,0.05);
+    border-color: rgba(255,255,255,0.10);
+    color: rgba(255,255,255,0.65);
+}
+QLabel#algoSkeletonBadge {
+    background: rgba(224,164,88,0.12);
+    border: 1px solid rgba(224,164,88,0.32);
+    border-radius: 6px;
+    color: #F3C98B;
+    font-size: 10px;
+    padding: 2px 8px;
+}
+QLabel#algoStatusBadge {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.10);
+    border-radius: 6px;
+    color: rgba(255,255,255,0.75);
+    font-size: 10px;
+    padding: 2px 8px;
+}
+
+QLabel#algoText {
+    background: rgba(14,16,20,0.90);
+    color: #E8EAED;
+    border: none;
+    border-radius: 6px;
+    padding: 6px;
+}
+
 QLabel#infoBadge, QLabel#infoBadgeTopo, QLabel#infoBadgeDyn {
     background: rgba(255,255,255,0.05);
     border: 1px solid rgba(255,255,255,0.08);
@@ -106,13 +179,6 @@ QPlainTextEdit#codeView {
     border-radius: 8px;
     font-family: "Consolas", monospace;
 }
-QTextBrowser#guideBrowser {
-    background: rgba(15,16,19,0.9);
-    color: #F5F6F8;
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 10px;
-}
-
 QCheckBox::indicator {
     width: 16px; height: 16px;
     border: 1px solid rgba(255,255,255,0.25);
@@ -156,8 +222,6 @@ QLabel#dissectFinal {
     padding: 12px 16px;
     color: #F3DCA8;
 }
-QLabel#miniNote { color: rgba(255,255,255,0.5); font-size: 12px; font-style: italic; }
-
 QFrame#dissectAcrylic {
     background: rgba(18,20,24,0.78);
     border: 1px solid rgba(255,255,255,0.06);
