@@ -257,6 +257,20 @@ class MainWindow(QMainWindow):
         self.stats_btn.clicked.connect(self._show_stats)
         left_layout.addWidget(self.stats_btn)
 
+        # 复盘记事本入口：写题后自然记录感悟，专家点评从 D 盘记忆本写回
+        self.reflection_btn = QPushButton("复盘", left)
+        self.reflection_btn.setObjectName("reflectionBtn")
+        self.reflection_btn.setToolTip("写今日复盘，保存后标记待专家点评")
+        self.reflection_btn.clicked.connect(self._show_reflection)
+        left_layout.addWidget(self.reflection_btn)
+
+        # 成长统计入口：知识面覆盖 + 量化趋势 + 复盘状态
+        self.stats_btn = QPushButton("统计", left)
+        self.stats_btn.setObjectName("statsBtn")
+        self.stats_btn.setToolTip("查看知识面覆盖 / 量化趋势 / 复盘状态")
+        self.stats_btn.clicked.connect(self._show_stats)
+        left_layout.addWidget(self.stats_btn)
+
         # 导航按钮放在左上，和预览保持一致；8 档列表保持紧凑，不撑满左侧
         self.tier_list.setMaximumHeight(320)
         left_layout.addWidget(self.tier_list)
