@@ -20,6 +20,7 @@ DATA_FILES = [
     "teacher_consensus.json",
     "expert_content/direction_cards_v1.json",
     "expert_content/algorithm_cards.json",
+    "expert_content/dynamic_insights.json",
 ]
 
 SCHEMA_PATH = "expert_content/schema.json"
@@ -138,13 +139,15 @@ def project_mobile_direction_content(content):
     }
 
 
-def check_mobile_sync(generated, content, heuristics, errors):
-    """移动端生成物同步门禁：内嵌 heuristics / direction_content 必须等于源 JSON。"""
+def check_mobile_sync(generated, content, heuristics, errors, dynamic_insights=None):
+    """移动端生成物同步门禁：内嵌 heuristics / direction_content / dynamic_insights 必须等于源 JSON。"""
     if generated.get("heuristics") != heuristics:
         errors.append("mobile entropy_data.js heuristics does not match heuristics.json")
     projected = project_mobile_direction_content(content)
     if generated.get("direction_content") != projected:
         errors.append("mobile entropy_data.js direction_content does not match mobile subset of expert_content/direction_cards_v1.json")
+    if dynamic_insights is not None and generated.get("dynamic_insights") != dynamic_insights:
+        errors.append("mobile entropy_data.js dynamic_insights does not match expert_content/dynamic_insights.json")
 
 
 def main():
@@ -163,6 +166,7 @@ def main():
     heuristics = load("heuristics.json")
     content_schema = load(SCHEMA_PATH)
     content = load("expert_content/direction_cards_v1.json")
+    dynamic_insights = load("expert_content/dynamic_insights.json")
 
     if len(matrix.get("algorithms", [])) != 120:
         errors.append("feature_algorithm_matrix algorithms != 120")
@@ -180,7 +184,7 @@ def main():
 
     try:
         generated = parse_generated_js(os.path.join(REPO_ROOT, MOBILE_DATA_PATH))
-        check_mobile_sync(generated, content, heuristics, errors)
+        check_mobile_sync(generated, content, heuristics, errors, dynamic_insights)
     except (OSError, ValueError) as exc:
         errors.append(f"mobile sync check failed: {exc}")
 

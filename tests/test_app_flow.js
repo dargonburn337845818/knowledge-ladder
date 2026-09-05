@@ -16,6 +16,9 @@ assert(code.includes("layerCondition"), "missing condition layer");
 assert(code.includes("nextLayerBtn"), "missing next layer button");
 assert(code.includes("prevLayerBtn"), "missing prev layer button");
 assert(code.includes("nudge-text"), "missing one-line nudge rendering");
+assert(code.includes("DYNAMIC_INSIGHTS"), "missing dynamic insights loader");
+assert(code.includes("insight-text"), "missing dynamic insight rendering");
+assert(code.includes("深入点拨"), "missing deep direction insight rendering");
 
 // --- 最小 DOM / 引擎桩 ---
 function fakeEl() {
@@ -119,6 +122,10 @@ const context = {
     ENTROPY_DATA: {
       heuristics: { directions: [], card_points: [] },
       direction_content: { directions: fourDirs },
+      dynamic_insights: {
+        features: {},
+        directions: { 编码压缩: "编码压缩的本质是把被反复消费的信息只算一次；边界是数据静态且查询关心可压缩性质。" },
+      },
     },
     EntropyEngine: {
       create() {
@@ -148,6 +155,7 @@ assert(/id="layerAction"[^>]*display:none;/.test(html), "action layer visible in
 assert(html.includes("第 1/3 层"), "layer progress not shown initially");
 assert(html.includes("常见信号"), "common signal keywords not shown");
 assert(html.includes("一句话点拨"), "one-line nudge not shown");
+assert(html.includes("深入点拨"), "deep direction insight not shown");
 assert(!/算法理解|信息论视角|经典模式|关键观察/.test(html), "mobile should stay lean without desktop deep understanding");
 assert(/id="layerSelfQuestion"[^>]*display:none;/.test(html), "self-question layer visible initially");
 

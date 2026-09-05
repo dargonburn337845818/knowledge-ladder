@@ -42,6 +42,9 @@ def main():
     direction_content = _read_json(
         os.path.join(ROOT, "expert_content", "direction_cards_v1.json")
     )
+    dynamic_insights = _read_json(
+        os.path.join(ROOT, "expert_content", "dynamic_insights.json")
+    )
 
     mobile_direction_content = mobile_direction_subset(direction_content)
 
@@ -52,6 +55,7 @@ def main():
         "heuristics": heuristics,
         "direction_content": mobile_direction_content,
         "teacher_consensus": teacher_consensus,
+        "dynamic_insights": dynamic_insights,
         "algorithms": [
             {
                 "algorithm_name": a["algorithm_name"],
@@ -70,6 +74,7 @@ def main():
         "heuristics": heuristics.get("meta", {}).get("version", "?"),
         "teacher": teacher_consensus.get("meta", {}).get("version", "?"),
         "direction_content": direction_content.get("meta", {}).get("version", "?"),
+        "dynamic_insights": dynamic_insights.get("meta", {}).get("version", "?"),
     }
     with open(entropy_path, "w", encoding="utf-8") as f:
         f.write("// 由 export_mobile_data.py 自动生成，请勿手改。\n")
@@ -84,10 +89,13 @@ def main():
         raise SystemExit("MOBILE SYNC FAILED: heuristics mismatch")
     if generated.get("direction_content") != mobile_direction_content:
         raise SystemExit("MOBILE SYNC FAILED: direction_content mismatch")
+    if generated.get("dynamic_insights") != dynamic_insights:
+        raise SystemExit("MOBILE SYNC FAILED: dynamic_insights mismatch")
 
     print(f"Written: {entropy_path}")
     print(f"MOBILE DATA SYNC OK: heuristics={heuristics.get('meta', {}).get('version')}, "
-          f"direction_content={direction_content.get('meta', {}).get('version')} (mobile subset)")
+          f"direction_content={direction_content.get('meta', {}).get('version')}, "
+          f"dynamic_insights={dynamic_insights.get('meta', {}).get('version')} (mobile subset)")
 
 
 if __name__ == "__main__":

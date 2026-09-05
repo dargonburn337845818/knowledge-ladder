@@ -27,7 +27,7 @@ maximizing question at a time and converges to four directions.
 | `tiers_data.py` | 8-tier knowledge tree |
 | `resource_paths.py` | Runtime data-file locator (source / PyInstaller / pip install) |
 | `teacher_consensus.json` | Uncalibrated teacher guidance (display only) |
-| `expert_content/` | Versioned expert direction content: cards/layers/edge cases + schema |
+| `expert_content/` | Versioned expert content: direction cards, algorithm cards, dynamic mobile insights + schema |
 | `app/direction_content.py` | Four-direction content data layer (desktop loader / legacy bridge) |
 | `app/` | PySide6 deep modules: theme/state/utils/tier/algorithm_card/reflection/stats/window/wallpaper |
 | `mobile/www/` | Offline-capable PWA and Capacitor web assets (app.js / entropy_engine.js / card_store.js / entropy_data.js) |

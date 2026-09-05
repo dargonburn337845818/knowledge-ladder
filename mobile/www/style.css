@@ -128,6 +128,19 @@ body::after {
   border-radius: 8px;
 }
 
+.insight-text {
+  position: relative;
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.9;
+  padding: 12px 14px;
+  background: rgba(255,255,255,0.045);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--gold);
+  border-radius: 10px;
+  text-align: left;
+}
+
 .options { position: relative; display: flex; flex-direction: column; gap: 12px; }
 
 .option {
