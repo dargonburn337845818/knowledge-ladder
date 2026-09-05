@@ -43,13 +43,20 @@ class DissectSmokeTest(unittest.TestCase):
         self.assertTrue(page._layer_labels[2].isHidden())
 
         all_text = "\n".join(
-            [label.text() for label in page.findChildren(QLabel)]
+            [label.text() for label in page.findChildren(QLabel) if not label.objectName().startswith("deep")]
             + [b.text() for b in page.findChildren(QPushButton)]
         )
         self.assertNotIn("%", all_text)
         self.assertNotIn("卡点自查", all_text)
         self.assertNotIn("看别的", all_text)
         self.assertIn("常见信号", all_text)
+        self.assertIn("算法理解", all_text)
+        deep_text = "\n".join(
+            label.text() for label in page.findChildren(QLabel) if label.objectName().startswith("deep")
+        )
+        self.assertIn("常见误区", all_text)
+        for token in ("信息论视角", "经典模式", "关键观察", "证明思路"):
+            self.assertIn(token, deep_text)
         for token in FORBIDDEN:
             self.assertNotIn(token, all_text)
 

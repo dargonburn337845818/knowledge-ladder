@@ -329,6 +329,30 @@ class DissectPage(QWidget):
                 self._add_button("下一步", self._next_layer, "dissectBack")
             if self._layer_unlocked > 1:
                 self._add_button("‹ 上一层", self._prev_layer, "dissectBack")
+
+            deep = direction_data.get("deep_dive", {})
+            if deep:
+                self._add_title("算法理解")
+                sections = [
+                    ("deepInfo", "信息论视角", deep.get("information_theory", "")),
+                    ("deepPattern", "经典模式", deep.get("classical_pattern", "")),
+                    ("deepObservation", "关键观察", deep.get("key_observation", "")),
+                    ("deepProof", "证明思路", deep.get("proof_idea", "")),
+                ]
+                for obj_name, prefix, text in sections:
+                    if text:
+                        label = QLabel(f"{prefix}：{text}")
+                        label.setObjectName(obj_name)
+                        label.setWordWrap(True)
+                        self.content_layout.addWidget(label)
+                mistakes = deep.get("common_mistakes", [])
+                if mistakes:
+                    self._add_hint("常见误区：")
+                    for m in mistakes:
+                        label = QLabel(f"· {m}")
+                        label.setObjectName("deepMistake")
+                        label.setWordWrap(True)
+                        self.content_layout.addWidget(label)
         else:
             self._add_hint("先做一句")
             h = self.engine.heuristic_direction(direction)

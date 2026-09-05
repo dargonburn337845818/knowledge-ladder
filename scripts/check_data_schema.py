@@ -59,6 +59,7 @@ def check_direction_content(schema, content, heuristics, errors):
     layers_spec = schema["layers"]
     edge_spec = schema["edge_case"]
     expert_spec = schema["expert_mark"]
+    deep_dive_spec = schema.get("deep_dive", {})
 
     directions = content.get("directions", [])
     required_count = schema.get("required_direction_count", 4)
@@ -74,6 +75,8 @@ def check_direction_content(schema, content, heuristics, errors):
     for d in directions:
         did = d.get("id", "?")
         _check_object(d, direction_spec, f"direction[{did}]", errors)
+        if "deep_dive" in d:
+            _check_object(d["deep_dive"], deep_dive_spec, f"direction[{did}].deep_dive", errors)
         if len(d.get("triggers", [])) < 3:
             errors.append(f"direction[{did}].triggers: expected at least 3 items")
         if len(d.get("edge_cases", [])) < 1:

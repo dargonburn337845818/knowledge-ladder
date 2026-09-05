@@ -1,7 +1,7 @@
 {
   "meta": {
-    "version": "1.7.0",
-    "description": "四方向内容资产：卡片文案 + 安全触发摘要 + 三层点拨 + 反例/边界 + 常见误区 + 关键词/典型题 + 专家来源台账。",
+    "version": "1.8.0",
+    "description": "四方向内容资产：拆题引导 + PC端算法理解深挖（信息论视角/经典模式/关键观察/证明思路/常见误区/来源）。",
     "generator": "teacher_discussion algorithm/product-ux/writing/math/physics sessions",
     "session_ids": [
       "teacher_1788604576323_2h7r90",
@@ -328,7 +328,46 @@
       "canonical_examples": [
         "Range Sum Query",
         "Subarray Sum Equals K"
-      ]
+      ],
+      "deep_dive": {
+        "information_theory": "原始输入里的很多差异其实不会被后续查询区分：绝对坐标、字符串完整内容、访问顺序、反复扫描的区间，都是相对答案的“零信息”。编码压缩把这些不可区分的对象合并成等价类，候选空间从值域 O(C)、排列 O(n!)、区间长 O(N) 缩到本质不同的 O(n)、O(2^n) 或 O(1) 查表；哈希再把高熵对象映成短指纹，碰撞概率由概率界控制。",
+        "classical_pattern": "先找等价类，再换代表元：把只用于比较/相等/聚合的原始对象换成“保序代表元”（排序+去重）、守恒指纹（哈希）、可逆累计量（前缀/差分）、集合位掩码（状态压缩）或纯函数缓存；之后用 O(1)/O(log) 查表或转移取代重复计算。核心是“压缩然后索引”。",
+        "key_observation": "能压缩的不是“数据规模”，而是“区分能力”。如果后续判定只关心相对顺序、相等性、区间聚合或集合成员关系，那么绝对坐标、串内细节、访问顺序、重复扫描就是冗余信息，可以删掉或合并。",
+        "proof_idea": "保序映射/等价类论证：压缩映射把每个原始对象送到唯一代表元，并保持问题关心的不变量；前缀和/差分是可逆线性变换，正确性来自恒等式与裂项相消；哈希用 Schwarz-Zippel 界给出错误概率；状态压缩按子集大小归纳，不重不漏。",
+        "common_mistakes": [
+          "坐标压缩忘记去重，或误排序原数组、跨用例独立压缩，破坏相对顺序。",
+          "哈希固定模数/自然溢出且不做双哈希或随机基，忽视 anti-hash 与生日攻击。",
+          "前缀和/差分边界错位：prefix[0]=0、diff[b+1] 漏改、差分求前缀方向搞反。",
+          "状态压缩只看到 2^n 枚举，忽略子集合并的 O(3^n) 子掩码枚举。"
+        ],
+        "source_refs": [
+          {
+            "url": "https://codeforces.com/blog/entry/155752",
+            "title": "Coordinate Compression — Why and How to Use It",
+            "claim": "坐标压缩只保留相对顺序，常见坑：忘记去重、排序原数组、跨用例独立压缩。"
+          },
+          {
+            "url": "https://cp-algorithms.com/string/string-hashing.html",
+            "title": "String Hashing - CP-Algorithms",
+            "claim": "哈希把字符串映成整数使比较 O(1)，双哈希/随机基降低碰撞概率。"
+          },
+          {
+            "url": "https://usaco.guide/silver/prefix-sums",
+            "title": "Introduction to Prefix Sums - USACO Guide",
+            "claim": "O(N) 预处理前缀和使用任意子数组和 O(1) 回答。"
+          },
+          {
+            "url": "https://usaco.guide/problems/cses-1651-range-update-queries/solution",
+            "title": "Solution - Range Update Queries - USACO Guide",
+            "claim": "差分数组把区间加变成两条边界记录，点查询化为前缀和。"
+          },
+          {
+            "url": "https://atcoder.jp/contests/abc187/editorial/502",
+            "title": "AtCoder ABC187 F - Close Group Editorial",
+            "claim": "子集合并按规模递推，总枚举 ∑2^{|S|}=3^n，把 4^n 压到 3^n。"
+          }
+        ]
+      }
     },
     {
       "id": "propagation_relaxation",
@@ -454,7 +493,46 @@
         "Climbing Stairs",
         "House Robber",
         "Coin Change"
-      ]
+      ],
+      "deep_dive": {
+        "information_theory": "传播松弛每步都产生一条确定性证据：按序处理某个状态后它的值被“证死”，所有必须经过它才能更优的候选被一次性排除。序的选择（拓扑序、BFS 层序、Dijkstra 堆序）保证每次处理的都是依赖已全部确定、不可能再被改进的状态，剩余可能从指数级收缩为受依赖结构限定的多项式级处理序列。",
+        "classical_pattern": "把对象建成状态图/依赖图，只保留对后续决策真正相关的最小信息作为状态；然后找（或构造）一个所有依赖边都从“已知/已定”指向“未知/未定”的处理序，做单次 push/pull 传播；找不到无环序时退化为反复松弛直到收敛，并把“是否收敛”当作可行性判据。",
+        "key_observation": "只要存在一个线性序使每条依赖边都严格向前，“这个状态以后还会不会再变优”这个问题就永久关闭。Dijkstra 的“出堆即定”、BFS 的“首达即最短”、拓扑 DP 的“处理即最终”是同一个结构洞察在不同度量下的投影。",
+        "proof_idea": "拓扑/依赖序用归纳：处理 v 前所有前驱已 final，取最优转移即全局最优。Dijkstra 用已定集不变式 + 非负权证明；BFS 按层归纳；Bellman-Ford 证明第 i 轮覆盖边数 ≤ i 的全部路径，n−1 轮后稳定，若第 n 轮仍松弛则存在负环。",
+        "common_mistakes": [
+          "把任意 DFS/BFS 遍历顺序当作拓扑序，在有环/隐式图只做单次传播。",
+          "对负权边硬上 Dijkstra；“出堆即定”依赖非负权。",
+          "把“访问过”当成“已 final”；SPFA/0-1 BFS 中同一状态可能以更小代价再次入队。",
+          "Bellman-Ford 未跑满 n−1 轮或未处理可达性，就断言“无负环”。"
+        ],
+        "source_refs": [
+          {
+            "url": "https://cp-algorithms.com/graph/topological-sort.html",
+            "title": "Topological Sorting - CP-Algorithms",
+            "claim": "拓扑序把 DAG 拉直成所有边都向前指的线性序，构造本身可检测环。"
+          },
+          {
+            "url": "https://cp-algorithms.com/graph/dijkstra.html",
+            "title": "Dijkstra - CP-Algorithms",
+            "claim": "顶点一旦标记，当前距离即最短且不再改变；由归纳与非负权证明。"
+          },
+          {
+            "url": "https://cp-algorithms.com/graph/bellman_ford.html",
+            "title": "Bellman-Ford - CP-Algorithms",
+            "claim": "第 i 轮后覆盖所有边数≤i 的最短路；n−1 轮足够，第 n 轮仍松弛则存在可达负环。"
+          },
+          {
+            "url": "https://usaco.guide/gold/toposort",
+            "title": "Topological Sort - USACO Guide",
+            "claim": "按满足依赖的顺序处理状态即可在图上做 DP，这就是拓扑排序的定义。"
+          },
+          {
+            "url": "https://oi-wiki.org/graph/bfs/",
+            "title": "BFS - OI Wiki",
+            "claim": "BFS 层序/代价序本身就是“先定后传”的传播顺序；0-1 BFS 用双端队列保证权值单调。"
+          }
+        ]
+      }
     },
     {
       "id": "pruning_decision",
@@ -583,7 +661,46 @@
         "Aggressive Cows",
         "Koko Eating Bananas",
         "Minimum Time to Complete Trips"
-      ]
+      ],
+      "deep_dive": {
+        "information_theory": "每次只问一个候选答案 x 是否可行：若可行集关于 x 单调，那么一个布尔回答就把剩余候选空间整齐切成两半，O(log U) 次检查足以把指数级或 10^9 级候选压缩到常数个；贪心/交换论证更进一步证明某一整类候选绝不可能出现在任何最优解中，从而一批候选被整类剪掉。",
+        "classical_pattern": "判定-收缩循环：把“求最优值”重述为“判定某个值是否可行”，一旦可行集呈单调前缀/后缀形态，就用 check(mid) 的布尔结果把候选区间折半；贪心则用交换/反证证明某个局部决策“安全”，把剩余候选解类整体排除。",
+        "key_observation": "真正需要有序的不是输入数据，而是“答案的可满足性”——最优值永远藏在可行域与不可行域的边界上；贪心的核心是每个局部最优决定都能被某个全局最优解包含（存在安全交换）。",
+        "proof_idea": "二分答案：维护不变式 f(L)=0 且 f(R)=1，每次取中检查，区间严格缩小且不变式保持。贪心：任取最优解 O，若不含贪心首元素 g，用交换把第一个不同决策换成 g 且不劣，再归纳到每步；反证版假设存在更优解推出矛盾。",
+        "common_mistakes": [
+          "把“答案可二分”误当成“输入数组有序”，实际条件是 check(x) 关于答案单调。",
+          "只举几个例子就认为贪心正确，没有对最优解与贪心解做交换/归纳证明。",
+          "二分中点取整或不可行侧合并写错，导致死循环或漏解。",
+          "未确认单调方向（x 可行 ⇒ x+1 也可行）就硬套二分。"
+        ],
+        "source_refs": [
+          {
+            "url": "https://cp-algorithms.com/num_methods/binary_search.html",
+            "title": "Binary Search - CP-Algorithms",
+            "claim": "二分作用于单调布尔谓词，用不变式 f(L)=0, f(R)=1 保证区间减半与正确性。"
+          },
+          {
+            "url": "https://usaco.guide/silver/binary-search",
+            "title": "Binary Search - USACO Guide",
+            "claim": "答案满足单调性且能高效 check 时，在答案空间二分；含 Aggressive Cows、Cow Dance Show 等经典题。"
+          },
+          {
+            "url": "https://oi-wiki.org/basic/greedy/",
+            "title": "贪心 - OI Wiki",
+            "claim": "贪心正确性用反证/归纳/邻项交换论证；如国王游戏排序贪心。"
+          },
+          {
+            "url": "https://codeforces.com/topic/143666/en8",
+            "title": "Binary Search on the Answer - Codeforces",
+            "claim": "对候选答案 mid 做可行性检查，若可行集单调即可收缩范围；经典例 Aggressive Cows、Painter's Partition。"
+          },
+          {
+            "url": "https://codeforces.com/blog/entry/150612",
+            "title": "Beginner's Guide to Greedy - Codeforces",
+            "claim": "贪心证明几乎总是反证法或归纳法；交换论证用于活动选择、MST 割边等安全决策。"
+          }
+        ]
+      }
     },
     {
       "id": "transform_domain_mapping",
@@ -710,7 +827,56 @@
         "Range Update Queries (difference)",
         "Polynomial multiplication",
         "Linear recurrence"
-      ]
+      ],
+      "deep_dive": {
+        "information_theory": "变换域映射的本质是把“必须联合决定”的约束重排为“可逐坐标排除”的独立约束。旧表示下变量纠缠、可能性保持乘积型；新表示下变量被对角化/解耦，联合不确定性化为各坐标独立判断，剩余可能从 O(n²) 量级配对筛选缩小到 O(n) 量级单点筛选。可逆性保证信息不丢失，是同一问题的重参数化。",
+        "classical_pattern": "找一个可逆映射 T，把题目核心操作 O 变成 T 下的点式/对角操作 T∘O∘T⁻¹，做完再逆变换回去：卷积↔逐点乘法（FFT/NTT），区间整体修改↔差分域两个点更新，线性递推 n 步↔同一转移矩阵幂，组合计数↔生成函数乘积，匹配歧义↔确定型自动机单次状态转移。",
+        "key_observation": "不要算“每个元素怎么组合”，而要识别“这个运算在哪个表示下只是逐点乘法/单点更新/一次状态转移”。n 次多项式由 n+1 个点值唯一决定，所以系数域卷积在点值域就是对应坐标相乘；区间批量修改在差分域只是两个边界事件。",
+        "proof_idea": "统一骨架是双射+运算同态：构造可逆变换 F，证 F 一一对应，再证原操作在 F 下变成简单运算（卷积定理、差分边界点更新、矩阵乘法结合律、OGF/EGF 乘积、自动机确定性）；于是原问题与变换后问题同构，正确性由双射传递。对偶再用弱对偶给上界、构造等值可行解给下界。",
+        "common_mistakes": [
+          "把 FFT/NTT 当黑盒：忘记补零、选错模数、忽略浮点误差。",
+          "对不可逆/非交换操作硬套差分；max/min 等没有逆元的操作不能直接前缀化。",
+          "生成函数混用 OGF/EGF，或当收敛级数讨论；截断长度不足丢边界。",
+          "自动机/矩阵状态建模不完整：fail 转移漏入转移表、少压结束/越界状态。"
+        ],
+        "source_refs": [
+          {
+            "url": "https://cp-algorithms.com/algebra/fft.html",
+            "title": "Fast Fourier transform - CP-Algorithms",
+            "claim": "DFT/NTT 将多项式乘法变成点值域逐点相乘，O(n log n)。"
+          },
+          {
+            "url": "https://codeforces.com/blog/entry/111371",
+            "title": "[Tutorial] FFT - Codeforces",
+            "claim": "FFT 是 coefficient-world 与 value-world 之间的桥梁；卷积在点值世界就是对应值相乘。"
+          },
+          {
+            "url": "https://codeforces.com/topic/78001/diff/en3/en4",
+            "title": "Generating Functions in Competitive Programming - Codeforces",
+            "claim": "OGF/EGF 用系数编码序列，生成函数乘积就是卷积；EGF 自动携带二项式系数。"
+          },
+          {
+            "url": "https://codeforces.com/blog/entry/86420",
+            "title": "1D/2D range updates difference arrays - Codeforces",
+            "claim": "区间更新在差分数组下变成常数个点更新，最后一次性前缀和传播。"
+          },
+          {
+            "url": "https://usaco.guide/plat/matrix-expo",
+            "title": "Matrix Exponentiation - USACO Guide",
+            "claim": "线性递推写成矩阵递推，快速幂 O(k^3 log n) 求第 n 项，可归纳证明。"
+          },
+          {
+            "url": "https://codeforces.com/blog/entry/14854",
+            "title": "Aho-Corasick algorithm - Codeforces",
+            "claim": "fail 链接构造确定型自动机，把多模式匹配变成逐字符确定状态转移。"
+          },
+          {
+            "url": "https://codeforces.com/blog/entry/105049",
+            "title": "Duality in linear programming - Codeforces",
+            "claim": "对偶变量是约束的“价格/影子价值”，用于给出最优性界。"
+          }
+        ]
+      }
     }
   ]
 }

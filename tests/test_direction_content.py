@@ -44,6 +44,9 @@ class DirectionContentTest(unittest.TestCase):
             self.assertGreaterEqual(len(d.get("signal_keywords", [])), 1)
             self.assertGreaterEqual(len(d.get("canonical_examples", [])), 1)
             self.assertGreaterEqual(len(d.get("edge_cases", [])), 1)
+            deep = d.get("deep_dive", {})
+            for field in ("information_theory", "classical_pattern", "key_observation", "proof_idea", "common_mistakes", "source_refs"):
+                self.assertTrue(deep.get(field), f"{d['id']} deep_dive missing {field}")
 
     def test_card_triggers_are_safe_and_present(self):
         FORBIDDEN = [

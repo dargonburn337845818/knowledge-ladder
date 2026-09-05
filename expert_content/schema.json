@@ -36,7 +36,8 @@
       "source_refs": "array<string>",
       "card_triggers": "array<string>",
       "signal_keywords": "array<string>",
-      "canonical_examples": "array<string>"
+      "canonical_examples": "array<string>",
+      "deep_dive": "object"
     }
   },
   "anchor": {
@@ -98,5 +99,23 @@
     "next_actions": "layers.action",
     "self_questions": "layers.self_question",
     "dynamic_template": "保留在 heuristics.json，不在新内容资产迁移"
+  },
+  "deep_dive": {
+    "required_fields": [
+      "information_theory",
+      "classical_pattern",
+      "key_observation",
+      "proof_idea",
+      "common_mistakes",
+      "source_refs"
+    ],
+    "field_types": {
+      "information_theory": "string",
+      "classical_pattern": "string",
+      "key_observation": "string",
+      "proof_idea": "string",
+      "common_mistakes": "array<string>",
+      "source_refs": "array<object>"
+    }
   }
 }
