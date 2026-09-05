@@ -1,6 +1,6 @@
 {
   "meta": {
-    "version": "1.0.0",
+    "version": "1.1.0",
     "generated_at": "2026-08-30T03:56:27.264828+00:00",
     "description": "20 个特征问题 × 120 算法条件概率；教师共识只作为方向末页线索，不进入未校准矩阵。",
     "source": "algorithm_prior + feature matrix"
@@ -9,121 +9,121 @@
     {
       "id": "shape_linear",
       "dimension": "形状",
-      "question": "数据主体是线性/序列/区间结构吗？",
+      "question": "数据主体是否是一段序列/数组/区间？",
       "kind": "base"
     },
     {
       "id": "shape_graph",
       "dimension": "形状",
-      "question": "数据主体是树/图/依赖结构吗？",
+      "question": "数据主体是否是树/图/依赖结构？",
       "kind": "base"
     },
     {
       "id": "shape_algebra",
       "dimension": "形状",
-      "question": "数据主体是抽象数学对象/集合/值域吗？",
+      "question": "数据主体是否是数/集合/代数结构？",
       "kind": "base"
     },
     {
       "id": "dynamic",
       "dimension": "变化",
-      "question": "运行过程中数据会修改、需要实时维护吗？",
+      "question": "运行中数据会不会变化，需要实时维护吗？",
       "kind": "base"
     },
     {
       "id": "metric_sum",
       "dimension": "规则",
-      "question": "合并规则是加法/最值/路径权值吗？",
+      "question": "合并/转移时是用加法、最值、还是路径权值？",
       "kind": "base"
     },
     {
       "id": "metric_xor",
       "dimension": "规则",
-      "question": "核心涉及异或/线性独立/异或空间吗？",
+      "question": "核心是否涉及异或/线性相关/异或空间？",
       "kind": "base"
     },
     {
       "id": "metric_count",
       "dimension": "规则",
-      "question": "需要计数/组合/卷积/方案数吗？",
+      "question": "需要计数、组合或方案数吗？",
       "kind": "base"
     },
     {
       "id": "metric_bool",
       "dimension": "规则",
-      "question": "问题只问可行性/判定（布尔）吗？",
+      "question": "问题是不是只问“能不能做到”（可行性/判定）？",
       "kind": "base"
     },
     {
       "id": "metric_geom",
       "dimension": "规则",
-      "question": "核心是几何/向量/距离/凸性吗？",
+      "question": "核心是否是几何/向量/距离/凸性？",
       "kind": "base"
     },
     {
       "id": "metric_num",
       "dimension": "规则",
-      "question": "核心是数论/模运算/整除/质数吗？",
+      "question": "核心是否是数论/模运算/整除/质数？",
       "kind": "base"
     },
     {
       "id": "scale_tiny",
       "dimension": "规模",
-      "question": "n ≤ 20，可以状压/指数级枚举吗？",
+      "question": "规模是否很小（n≤20），可以接受指数级枚举/状压？",
       "kind": "base"
     },
     {
       "id": "scale_small",
       "dimension": "规模",
-      "question": "n ≤ 5000，可以接受 O(n²)/O(n³) 吗？",
+      "question": "规模是否中等（n≤5000），可以接受 O(n²)/O(n³)？",
       "kind": "base"
     },
     {
       "id": "scale_large",
       "dimension": "规模",
-      "question": "n ≥ 1e5，需要 O(n log n) 或更好吗？",
+      "question": "规模是否很大（n≥1e5），需要 O(n log n) 或更快？",
       "kind": "base"
     },
     {
       "id": "monotonic",
       "dimension": "排查",
-      "question": "答案或可行性判定具有单调性，可以二分吗？",
+      "question": "答案或可行性是否随某个量单调？",
       "kind": "extra"
     },
     {
       "id": "dependency",
       "dimension": "排查",
-      "question": "当前状态依赖前驱/递推关系，需要按顺序传递吗？",
+      "question": "当前结果是否依赖前驱/递推顺序？",
       "kind": "extra"
     },
     {
       "id": "multi_query",
       "dimension": "排查",
-      "question": "有大量/多次查询，需要批量或数据结构维护吗？",
+      "question": "是否有大量/多次查询，需要批量处理？",
       "kind": "extra"
     },
     {
       "id": "preprocess",
       "dimension": "排查",
-      "question": "允许离线/预处理来换取查询更快吗？",
+      "question": "是否允许离线/预处理来换更快查询？",
       "kind": "extra"
     },
     {
       "id": "optimization",
       "dimension": "排查",
-      "question": "求的是最优值/最值，而不只是可行性吗？",
+      "question": "求的是不是最优值/最值，而不只是可行？",
       "kind": "extra"
     },
     {
       "id": "range_ops",
       "dimension": "排查",
-      "question": "核心在线性序列的区间操作/区间查询上吗？",
+      "question": "核心是否在序列的区间操作/查询上？",
       "kind": "extra"
     },
     {
       "id": "graph_path",
       "dimension": "排查",
-      "question": "核心在树/图的路径、连通、最短路或流上吗？",
+      "question": "核心是否在树/图的路径、连通、最短路或流上？",
       "kind": "extra"
     }
   ],

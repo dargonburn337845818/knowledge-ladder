@@ -39,9 +39,10 @@ class DissectFlowStaticTest(unittest.TestCase):
         path = os.path.join(REPO_ROOT, "app", "dissect_page.py")
         with open(path, encoding="utf-8") as f:
             src = f.read()
-        self.assertIn("_render_direction_cards", src)
-        self.assertIn("directionCard", src)
-        self.assertIn("_direction_content_directions", src)
+        self.assertIn("_render_direction_choices", src)
+        self.assertIn("directionChoice", src)
+        self.assertNotIn("_render_direction_cards", src)
+        self.assertNotIn("directionCard", src)
         self.assertIn("_open_direction", src)
 
     def test_source_has_three_layer_unlock(self):
@@ -84,16 +85,19 @@ class DissectFlowBehaviorTest(unittest.TestCase):
                 page._render_question()
         self.assertIn(page.mode, ("finished", "direction"))
 
-    def test_finish_renders_four_cards_and_click_opens_detail(self):
+    def test_finish_renders_probability_choices_and_click_opens_detail(self):
         page = DissectPage()
         page.mode = "finished"
         page._render()
-        cards = [b for b in page.findChildren(QPushButton) if b.objectName() == "directionCard"]
-        self.assertEqual(len(cards), 4)
-        first = cards[0]
+        choices = [b for b in page.findChildren(QPushButton) if b.objectName() == "directionChoice"]
+        self.assertEqual(len(choices), 4)
+        self.assertTrue(all("%" in b.text() for b in choices))
+        first = choices[0]
         first.click()
         self.assertEqual(page.mode, "direction")
         self.assertIn(page._current_direction, {"编码压缩", "传播松弛", "剪枝决策", "变换域映射"})
+        self.assertFalse(any("看别的" in b.text() for b in page.findChildren(QPushButton)))
+        self.assertFalse(any("卡点自查" == b.text() for b in page.findChildren(QPushButton)))
 
     def test_three_layer_progressive_unlock(self):
         page = DissectPage()

@@ -1,15 +1,16 @@
-/* Node VM 小脚本：验证移动端主流程无 baseline、四卡平铺、三层递进解锁。 */
+/* Node VM 小脚本：验证移动端主流程无 baseline、概率选择、三层递进解锁。 */
 const fs = require("fs");
 const vm = require("vm");
 const assert = require("assert");
 
 const code = fs.readFileSync("mobile/www/app.js", "utf8");
 
-// 静态断言：主流程无 baseline，且存在四卡/三层实现
+// 静态断言：主流程无 baseline，且存在概率选择/三层实现，无卡点自查/看别的
 assert(!/baseline|renderBaseline|先写暴力|基线/.test(code), "mobile app.js still contains baseline flow");
 assert(code.includes('mode: "question"'), "initial state is not question");
 assert(code.includes("renderQuestion();"), "initial call is not renderQuestion");
-assert(code.includes("direction-card"), "missing four-card implementation");
+assert(code.includes("direction-choice"), "missing probability choice implementation");
+assert(!/卡点自查|看别的/.test(code), "card self-check or see-other still present");
 assert(code.includes("layerUnlocked"), "missing layer state");
 assert(code.includes("layerCondition"), "missing condition layer");
 assert(code.includes("nextLayerBtn"), "missing next layer button");
@@ -30,7 +31,7 @@ function fakeEl() {
   };
 }
 
-const directionCards = ["编码压缩", "传播松弛", "剪枝决策", "变换域映射"].map((title) => ({
+const directionChoices = ["编码压缩", "传播松弛", "剪枝决策", "变换域映射"].map((title) => ({
   dataset: { dir: title },
   addEventListener(type, fn) {
     this.onclick = fn;
@@ -48,7 +49,7 @@ function getEl(id) {
 
 const stage = fakeEl();
 stage.querySelectorAll = function (selector) {
-  if (selector === ".direction-card") return directionCards;
+  if (selector === ".direction-choice") return directionChoices;
   return [];
 };
 elements.stage = stage;
@@ -130,14 +131,15 @@ const context = {
 vm.createContext(context);
 vm.runInContext(code, context);
 
-// 最终页：四张方向卡片同屏
-assert(elements.stage.innerHTML.includes("四个方向，点一个进入"), "finish page title missing");
-for (const d of fourDirs) {
-  assert(elements.stage.innerHTML.includes(`data-dir="${d.title}"`), `missing direction card ${d.title}`);
+// 最终页：概率排序选择
+assert(elements.stage.innerHTML.includes("选一个方向"), "finish page title missing");
+for (const title of ["编码压缩", "传播松弛", "剪枝决策", "变换域映射"]) {
+  assert(elements.stage.innerHTML.includes(`data-dir="${title}"`), `missing direction choice ${title}`);
 }
+assert(elements.stage.innerHTML.includes("%"), "probability percent not shown");
 
-// 点击第一张卡片进入详情
-directionCards[0].click();
+// 点击第一个选择进入详情
+directionChoices[0].click();
 let html = elements.stage.innerHTML;
 assert(/id="layerCondition"[^>]*display:block;/.test(html), "condition layer not visible initially");
 assert(/id="layerAction"[^>]*display:none;/.test(html), "action layer visible initially");

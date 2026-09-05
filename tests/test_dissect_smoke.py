@@ -1,7 +1,6 @@
-"""桌面拆题页 offscreen 冒烟：无算法名/权重，卡点点击显示提示并写记录。"""
+"""桌面拆题页 offscreen 冒烟：三层点拨、无算法名/权重、无卡点自查/看别的。"""
 
 import os
-import tempfile
 import unittest
 
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
@@ -10,13 +9,11 @@ try:
     from PySide6.QtWidgets import QApplication, QLabel, QPushButton
 
     from app.dissect_page import DissectPage
-    from app.state import ProgressStore
 
     PYSIDE_OK = True
 except ImportError:  # pragma: no cover - CI 无 PySide6 时跳过
     QApplication = QLabel = QPushButton = None
     DissectPage = None
-    ProgressStore = None
     PYSIDE_OK = False
 
 FORBIDDEN = [
@@ -33,35 +30,29 @@ class DissectSmokeTest(unittest.TestCase):
     def setUpClass(cls):
         cls.app = QApplication.instance() or QApplication([])
 
-    def test_direction_page_no_algorithm_names_and_card_click(self):
-        with tempfile.TemporaryDirectory() as d:
-            store = ProgressStore(base_dir=d)
-            page = DissectPage(store=store)
-            page.mode = "direction"
-            page._current_direction = "编码压缩"
-            page._render()
+    def test_direction_page_three_layers_no_card_points_no_algorithms(self):
+        page = DissectPage()
+        page.mode = "direction"
+        page._current_direction = "编码压缩"
+        page._layer_unlocked = 1
+        page._render()
 
-            texts = [b.text() for b in page.findChildren(QPushButton)]
-            self.assertIn("读题卡", texts)
-            self.assertIn("建模卡", texts)
-            self.assertIn("复杂度卡", texts)
-            self.assertIn("实现卡", texts)
-            self.assertIn("证明卡", texts)
+        self.assertEqual(len(page._layer_labels), 3)
+        self.assertFalse(page._layer_labels[0].isHidden())
+        self.assertTrue(page._layer_labels[1].isHidden())
+        self.assertTrue(page._layer_labels[2].isHidden())
 
-            all_text = "\n".join(
-                [label.text() for label in page.findChildren(QLabel)]
-                + [b.text() for b in page.findChildren(QPushButton)]
-            )
-            self.assertNotIn("%", all_text)
-            for token in FORBIDDEN:
-                self.assertNotIn(token, all_text)
+        all_text = "\n".join(
+            [label.text() for label in page.findChildren(QLabel)]
+            + [b.text() for b in page.findChildren(QPushButton)]
+        )
+        self.assertNotIn("%", all_text)
+        self.assertNotIn("卡点自查", all_text)
+        self.assertNotIn("看别的", all_text)
+        for token in FORBIDDEN:
+            self.assertNotIn(token, all_text)
 
-            # 点击真实按钮
-            reading_btn = next(b for b in page.findChildren(QPushButton) if b.text() == "读题卡")
-            reading_btn.click()
-            self.assertTrue(page._card_hint_label.text())
-            self.assertIn("读题卡", page._card_summary_label.text())
-            self.assertEqual(store.card_record_counts(), {"reading": 1})
+        self.assertTrue(any(b.text() == "下一步" for b in page.findChildren(QPushButton)))
 
 
 if __name__ == "__main__":

@@ -3,7 +3,6 @@
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QFrame,
-    QGridLayout,
     QHBoxLayout,
     QLabel,
     QPushButton,
@@ -239,29 +238,26 @@ class DissectPage(QWidget):
     # ---------- Finish ----------
     def _render_finish(self):
         self.mode = "finished"
-        self._render_direction_cards()
+        self._render_direction_choices()
 
-    def _render_direction_cards(self):
-        """最终页：四张方向卡片同屏平铺，点击进入详情。"""
+    def _render_direction_choices(self):
+        """最终页：按计算概率排序，用户选择方向，可回退。"""
         self.mode = "finished"
-        self.step_label.setText("方向")
-        self._add_title("四个方向，点一个进入")
-        self._add_hint("卡片只给线索，不展示算法权重。")
-        grid = QGridLayout()
-        grid.setSpacing(12)
-        for i, d in enumerate(_direction_content_directions()):
-            card = QPushButton()
-            card.setObjectName("directionCard")
-            card.setProperty("direction_id", d.get("id", ""))
-            triggers = d.get("card_triggers", d.get("triggers", []))
-            snippet = "\n".join(triggers[:2])
-            title = d.get("title", "")
-            card.setText(f"{title}\n\n{d.get('value', '')}\n\n{snippet}")
-            card.clicked.connect(
-                lambda checked=False, t=title: self._open_direction(t)
-            )
-            grid.addWidget(card, i // 2, i % 2)
-        self.content_layout.addLayout(grid)
+        self.step_label.setText("选择")
+        self._add_title("选一个方向")
+        self._add_hint("按当前信息的最可能程度排序；点进去看三层点拨。")
+        probs = self.engine.direction_probs(self.weights)
+        ordered = sorted(probs.items(), key=lambda kv: kv[1], reverse=True)
+        if not ordered:
+            self._add_body("暂时没有收敛方向，重新开始。")
+            self._add_button("重新开始", self._reset, "dissectRestart")
+            return
+        for name, prob in ordered:
+            btn = QPushButton(f"{name}  {prob * 100:.0f}%")
+            btn.setObjectName("directionChoice")
+            btn.setProperty("direction_title", name)
+            btn.clicked.connect(lambda checked=False, t=name: self._open_direction(t))
+            self.content_layout.addWidget(btn)
         if self.history:
             self._add_button("‹ 上一步", self._go_back, "dissectBack")
         self._add_button("重新开始", self._reset, "dissectRestart")
@@ -297,40 +293,11 @@ class DissectPage(QWidget):
             self._layer_unlocked -= 1
             self._render()
 
-    # ---------- 卡点自查 ----------
-    def _card_points(self):
-        return self.engine.heuristics.get("card_points", []) or []
-
-    def _card_name(self, card_id):
-        for cp in self._card_points():
-            if cp.get("id") == card_id:
-                return cp.get("name", card_id)
-        return card_id
-
-    def _on_card_clicked(self, card_id):
-        card = next((c for c in self._card_points() if c.get("id") == card_id), None)
-        if card and hasattr(self, "_card_hint_label"):
-            self._card_hint_label.setText(card.get("hint", ""))
-            self._card_hint_label.show()
-        if self.store is not None:
-            self.store.add_card_record(card_id)
-            self._refresh_card_summary()
-
-    def _refresh_card_summary(self):
-        if not hasattr(self, "_card_summary_label"):
-            return
-        if self.store is None:
-            self._card_summary_label.setText("最近：暂无")
-            return
-        counts = self.store.card_record_counts(10)
-        parts = [f"{self._card_name(c)}×{n}" for c, n in counts.items()]
-        self._card_summary_label.setText("最近：" + " ".join(parts) if parts else "最近：暂无")
-
     # ---------- Direction ----------
     def _render_direction(self):
         direction = getattr(self, "_current_direction", "编码压缩")
         self.step_label.setText("")
-        self._add_title(f"最可能：{direction}")
+        self._add_title(f"你选择：{direction}")
         direction_data = next(
             (d for d in _direction_content_directions() if d.get("title") == direction),
             None,
@@ -370,34 +337,6 @@ class DissectPage(QWidget):
                     self._add_body(self.VAGUE_TEXT.get(direction, ""))
             else:
                 self._add_body(self.VAGUE_TEXT.get(direction, ""))
-
-        card_points = self._card_points()
-        if card_points:
-            self._add_title("卡点自查")
-            for cp in card_points:
-                self._add_button(
-                    cp.get("name", cp["id"]),
-                    lambda c=cp["id"]: self._on_card_clicked(c),
-                    "dissectBack",
-                )
-            self._card_hint_label = QLabel("")
-            self._card_hint_label.setObjectName("dissectThinkCard")
-            self._card_hint_label.setWordWrap(True)
-            self._card_hint_label.hide()
-            self.content_layout.addWidget(self._card_hint_label)
-            self._card_summary_label = QLabel("")
-            self._card_summary_label.setObjectName("dissectHint")
-            self._card_summary_label.setWordWrap(True)
-            self.content_layout.addWidget(self._card_summary_label)
-            self._refresh_card_summary()
-
-        probs = self.engine.direction_probs(self.weights)
-        others = [name for name, _ in sorted(probs.items(), key=lambda kv: kv[1], reverse=True) if name != direction][:2]
-        for other in others:
-            btn = QPushButton(f"看别的：{other}")
-            btn.setObjectName("dissectBack")
-            btn.clicked.connect(lambda checked=False, o=other: self._open_direction(o))
-            self.content_layout.addWidget(btn)
 
         self._add_button("状态", self._toggle_debug, "dissectBack")
         self._debug_label = QLabel("")

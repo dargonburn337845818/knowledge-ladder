@@ -1,6 +1,6 @@
 {
   "meta": {
-    "version": "1.4.0",
+    "version": "1.5.0",
     "description": "四方向内容资产定稿：卡片主文案 + 安全触发摘要 + 三层递进点拨 + 反例/失效边界 + 专家来源台账。",
     "generator": "teacher_discussion algorithm/product-ux/writing/math/physics sessions",
     "session_ids": [
@@ -240,9 +240,9 @@
         "https://github.com/cp-algorithms/cp-algorithms/pull/383/files/4e56f6b16fdd63fe74213a0d03aea431f98dd7ab"
       ],
       "layers": {
-        "condition": "你看到同一个量或区间会被反复查询/反复计算吗？",
-        "action": "在草稿上标出所有重复计算的量，先写一个预处理把它们存好。",
-        "self_question": "用小样例数一遍：预处理后每次查询是否真的不再重复算？",
+        "condition": "哪些量或区间会被重复查询或重复计算？",
+        "action": "标出所有重复计算的量，先把它们预处理成一张“查一次就出结果”的表。",
+        "self_question": "挑一个小样例，数一遍预处理后每次查询是否都不再重复算？",
         "expert_marks": [
           {
             "expert_id": "petr",
@@ -337,9 +337,9 @@
         "http://homes.di.unimi.it/righini/Didattica/OttimizzazioneCombinatoria/MaterialeOC/13%20-%20Dynamic%20programming.pdf"
       ],
       "layers": {
-        "condition": "你看到题目中存在顺序、依赖或前驱关系吗？",
-        "action": "把依赖画成图或队列，按顺序让前驱先算完，再算后继。",
-        "self_question": "按这个顺序推进时，每个状态需要的前驱是不是都已经算好了？",
+        "condition": "是否存在“先有前驱、后有后继”的顺序关系？",
+        "action": "把依赖画成有向顺序，按前驱先算、后继再算推一遍。",
+        "self_question": "按这个顺序推进时，每个状态需要的前驱是否都已经算好？",
         "expert_marks": [
           {
             "expert_id": "errichto",
@@ -434,9 +434,9 @@
         "https://codeforces.com/topic/156211/diff/en3/en4"
       ],
       "layers": {
-        "condition": "你看到答案或判定随某个量单调，或存在明显不可能优的候选吗？",
-        "action": "先写一个 check(x)，再找出哪些候选永远不可能赢，直接排除。",
-        "self_question": "用一个边界小样例检查：被排除的候选真的不可能比当前更好吗？",
+        "condition": "答案或可行性是否随某个量单调变化？",
+        "action": "先写一个 check(x)，再找出永远不可能更优的候选，从搜索里排除。",
+        "self_question": "用一个边界小样例验证：被排除的候选真的不可能更优吗？",
         "expert_marks": [
           {
             "expert_id": "ecnerwala",
@@ -532,9 +532,9 @@
         "https://github.com/cp-algorithms/cp-algorithms/pull/383/files/4e56f6b16fdd63fe74213a0d03aea431f98dd7ab"
       ],
       "layers": {
-        "condition": "你看到正面难算，但可能有另一种表示、坐标或等价问题更简单吗？",
-        "action": "在草稿上把题面重述成另一个模型，再写下这个模型里的等价条件。",
-        "self_question": "重述后的模型和原题是否一一对应？有没有丢失或增加情况？",
+        "condition": "正面难算时，是否存在另一种表示、坐标或等价问题更简单？",
+        "action": "把题面重述成另一个模型，写出它和原题的一一对应关系。",
+        "self_question": "重述后的模型是否和原题一一对应？有没有丢失或新增情况？",
         "expert_marks": [
           {
             "expert_id": "radewoosh",
