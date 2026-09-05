@@ -9,7 +9,6 @@
     currentQuestion: null,
     lastSurprise: 1,
     anomalyFlag: false,
-    layerUnlocked: 1,
     lastInsight: null,
     lastAnswered: null
   };
@@ -81,7 +80,6 @@
       currentQuestion: null,
       lastSurprise: 1,
       anomalyFlag: false,
-      layerUnlocked: 1,
       lastInsight: null,
       lastAnswered: null
     };
@@ -191,7 +189,7 @@
     stage.innerHTML = `
       <div class="card">
         <div class="card-title">选一个方向</div>
-        <div class="card-hint">按当前信息的最可能程度排序；点进去看三层点拨。</div>
+        <div class="card-hint">按当前信息的最可能程度排序；点进去看方向点拨。</div>
         ${state.lastInsight ? `<div class="insight-text" style="margin-bottom:12px;">点拨：${state.lastInsight}</div>` : ""}
         <div class="options">
           ${dirs.map(d => `
@@ -214,14 +212,11 @@
     if (backBtn) backBtn.addEventListener("click", goBack);
   }
 
-  function renderDirection(dir, resetLayers = true) {
+  function renderDirection(dir) {
     state.mode = "direction";
-    if (resetLayers) state.layerUnlocked = 1;
     stepCount.style.display = "none";
     const d = directionContentByName(dir);
     if (d) {
-      const layers = d.layers || {};
-      const disp = (n) => state.layerUnlocked >= n ? "block" : "none";
       stage.innerHTML = `
         <div class="card">
           <div class="card-title">你选择：${dir}</div>
@@ -229,39 +224,12 @@
           ${d.nudge ? `<div class="nudge-text">一句话点拨：${d.nudge}</div>` : ""}
           ${(DYNAMIC_INSIGHTS.directions || {})[dir] ? `<div class="insight-text" style="margin-top:10px;">深入点拨：${(DYNAMIC_INSIGHTS.directions || {})[dir]}</div>` : ""}
           <div class="card-hint">常见信号：${(d.signal_keywords || []).slice(0, 3).join("、")}</div>
-          <div class="card-title" style="margin-top:16px;">三层点拨</div>
-          <div id="layerProgress" class="card-hint">第 ${state.layerUnlocked}/3 层</div>
-          <div id="layerCondition" class="layer-text" style="display:${disp(1)};">条件：${layers.condition || ""}</div>
-          <div id="layerAction" class="layer-text" style="display:${disp(2)};">动作：${layers.action || ""}</div>
-          <div id="layerSelfQuestion" class="layer-text" style="display:${disp(3)};">自问：${layers.self_question || ""}</div>
-          <div style="display:flex;gap:8px;margin-top:8px;">
-            ${state.layerUnlocked < 3 ? '<button class="think-back" id="nextLayerBtn" style="flex:1;">下一步</button>' : ""}
-            ${state.layerUnlocked > 1 ? '<button class="think-back" id="prevLayerBtn" style="flex:1;">‹ 上一层</button>' : ""}
-          </div>
           <div style="display:flex;gap:8px;margin-top:16px;">
             <button class="think-back" id="backBtn" style="flex:1;">‹ 返回选择</button>
             <button class="restart-btn" id="restartBtn" style="flex:1;margin-top:0;">重新开始</button>
           </div>
         </div>
       `;
-      const nextBtn = document.getElementById("nextLayerBtn");
-      if (nextBtn) {
-        nextBtn.addEventListener("click", () => {
-          if (state.layerUnlocked < 3) {
-            state.layerUnlocked += 1;
-            renderDirection(dir, false);
-          }
-        });
-      }
-      const prevBtn = document.getElementById("prevLayerBtn");
-      if (prevBtn) {
-        prevBtn.addEventListener("click", () => {
-          if (state.layerUnlocked > 1) {
-            state.layerUnlocked -= 1;
-            renderDirection(dir, false);
-          }
-        });
-      }
       document.getElementById("backBtn").addEventListener("click", goBack);
       document.getElementById("restartBtn").addEventListener("click", restart);
       return;

@@ -824,9 +824,15 @@ body.theme-editorial .direction-body {
   color: rgba(26,23,18,0.65);
 }
 
-.layer-text {
-  margin: 6px 0;
-  padding: 10px;
-  border-radius: 8px;
-  background: rgba(127, 127, 127, 0.08);
+body.theme-editorial .nudge-text {
+  color: #B3401F;
+  background: transparent;
+  border-left: 3px solid #B3401F;
+}
+
+body.theme-editorial .insight-text {
+  color: #1A1712;
+  background: transparent;
+  border: 1px solid rgba(26,23,18,0.25);
+  border-left: 3px solid #B3401F;
 }
