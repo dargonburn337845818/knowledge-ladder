@@ -34,7 +34,9 @@
       "edge_cases": "array<object>",
       "expert_marks": "array<object>",
       "source_refs": "array<string>",
-      "card_triggers": "array<string>"
+      "card_triggers": "array<string>",
+      "signal_keywords": "array<string>",
+      "canonical_examples": "array<string>"
     }
   },
   "anchor": {

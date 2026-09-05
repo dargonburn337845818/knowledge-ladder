@@ -1,7 +1,7 @@
 {
   "meta": {
-    "version": "1.5.0",
-    "description": "四方向内容资产定稿：卡片主文案 + 安全触发摘要 + 三层递进点拨 + 反例/失效边界 + 专家来源台账。",
+    "version": "1.7.0",
+    "description": "四方向内容资产：卡片文案 + 安全触发摘要 + 三层点拨 + 反例/边界 + 常见误区 + 关键词/典型题 + 专家来源台账。",
     "generator": "teacher_discussion algorithm/product-ux/writing/math/physics sessions",
     "session_ids": [
       "teacher_1788604576323_2h7r90",
@@ -199,7 +199,8 @@
           "https://www.feynmanlectures.caltech.edu/"
         ]
       }
-    ]
+    ],
+    "research_note": "基于 Codeforces 模式识别指南、CP-Algorithms、USACO Guide 等公开资料蒸馏；典型题/关键词用于辅助判断，不直接暴露算法名。"
   },
   "directions": [
     {
@@ -237,12 +238,14 @@
       "source_refs": [
         "https://github.com/mtuann/competitive-programming-cpp/blob/main/topics/foundations/patterns/prefix-sums/README.md",
         "https://codeforces.com/topic/117775/diff/en3/en4",
-        "https://github.com/cp-algorithms/cp-algorithms/pull/383/files/4e56f6b16fdd63fe74213a0d03aea431f98dd7ab"
+        "https://github.com/cp-algorithms/cp-algorithms/pull/383/files/4e56f6b16fdd63fe74213a0d03aea431f98dd7ab",
+        "https://codeforces.com/topic/155700/en1",
+        "https://forum.usaco.guide/t/prefix-sums-quiz-question-4-https-usaco-guide-silver-prefix-sums-lang-cpp-quiz/5432"
       ],
       "layers": {
-        "condition": "哪些量或区间会被重复查询或重复计算？",
-        "action": "标出所有重复计算的量，先把它们预处理成一张“查一次就出结果”的表。",
-        "self_question": "挑一个小样例，数一遍预处理后每次查询是否都不再重复算？",
+        "condition": "题里有多区间/范围查询、或同一个量被反复算吗？",
+        "action": "先把会被反复查的量标出来，做一张预处理表，让每次查询只查一次。",
+        "self_question": "挑一个 L..R 小样例，数一遍查询是否不再重算？",
         "expert_marks": [
           {
             "expert_id": "petr",
@@ -291,6 +294,22 @@
             "https://codeforces.com/topic/117775/diff/en3/en4",
             "https://github.com/cp-algorithms/cp-algorithms/pull/383/files/4e56f6b16fdd63fe74213a0d03aea431f98dd7ab"
           ]
+        },
+        {
+          "trigger_signal": "查询区间是“包含端点”还是“半开半闭”没有固定。",
+          "counterexample": "前缀和查询 [l,r] 若一会用 sum[r]-sum[l-1]、一会用 sum[r]-sum[l]，r=l 时答案差 1。",
+          "extra_precondition": "先在草稿固定一种约定（如下标从 1 开始，sum[r]-sum[l-1]），再用 l=r 小样例验证。",
+          "expert_marks": [
+            {
+              "expert_id": "um-nik",
+              "expert_name": "Um_nik",
+              "note": "编码压缩的常见坑是端点约定，不是概念难。"
+            }
+          ],
+          "source_refs": [
+            "https://leetcode.com/discuss/post/7363692/a-guide-to-prefix-sum-and-difference-arr-th81/",
+            "https://github.com/mtuann/competitive-programming-cpp/blob/main/topics/foundations/patterns/prefix-sums/README.md"
+          ]
         }
       ],
       "card_triggers": [
@@ -298,6 +317,17 @@
         "同一个量反复计算，可先存后查",
         "查询多、修改少，适合预处理换查询",
         "状态大但真正用到的表示可以压小"
+      ],
+      "signal_keywords": [
+        "区间求和 / L..R 查询",
+        "多次查询",
+        "重复计算",
+        "预处理换查询",
+        "状态可压小"
+      ],
+      "canonical_examples": [
+        "Range Sum Query",
+        "Subarray Sum Equals K"
       ]
     },
     {
@@ -334,12 +364,13 @@
       ],
       "source_refs": [
         "https://github.com/mtuann/competitive-programming-cpp/blob/main/topics/dp/foundations/README.md",
-        "http://homes.di.unimi.it/righini/Didattica/OttimizzazioneCombinatoria/MaterialeOC/13%20-%20Dynamic%20programming.pdf"
+        "http://homes.di.unimi.it/righini/Didattica/OttimizzazioneCombinatoria/MaterialeOC/13%20-%20Dynamic%20programming.pdf",
+        "https://codeforces.com/topic/155700/en1"
       ],
       "layers": {
-        "condition": "是否存在“先有前驱、后有后继”的顺序关系？",
-        "action": "把依赖画成有向顺序，按前驱先算、后继再算推一遍。",
-        "self_question": "按这个顺序推进时，每个状态需要的前驱是否都已经算好？",
+        "condition": "题里是否出现重叠子问题、依赖顺序或图上路径/距离？",
+        "action": "写出状态和转移：当前状态由哪个前驱决定，按顺序推。",
+        "self_question": "小样例逐状态检查：每个需要的前驱是否都已经算好？",
         "expert_marks": [
           {
             "expert_id": "errichto",
@@ -388,6 +419,22 @@
             "https://github.com/mtuann/competitive-programming-cpp/blob/main/topics/dp/foundations/README.md",
             "http://homes.di.unimi.it/righini/Didattica/OttimizzazioneCombinatoria/MaterialeOC/13%20-%20Dynamic%20programming.pdf"
           ]
+        },
+        {
+          "trigger_signal": "状态递推没有先证明“无后效/阶段顺序”。",
+          "counterexample": "环状依赖或未按阶段递推时，单遍 DP 会读到未算好的状态，答案错误。",
+          "extra_precondition": "先画依赖图/阶段图，确认每个状态的所有前驱都已算好；有环则改用迭代松弛或分层。",
+          "expert_marks": [
+            {
+              "expert_id": "errichto",
+              "expert_name": "Errichto",
+              "note": "DP 正确性来自顺序与无后效，不能只看“像 DP”。"
+            }
+          ],
+          "source_refs": [
+            "https://codeforces.com/blog/entry/106446?mobile=true&locale=en",
+            "https://codeforces.com/profile/Errichto"
+          ]
         }
       ],
       "card_triggers": [
@@ -395,6 +442,18 @@
         "步数/距离/路径可以递推",
         "逐层扩散或由前驱决定当前",
         "状态之间存在先后关系"
+      ],
+      "signal_keywords": [
+        "依赖顺序",
+        "重叠子问题",
+        "计数/最值/成本递推",
+        "图上距离/路径",
+        "按阶段推进"
+      ],
+      "canonical_examples": [
+        "Climbing Stairs",
+        "House Robber",
+        "Coin Change"
       ]
     },
     {
@@ -431,12 +490,15 @@
       ],
       "source_refs": [
         "https://github.com/mtuann/competitive-programming-cpp/blob/main/topics/foundations/patterns/binary-search/README.md",
-        "https://codeforces.com/topic/156211/diff/en3/en4"
+        "https://codeforces.com/topic/156211/diff/en3/en4",
+        "https://codeforces.com/topic/155700/en1",
+        "https://github.com/cp-algorithms/cp-algorithms/blob/52f8db223a9ba62533fdb9411a98ec45909bdc03/src/num_methods/binary_search.md",
+        "https://codeforces.com/topic/151253/diff/en9/en10"
       ],
       "layers": {
-        "condition": "答案或可行性是否随某个量单调变化？",
-        "action": "先写一个 check(x)，再找出永远不可能更优的候选，从搜索里排除。",
-        "self_question": "用一个边界小样例验证：被排除的候选真的不可能更优吗？",
+        "condition": "题里是否出现“最小可能/最大可能/答案单调/最优选择”？",
+        "action": "先写 check(x)，再尝试证明某个局部最优选择全局成立，排除不可能优候选。",
+        "self_question": "取边界小样例：被排除的候选真的不可能更优？check 单调吗？",
         "expert_marks": [
           {
             "expert_id": "ecnerwala",
@@ -485,6 +547,23 @@
             "https://github.com/mtuann/competitive-programming-cpp/blob/main/topics/foundations/patterns/binary-search/README.md",
             "https://codeforces.com/topic/156211/diff/en3/en4"
           ]
+        },
+        {
+          "trigger_signal": "二分边界（lo/hi）更新与 check 的等号约定不一致。",
+          "counterexample": "check(x) 在 x=mid 时保留 mid，但更新写成 hi=mid-1，会跳过正确边界或死循环。",
+          "extra_precondition": "固定一种边界约定（如 [lo, hi)），并把 check 的等号、lo/hi 更新一起写在小样例上验证。",
+          "expert_marks": [
+            {
+              "expert_id": "ecnerwala",
+              "expert_name": "ecnerwala",
+              "note": "二分的坑多半在边界与单调性，不在“能不能二分”。"
+            }
+          ],
+          "source_refs": [
+            "https://codeforces.com/blog/entry/50041#comment-339837",
+            "https://stackoverflow.com/questions/71317261/binary-search-off-by-1-infinite-loop/71317504",
+            "https://github.com/cp-algorithms/cp-algorithms/blob/52f8db223a9ba62533fdb9411a98ec45909bdc03/src/num_methods/binary_search.md"
+          ]
         }
       ],
       "card_triggers": [
@@ -492,6 +571,18 @@
         "能把求最优改成判可行",
         "有序之后取最值更方便",
         "有些候选永远不可能最优"
+      ],
+      "signal_keywords": [
+        "最小可能/最大可能",
+        "答案单调",
+        "能否判可行",
+        "局部最优需证明",
+        "排序/有序"
+      ],
+      "canonical_examples": [
+        "Aggressive Cows",
+        "Koko Eating Bananas",
+        "Minimum Time to Complete Trips"
       ]
     },
     {
@@ -529,12 +620,13 @@
       "source_refs": [
         "https://github.com/mtuann/competitive-programming-cpp/blob/main/topics/math/fft-ntt/README.md",
         "https://codeforces.com/topic/111995/en4?mobile=false&locale=en",
-        "https://github.com/cp-algorithms/cp-algorithms/pull/383/files/4e56f6b16fdd63fe74213a0d03aea431f98dd7ab"
+        "https://github.com/cp-algorithms/cp-algorithms/pull/383/files/4e56f6b16fdd63fe74213a0d03aea431f98dd7ab",
+        "https://codeforces.com/topic/155700/en1"
       ],
       "layers": {
-        "condition": "正面难算时，是否存在另一种表示、坐标或等价问题更简单？",
-        "action": "把题面重述成另一个模型，写出它和原题的一一对应关系。",
-        "self_question": "重述后的模型是否和原题一一对应？有没有丢失或新增情况？",
+        "condition": "题里是否出现区间操作、线性递推、计数或可换模型的表示？",
+        "action": "把区间操作/递推/计数重述成另一种模型，写下一一对应关系。",
+        "self_question": "重述模型与原题一一对应吗？有没有丢失或新增情况？",
         "expert_marks": [
           {
             "expert_id": "radewoosh",
@@ -583,6 +675,22 @@
             "https://github.com/mtuann/competitive-programming-cpp/blob/main/topics/math/fft-ntt/README.md",
             "https://codeforces.com/topic/111995/en4?mobile=false&locale=en"
           ]
+        },
+        {
+          "trigger_signal": "换模型后没有检查模数、精度或一一对应。",
+          "counterexample": "FFT 浮点误差或模数不匹配的卷积，会给出看似合理但错误的答案。",
+          "extra_precondition": "换模型后先确认：是否一一对应、模数是否支持、精度/规模是否可接受，再继续推导。",
+          "expert_marks": [
+            {
+              "expert_id": "radewoosh",
+              "expert_name": "Radewoosh",
+              "note": "变换域最容易在“等价性/精度/模数”翻车。"
+            }
+          ],
+          "source_refs": [
+            "https://github.com/mtuann/competitive-programming-cpp/blob/main/topics/math/fft-ntt/README.md",
+            "https://codeforces.com/topic/111995/en4?mobile=false&locale=en"
+          ]
         }
       ],
       "card_triggers": [
@@ -590,6 +698,18 @@
         "线性递推可以换一种写法",
         "计数/匹配可以换一个模型",
         "异或/几何/图可以换一个视角"
+      ],
+      "signal_keywords": [
+        "区间操作换点操作",
+        "线性递推换写法",
+        "计数换卷积/生成函数",
+        "字符串/图换模型",
+        "换坐标/等价问题"
+      ],
+      "canonical_examples": [
+        "Range Update Queries (difference)",
+        "Polynomial multiplication",
+        "Linear recurrence"
       ]
     }
   ]

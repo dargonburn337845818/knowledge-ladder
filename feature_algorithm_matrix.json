@@ -1,6 +1,6 @@
 {
   "meta": {
-    "version": "1.1.0",
+    "version": "1.2.0",
     "generated_at": "2026-08-30T03:56:27.264828+00:00",
     "description": "20 个特征问题 × 120 算法条件概率；教师共识只作为方向末页线索，不进入未校准矩阵。",
     "source": "algorithm_prior + feature matrix"
@@ -69,61 +69,61 @@
     {
       "id": "scale_tiny",
       "dimension": "规模",
-      "question": "规模是否很小（n≤20），可以接受指数级枚举/状压？",
+      "question": "n≤20：能接受指数级枚举/状压吗？",
       "kind": "base"
     },
     {
       "id": "scale_small",
       "dimension": "规模",
-      "question": "规模是否中等（n≤5000），可以接受 O(n²)/O(n³)？",
+      "question": "n≤5000：能接受 O(n²)/O(n³) 吗？",
       "kind": "base"
     },
     {
       "id": "scale_large",
       "dimension": "规模",
-      "question": "规模是否很大（n≥1e5），需要 O(n log n) 或更快？",
+      "question": "n≥1e5：需要 O(n log n) 或更快吗？",
       "kind": "base"
     },
     {
       "id": "monotonic",
       "dimension": "排查",
-      "question": "答案或可行性是否随某个量单调？",
+      "question": "题里是否出现“最小可能/最大可能/答案单调”这类词？",
       "kind": "extra"
     },
     {
       "id": "dependency",
       "dimension": "排查",
-      "question": "当前结果是否依赖前驱/递推顺序？",
+      "question": "是否出现“每次决策依赖之前状态”或重叠子问题？",
       "kind": "extra"
     },
     {
       "id": "multi_query",
       "dimension": "排查",
-      "question": "是否有大量/多次查询，需要批量处理？",
+      "question": "是否有大量区间/范围查询（如 L..R 求和、最值）？",
       "kind": "extra"
     },
     {
       "id": "preprocess",
       "dimension": "排查",
-      "question": "是否允许离线/预处理来换更快查询？",
+      "question": "能否先离线预处理，把慢查询变成 O(1)？",
       "kind": "extra"
     },
     {
       "id": "optimization",
       "dimension": "排查",
-      "question": "求的是不是最优值/最值，而不只是可行？",
+      "question": "是否问“最小操作/最大收益/最早完成/最优选择”？",
       "kind": "extra"
     },
     {
       "id": "range_ops",
       "dimension": "排查",
-      "question": "核心是否在序列的区间操作/查询上？",
+      "question": "是否涉及区间加/区间改/区间查？",
       "kind": "extra"
     },
     {
       "id": "graph_path",
       "dimension": "排查",
-      "question": "核心是否在树/图的路径、连通、最短路或流上？",
+      "question": "是否涉及城市/道路/网络/连通分量/最短路/流？",
       "kind": "extra"
     }
   ],

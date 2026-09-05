@@ -144,6 +144,7 @@ let html = elements.stage.innerHTML;
 assert(/id="layerCondition"[^>]*display:block;/.test(html), "condition layer not visible initially");
 assert(/id="layerAction"[^>]*display:none;/.test(html), "action layer visible initially");
 assert(html.includes("第 1/3 层"), "layer progress not shown initially");
+assert(html.includes("常见信号"), "common signal keywords not shown");
 assert(/id="layerSelfQuestion"[^>]*display:none;/.test(html), "self-question layer visible initially");
 
 // 下一步 -> 动作层出现

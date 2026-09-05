@@ -215,6 +215,7 @@
         <div class="card">
           <div class="card-title">你选择：${dir}</div>
           <div class="card-hint">${d.value}</div>
+          <div class="card-hint">常见信号：${(d.signal_keywords || []).slice(0, 3).join("、")}</div>
           <div class="card-title" style="margin-top:16px;">三层点拨</div>
           <div id="layerProgress" class="card-hint">第 ${state.layerUnlocked}/3 层</div>
           <div id="layerCondition" class="layer-text" style="display:${disp(1)};">条件：${layers.condition || ""}</div>

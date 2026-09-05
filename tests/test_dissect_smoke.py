@@ -49,6 +49,7 @@ class DissectSmokeTest(unittest.TestCase):
         self.assertNotIn("%", all_text)
         self.assertNotIn("卡点自查", all_text)
         self.assertNotIn("看别的", all_text)
+        self.assertIn("常见信号", all_text)
         for token in FORBIDDEN:
             self.assertNotIn(token, all_text)
 

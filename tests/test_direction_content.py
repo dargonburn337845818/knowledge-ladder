@@ -39,6 +39,12 @@ class DirectionContentTest(unittest.TestCase):
             self.assertIn("self_question", d["layers"])
             self.assertGreaterEqual(len(d["edge_cases"]), 1)
 
+    def test_researched_signals_and_examples_present(self):
+        for d in directions():
+            self.assertGreaterEqual(len(d.get("signal_keywords", [])), 1)
+            self.assertGreaterEqual(len(d.get("canonical_examples", [])), 1)
+            self.assertGreaterEqual(len(d.get("edge_cases", [])), 1)
+
     def test_card_triggers_are_safe_and_present(self):
         FORBIDDEN = [
             "前缀和", "线段树", "字符串哈希", "随机哈希", "二分", "三分", "差分",

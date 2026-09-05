@@ -304,6 +304,9 @@ class DissectPage(QWidget):
         )
         if direction_data:
             self._add_hint(direction_data.get("value", ""))
+            keywords = direction_data.get("signal_keywords", [])
+            if keywords:
+                self._add_hint("常见信号：" + "、".join(keywords[:3]))
             self._add_title("三层点拨")
             layer_progress = QLabel(f"第 {self._layer_unlocked}/3 层")
             layer_progress.setObjectName("layerProgress")
