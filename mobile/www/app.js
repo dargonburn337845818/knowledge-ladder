@@ -235,7 +235,7 @@
     const topThemes = topTeacherThemes(2);
     stage.innerHTML = `
       <div class="card">
-        <div class="card-title">四个方向</div>
+        <div class="card-title">最可能的方向</div>
         <div class="card-hint">选一个最像的方向</div>
         <div class="options">
           ${dirs.map(d => `
@@ -245,21 +245,15 @@
             </button>
           `).join("")}
         </div>
-        <div class="algo-list">
-          <div class="algo-list-title">更像哪类解法</div>
-          ${algos.length ? algos.map(a => `
-            <div class="algo-row"><span>${a.algorithm_name}</span><b>${(a.weight * 100).toFixed(1)}%</b></div>
-          `).join("") : '<div class="muted-text">目前更像都低于阈值，请点击方向继续。</div>'}
-        </div>
         ${topThemes.length ? `
           <div class="heuristic-block">
-            <div class="algo-list-title">这类题常想的点</div>
+            <div class="algo-list-title">验证点</div>
             ${topThemes.map(t => `
               <div style="margin-top:8px;border-top:1px solid rgba(255,255,255,0.08);padding-top:6px;">
-                <div style="font-weight:600;">${t.name}</div>
-                <div class="muted-text">触发：${t.trigger || ""}</div>
-                <div class="muted-text">动作：${t.action || ""}</div>
-                ${t.counterexample ? `<div class="muted-text">失效：${t.counterexample}</div>` : ""}
+                <div style="font-weight:600;">验证：${t.name}</div>
+                <div class="muted-text">如果：${t.trigger || ""}</div>
+                <div class="muted-text">就试：${t.action || ""}</div>
+                ${t.counterexample ? `<div class="muted-text">反例：${t.counterexample}</div>` : ""}
               </div>
             `).join("")}
           </div>
@@ -273,6 +267,8 @@
           当前熵：${entropy().toFixed(3)}<br>
           已问问题：${state.asked.length}<br>
           候选数：${state.weights.length}
+          <br>
+          ${algos.length ? `<div style="margin-top:6px;">更像哪类解法（仅诊断）</div>` + algos.map(a => `<div>${a.algorithm_name} ${(a.weight * 100).toFixed(1)}%</div>`).join("") : ""}
         </div>
       </div>
     `;
@@ -292,16 +288,19 @@
     state.mode = "direction";
     stepCount.style.display = "none";
     const h = heuristicObj(dir);
-    const top = engine.realtimeTop(state.weights, 3);
-    const dynamic = fillTemplate(h ? h.dynamic_template : "", top);
-    const body = h ? `${h.heuristic}<br><br>${dynamic}` : (DIRECTION_TEXT[dir] || "");
+    const actions = h ? h.next_actions || [] : [];
     const questions = h ? h.self_questions || [] : [];
     const dirThemes = teacherThemesForDirection(dir);
     stage.innerHTML = `
       <div class="card">
         <div class="card-title">${dir}</div>
         <div class="card-hint">按这个方向想，先不背名字</div>
-        <div class="direction-body">${body}</div>
+        ${actions.length ? `
+          <div class="heuristic-block">
+            <div class="algo-list-title">下一步验证</div>
+            ${actions.map(a => `<div class="muted-text" style="margin-top:4px;">· ${a}</div>`).join("")}
+          </div>
+        ` : ""}
         ${questions.length ? `
           <div class="heuristic-block">
             <div class="algo-list-title">问自己</div>
@@ -310,13 +309,13 @@
         ` : ""}
         ${dirThemes.length ? `
           <div class="heuristic-block">
-            <div class="algo-list-title">这类题常想的点</div>
+            <div class="algo-list-title">验证点</div>
             ${dirThemes.map(t => `
               <div style="margin-top:8px;border-top:1px solid rgba(255,255,255,0.08);padding-top:6px;">
-                <div style="font-weight:600;">${t.name}</div>
-                <div class="muted-text">触发：${t.trigger || ""}</div>
-                <div class="muted-text">动作：${t.action || ""}</div>
-                ${t.counterexample ? `<div class="muted-text">失效：${t.counterexample}</div>` : ""}
+                <div style="font-weight:600;">验证：${t.name}</div>
+                <div class="muted-text">如果：${t.trigger || ""}</div>
+                <div class="muted-text">就试：${t.action || ""}</div>
+                ${t.counterexample ? `<div class="muted-text">反例：${t.counterexample}</div>` : ""}
               </div>
             `).join("")}
           </div>

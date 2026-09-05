@@ -279,12 +279,8 @@ class DissectPage(QWidget):
             btn.setObjectName("opPill")
             btn.clicked.connect(lambda checked=False, d=name: self._open_direction(d))
             self.content_layout.addWidget(btn)
-        algos = self.engine.top_algorithms(self.weights)
-        if algos:
-            algo_label = QLabel("更像哪类解法\n" + "\n".join(f"{a['algorithm_name']}  {a['weight']*100:.1f}%" for a in algos))
-            algo_label.setObjectName("dissectFinal")
-            algo_label.setWordWrap(True)
-            self.content_layout.addWidget(algo_label)
+        # 主流程不再展示“算法概率排名”，避免把它当成答案。
+        # 算法线索只保留在“诊断”里，作为进阶参考。
         self._add_top_teacher_themes()
         self._add_button("重新开始", self._reset, "dissectRestart")
         if self.history:
@@ -303,11 +299,16 @@ class DissectPage(QWidget):
         if self._debug_label.isVisible():
             self._debug_label.hide()
         else:
-            self._debug_label.setText(
-                f"当前熵：{self.engine.entropy(self.weights):.3f}\n"
-                f"已问问题：{len(self.asked)}\n"
-                f"候选数：{len(self.weights)}"
-            )
+            algos = self.engine.top_algorithms(self.weights, limit=6)
+            lines = [
+                f"当前熵：{self.engine.entropy(self.weights):.3f}",
+                f"已问问题：{len(self.asked)}",
+                f"候选数：{len(self.weights)}",
+            ]
+            if algos:
+                lines.append("更像哪类解法（仅诊断）：")
+                lines.extend(f"{a['algorithm_name']}  {a['weight']*100:.1f}%" for a in algos)
+            self._debug_label.setText("\n".join(lines))
             self._debug_label.show()
 
     def _open_direction(self, direction):
@@ -329,17 +330,17 @@ class DissectPage(QWidget):
         themes = top_themes(self.engine.direction_probs(self.weights), n=2)
         if not themes:
             return
-        title = QLabel("这类题常想的点")
+        title = QLabel("验证点")
         title.setObjectName("dissectTitle")
         self.content_layout.addWidget(title)
         for theme in themes:
-            lines = [theme.get("name", "")]
+            lines = [f"验证：{theme.get('name', '')}"]
             if theme.get("trigger"):
-                lines.append(f"触发：{theme['trigger']}")
+                lines.append(f"如果：{theme['trigger']}")
             if theme.get("action"):
-                lines.append(f"动作：{theme['action']}")
+                lines.append(f"就试：{theme['action']}")
             if theme.get("counterexample"):
-                lines.append(f"失效：{theme['counterexample']}")
+                lines.append(f"反例：{theme['counterexample']}")
             card = QLabel("\n".join(lines))
             card.setObjectName("dissectThinkCard")
             card.setWordWrap(True)
@@ -350,17 +351,17 @@ class DissectPage(QWidget):
         themes = themes_for_direction(direction)
         if not themes:
             return
-        title = QLabel("这类题常想的点")
+        title = QLabel("验证点")
         title.setObjectName("dissectTitle")
         self.content_layout.addWidget(title)
         for theme in themes[:3]:
-            lines = [theme.get("name", "")]
+            lines = [f"验证：{theme.get('name', '')}"]
             if theme.get("trigger"):
-                lines.append(f"触发：{theme['trigger']}")
+                lines.append(f"如果：{theme['trigger']}")
             if theme.get("action"):
-                lines.append(f"动作：{theme['action']}")
+                lines.append(f"就试：{theme['action']}")
             if theme.get("counterexample"):
-                lines.append(f"失效：{theme['counterexample']}")
+                lines.append(f"反例：{theme['counterexample']}")
             card = QLabel("\n".join(lines))
             card.setObjectName("dissectThinkCard")
             card.setWordWrap(True)
@@ -370,13 +371,15 @@ class DissectPage(QWidget):
         direction = getattr(self, "_current_direction", "编码压缩")
         self.step_label.setText("")
         self._add_title(direction)
-        self._add_hint("按这个方向想，先不背名字")
+        self._add_hint("先做这一步，再往下想")
         h = self.engine.heuristic_direction(direction)
-        top = self.engine.realtime_top(self.weights)
         if h:
-            dynamic = self._fill_template(h.get("dynamic_template", ""), top)
-            text = h.get("heuristic", "") + "\n\n" + dynamic
-            self._add_body(text)
+            actions = h.get("next_actions", [])
+            if actions:
+                action_label = QLabel("下一步验证：\n" + "\n".join(f"· {a}" for a in actions))
+                action_label.setObjectName("dissectThinkCard")
+                action_label.setWordWrap(True)
+                self.content_layout.addWidget(action_label)
             questions = h.get("self_questions", [])
             if questions:
                 q_label = QLabel("问自己：\n" + "\n".join(f"· {q}" for q in questions))
