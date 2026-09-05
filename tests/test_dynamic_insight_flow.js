@@ -78,6 +78,11 @@ const context = {
             no: "你排除了线性结构：要换成树、集合或代数对象的读法。",
             uncertain: "线性结构仍不确定：先保留两种读法，等下一特征收窄。",
           },
+          f2: {
+            yes: "你确认了单调性：候选答案空间可被一次比较切成两半。",
+            no: "你排除了单调性：不要强行一次比较减半。",
+            uncertain: "单调性存疑：先在小样例上验证是否连续。",
+          },
         },
         directions: {},
       },
@@ -104,5 +109,11 @@ html = stage.innerHTML;
 assert(html.includes("数据主体是线性序列吗") || html.includes("答案有单调性吗"), "second question not rendered");
 assert(html.includes("点拨：你确认了线性结构"), "dynamic insight after answer not shown");
 assert(!html.includes("点拨：你排除了线性结构"), "wrong insight shown");
+
+// 再答一题后直接收敛：最后一次点拨也要保留在方向选择页
+yesBtn.click();
+html = stage.innerHTML;
+assert(html.includes("选一个方向"), "finish page not rendered");
+assert(html.includes("点拨：你确认了单调性"), "last insight should persist on finish page");
 
 console.log("DYNAMIC_INSIGHT_FLOW NODE TEST OK");

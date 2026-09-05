@@ -192,6 +192,7 @@
       <div class="card">
         <div class="card-title">选一个方向</div>
         <div class="card-hint">按当前信息的最可能程度排序；点进去看三层点拨。</div>
+        ${state.lastInsight ? `<div class="insight-text" style="margin-bottom:12px;">点拨：${state.lastInsight}</div>` : ""}
         <div class="options">
           ${dirs.map(d => `
             <button class="option direction-choice" data-dir="${d}">

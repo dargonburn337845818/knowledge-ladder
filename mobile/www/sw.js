@@ -1,4 +1,4 @@
-const CACHE = "knowledge-ladder-v7";
+const CACHE = "knowledge-ladder-v8";
 const ASSETS = [
   "./",
   "./index.html",
