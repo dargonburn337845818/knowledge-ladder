@@ -1,3 +1,14 @@
+# v1.10.0 — PC 阶梯算法卡：是什么 / 怎么写 / C++ 代码
+
+- PC 档位页每个知识点新增「算法卡」：点击展开该知识点下所有算法的“是什么 / 怎么写 / 复杂度 / C++ 代码 / 常见坑”。
+- 新增 `expert_content/algorithm_cards.json`：覆盖全部 120 个算法，Tier 1-4 高频算法手写 C++ 模板，其余给出实现要点。
+- 生成器 `scripts/build_algorithm_cards.py`：从 `info_framework` 专家 `why` 与 `tiers_data` 自动生成并校验数据。
+- 新增 `app/algorithm_card.py` 数据层 + `tests/test_algorithm_card.py`（覆盖、字段、按名取用）。
+- 测试提升到 **61 项** unittest 全绿；仍保持纯本地、离线、无新增运行时依赖。
+- 继续支持现状：移动端只拆题，PC 端阶梯 + 壁纸 + 复盘 + 统计。
+
+---
+
 # v1.9.0 — 产品分工：PC 阶梯/复盘/统计，移动端专注拆题
 
 - PC 端移除“拆题”入口，默认进入 8 档知识阶梯；PC 定位调整为：阶梯学习、壁纸、复盘记事本、成长统计。
