@@ -70,7 +70,12 @@ jobs:
         run: |
           node --check mobile/www/entropy_engine.js
           node --check mobile/www/app.js
+          node --check mobile/www/card_store.js
           node --check mobile/www/sw.js
+
+      - name: Card store Node test
+        run: |
+          node tests/test_card_store.js
 
       - name: Engine parity (Python vs JS)
         run: |

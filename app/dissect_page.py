@@ -13,8 +13,6 @@ from PySide6.QtWidgets import (
 
 from entropy_engine import EntropyEngine
 
-from .teacher_consensus import themes_for_direction, top_themes
-
 
 class DissectPage(QWidget):
     """桌面端动态熵减拆题页：基线暴力 -> 单一问题流 -> 四方向引导。"""
@@ -23,12 +21,13 @@ class DissectPage(QWidget):
         "编码压缩": "重复信息提前存好；把状态压缩成更小表示；用预处理换取更快查询。",
         "传播松弛": "沿着依赖关系一层层推；状态从前驱传递过来；让信息按顺序走到终点。",
         "剪枝决策": "排除大批不可能候选；利用单调性一次砍掉一半；先判可行再找最优。",
-        "变换域映射": "换一个坐标系；做差分、对偶、重表述；把纠缠结构转成熟悉模型。",
+        "变换域映射": "换一个坐标系；做端点变化、对偶、重表述；把纠缠结构转成熟悉模型。",
     }
 
-    def __init__(self, on_back=None, parent=None):
+    def __init__(self, on_back=None, parent=None, store=None):
         super().__init__(parent)
         self.on_back = on_back
+        self.store = store
         self.engine = EntropyEngine()
         self.mode = "baseline"
         self.weights = self.engine.initial_weights()
@@ -277,15 +276,11 @@ class DissectPage(QWidget):
         if self._debug_label.isVisible():
             self._debug_label.hide()
         else:
-            algos = self.engine.top_algorithms(self.weights, limit=6)
             lines = [
                 f"当前熵：{self.engine.entropy(self.weights):.3f}",
-                f"已问问题：{len(self.asked)}",
+                f"已问问题数：{len(self.asked)}",
                 f"候选数：{len(self.weights)}",
             ]
-            if algos:
-                lines.append("更像哪类解法（仅诊断）：")
-                lines.extend(f"{a['algorithm_name']}  {a['weight']*100:.1f}%" for a in algos)
             self._debug_label.setText("\n".join(lines))
             self._debug_label.show()
 
@@ -294,57 +289,36 @@ class DissectPage(QWidget):
         self._current_direction = direction
         self._render()
 
+    # ---------- 卡点自查 ----------
+    def _card_points(self):
+        return self.engine.heuristics.get("card_points", []) or []
+
+    def _card_name(self, card_id):
+        for cp in self._card_points():
+            if cp.get("id") == card_id:
+                return cp.get("name", card_id)
+        return card_id
+
+    def _on_card_clicked(self, card_id):
+        card = next((c for c in self._card_points() if c.get("id") == card_id), None)
+        if card and hasattr(self, "_card_hint_label"):
+            self._card_hint_label.setText(card.get("hint", ""))
+            self._card_hint_label.show()
+        if self.store is not None:
+            self.store.add_card_record(card_id)
+            self._refresh_card_summary()
+
+    def _refresh_card_summary(self):
+        if not hasattr(self, "_card_summary_label"):
+            return
+        if self.store is None:
+            self._card_summary_label.setText("最近：暂无")
+            return
+        counts = self.store.card_record_counts(10)
+        parts = [f"{self._card_name(c)}×{n}" for c, n in counts.items()]
+        self._card_summary_label.setText("最近：" + " ".join(parts) if parts else "最近：暂无")
+
     # ---------- Direction ----------
-    def _fill_template(self, tpl, top):
-        if not tpl:
-            return ""
-        names = [a["algorithm_name"] for a in top]
-        return (tpl.replace("{top1}", names[0] if names else "更像这类")
-                    .replace("{top2}", names[1] if len(names) > 1 else "后续候选")
-                    .replace("{top3}", names[2] if len(names) > 2 else "另一个候选"))
-
-    def _add_top_teacher_themes(self):
-        """在最终页追加跨方向评分最高的这类题常想的点。"""
-        themes = top_themes(self.engine.direction_probs(self.weights), n=2)
-        if not themes:
-            return
-        title = QLabel("验证点")
-        title.setObjectName("dissectTitle")
-        self.content_layout.addWidget(title)
-        for theme in themes:
-            lines = [f"验证：{theme.get('name', '')}"]
-            if theme.get("trigger"):
-                lines.append(f"如果：{theme['trigger']}")
-            if theme.get("action"):
-                lines.append(f"就试：{theme['action']}")
-            if theme.get("counterexample"):
-                lines.append(f"反例：{theme['counterexample']}")
-            card = QLabel("\n".join(lines))
-            card.setObjectName("dissectThinkCard")
-            card.setWordWrap(True)
-            self.content_layout.addWidget(card)
-
-    def _add_teacher_themes(self, direction):
-        """在方向页追加这类题常想的点：只展示触发条件、动作与失效边界。"""
-        themes = themes_for_direction(direction)
-        if not themes:
-            return
-        title = QLabel("验证点")
-        title.setObjectName("dissectTitle")
-        self.content_layout.addWidget(title)
-        for theme in themes[:3]:
-            lines = [f"验证：{theme.get('name', '')}"]
-            if theme.get("trigger"):
-                lines.append(f"如果：{theme['trigger']}")
-            if theme.get("action"):
-                lines.append(f"就试：{theme['action']}")
-            if theme.get("counterexample"):
-                lines.append(f"反例：{theme['counterexample']}")
-            card = QLabel("\n".join(lines))
-            card.setObjectName("dissectThinkCard")
-            card.setWordWrap(True)
-            self.content_layout.addWidget(card)
-
     def _render_direction(self):
         direction = getattr(self, "_current_direction", "编码压缩")
         self.step_label.setText("")
@@ -360,11 +334,25 @@ class DissectPage(QWidget):
         else:
             self._add_body(self.VAGUE_TEXT.get(direction, ""))
 
-        themes = themes_for_direction(direction)
-        if themes:
-            t = themes[0]
-            signal = f"如果 {t.get('trigger', '')}，就试 {t.get('action', '')}"
-            self._add_body(signal)
+        card_points = self._card_points()
+        if card_points:
+            self._add_title("卡点自查")
+            for cp in card_points:
+                self._add_button(
+                    cp.get("name", cp["id"]),
+                    lambda c=cp["id"]: self._on_card_clicked(c),
+                    "dissectBack",
+                )
+            self._card_hint_label = QLabel("")
+            self._card_hint_label.setObjectName("dissectThinkCard")
+            self._card_hint_label.setWordWrap(True)
+            self._card_hint_label.hide()
+            self.content_layout.addWidget(self._card_hint_label)
+            self._card_summary_label = QLabel("")
+            self._card_summary_label.setObjectName("dissectHint")
+            self._card_summary_label.setWordWrap(True)
+            self.content_layout.addWidget(self._card_summary_label)
+            self._refresh_card_summary()
 
         probs = self.engine.direction_probs(self.weights)
         others = [name for name, _ in sorted(probs.items(), key=lambda kv: kv[1], reverse=True) if name != direction][:2]
@@ -374,7 +362,7 @@ class DissectPage(QWidget):
             btn.clicked.connect(lambda checked=False, o=other: self._open_direction(o))
             self.content_layout.addWidget(btn)
 
-        self._add_button("诊断", self._toggle_debug, "dissectBack")
+        self._add_button("状态", self._toggle_debug, "dissectBack")
         self._debug_label = QLabel("")
         self._debug_label.setObjectName("dissectHint")
         self._debug_label.setWordWrap(True)

@@ -64,6 +64,15 @@ class DataIntegrityTest(unittest.TestCase):
             self.assertIn(t.get("layer"), ("consensus", "style", "warning", "common-lore"))
             self.assertIsInstance(t.get("confidence", 0), (int, float))
 
+    def test_card_points_shape(self):
+        card_points = self.heuristics.get("card_points", [])
+        self.assertEqual(len(card_points), 5)
+        self.assertEqual(len({c["id"] for c in card_points}), len(card_points))
+        for c in card_points:
+            self.assertTrue(c.get("name"))
+            self.assertTrue(c.get("hint"))
+            self.assertTrue(c.get("question"))
+
 
 if __name__ == "__main__":
     unittest.main()
