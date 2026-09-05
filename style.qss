@@ -89,6 +89,29 @@ QFrame#tagRow {
     margin: 4px 0;
 }
 
+QPushButton#algoBtn, QPushButton#detailBtn {
+    background: rgba(228,184,99,0.10);
+    border: 1px solid rgba(228,184,99,0.28);
+    border-radius: 6px;
+    color: #F3DCA8;
+    font-size: 12px;
+}
+
+QFrame#algoBox {
+    background: rgba(18,20,24,0.80);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 8px;
+    margin: 4px 0;
+}
+
+QTextBrowser#algoText {
+    background: rgba(14,16,20,0.90);
+    color: #E8EAED;
+    border: none;
+    border-radius: 6px;
+    padding: 6px;
+}
+
 QLabel#infoBadge, QLabel#infoBadgeTopo, QLabel#infoBadgeDyn {
     background: rgba(255,255,255,0.05);
     border: 1px solid rgba(255,255,255,0.08);

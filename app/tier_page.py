@@ -1,4 +1,6 @@
-"""档位知识树页面：掌握勾选、信息论徽章、操作过滤与分组展开。"""
+"""档位知识树页面：掌握勾选、信息论徽章、算法卡、可展开详情。"""
+
+import html
 
 from PySide6.QtCore import QEasingCurve, QPropertyAnimation, Qt
 from PySide6.QtGui import QColor, QIcon, QPainter, QPixmap
@@ -11,20 +13,22 @@ from PySide6.QtWidgets import (
     QPushButton,
     QScrollArea,
     QSizePolicy,
+    QTextBrowser,
     QVBoxLayout,
     QWidget,
 )
 
 from info_framework import INFO_OP_COLORS, INFO_OPS
 
+from .algorithm_card import cards_for_algorithms
 from .theme import ANIM_LIGHT, ANIM_OFF
 from .utils import aggregate_tag_info
 
 
 class TagRow(QFrame):
-    """单个知识点行：勾选 + 名称 + 描述 + 可展开详情。
+    """单个知识点行：勾选 + 名称 + 描述 + 算法卡 + 可展开详情。
 
-    带 ``detail`` 的条目会显示“展开/收起”，把详情原地展开。
+    ``detail`` 显示思维模式；``algorithm_cards`` 显示“是什么/怎么写/C++ 代码”。
     """
 
     def __init__(self, tag, store, on_change):
@@ -34,6 +38,8 @@ class TagRow(QFrame):
         self.on_change = on_change
         self.setObjectName("tagRow")
         self._detail_open = False
+        self._algo_open = False
+        self.algorithm_cards = cards_for_algorithms(tag.get("algorithms", []))
 
         outer = QVBoxLayout(self)
         outer.setContentsMargins(10, 8, 10, 8)
@@ -90,6 +96,15 @@ class TagRow(QFrame):
             cf_label.setObjectName("cfTag")
             layout.addWidget(cf_label, alignment=Qt.AlignmentFlag.AlignTop)
 
+        # 算法卡入口：有卡片时显示“算法卡”
+        self.algo_btn = None
+        if self.algorithm_cards:
+            self.algo_btn = QPushButton("算法卡")
+            self.algo_btn.setObjectName("algoBtn")
+            self.algo_btn.setFixedWidth(64)
+            self.algo_btn.clicked.connect(self._toggle_algo)
+            layout.addWidget(self.algo_btn, alignment=Qt.AlignmentFlag.AlignTop)
+
         # 有详情的思维模式：显示“展开”
         self.detail_btn = None
         if tag.get("detail"):
@@ -118,6 +133,23 @@ class TagRow(QFrame):
             self.detail_box.setVisible(False)
             outer.addWidget(self.detail_box)
 
+        # 可展开算法卡：是什么 / 怎么写 / 复杂度 / C++ 代码
+        self.algo_box = None
+        if self.algorithm_cards:
+            self.algo_box = QFrame()
+            self.algo_box.setObjectName("algoBox")
+            algo_layout = QVBoxLayout(self.algo_box)
+            algo_layout.setContentsMargins(10, 8, 10, 8)
+            algo_layout.setSpacing(4)
+            self.algo_text = QTextBrowser()
+            self.algo_text.setObjectName("algoText")
+            self.algo_text.setOpenExternalLinks(False)
+            self.algo_text.setHtml(self._build_algo_html())
+            self.algo_text.setMinimumHeight(180)
+            algo_layout.addWidget(self.algo_text)
+            self.algo_box.setVisible(False)
+            outer.addWidget(self.algo_box)
+
         if self.checkbox.isChecked():
             self._apply_checked(True)
 
@@ -144,6 +176,35 @@ class TagRow(QFrame):
         self.detail_box.setVisible(self._detail_open)
         if self.detail_btn is not None:
             self.detail_btn.setText("收起" if self._detail_open else "展开")
+
+    def _build_algo_html(self) -> str:
+        parts: list[str] = []
+        for name, card in self.algorithm_cards:
+            parts.append(f"<h4>{html.escape(name)}</h4>")
+            parts.append(f"<p><b>是什么：</b>{html.escape(str(card.get('what', '')))}</p>")
+            parts.append(f"<p><b>怎么写：</b>{html.escape(str(card.get('how', '')))}</p>")
+            parts.append(f"<p><b>复杂度：</b>{html.escape(str(card.get('complexity', '')))}</p>")
+            code = str(card.get("code", ""))
+            if code:
+                parts.append(f"<pre>{html.escape(code)}</pre>")
+            pitfall = str(card.get("pitfall", ""))
+            if pitfall:
+                parts.append(f"<p><b>常见坑：</b>{html.escape(pitfall)}</p>")
+            parts.append("<hr>")
+        return "".join(parts)
+
+    def _toggle_algo(self):
+        if self.algo_box is not None:
+            self.set_algo_visible(not self._algo_open)
+
+    def set_algo_visible(self, visible: bool):
+        """统一控制算法卡展开/收起，并同步按钮文字。"""
+        if self.algo_box is None:
+            return
+        self._algo_open = bool(visible)
+        self.algo_box.setVisible(self._algo_open)
+        if self.algo_btn is not None:
+            self.algo_btn.setText("收起" if self._algo_open else "算法卡")
 
     def matches(self, text: str) -> bool:
         """搜索过滤：名称、描述、分组、详情正文、信息论标签均可匹配。"""

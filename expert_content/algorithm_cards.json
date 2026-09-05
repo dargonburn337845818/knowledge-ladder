@@ -1,0 +1,734 @@
+{
+  "meta": {
+    "version": "0.1.0",
+    "description": "PC 阶梯算法卡：是什么/怎么写/复杂度/C++ 代码",
+    "sources": [
+      "CP-Algorithms",
+      "OI Wiki",
+      "USACO Guide",
+      "teacher-consensus-skill"
+    ]
+  },
+  "cards": {
+    "暴力枚举": {
+      "what": "状态空间有限时直接遍历，不做信息压缩。",
+      "how": "按题意穷举所有候选，先确认状态空间上界；剪枝只在超时后加。",
+      "complexity": "O(候选空间)",
+      "code": "for (int i = 0; i < n; ++i)\n  for (int j = i+1; j < n; ++j)\n    ans = max(ans, calc(i,j));"
+    },
+    "约瑟夫环（模拟）": {
+      "what": "按题意复现过程，属于基线模拟。",
+      "how": "用队列/循环链表模拟报数出圈；n 大时用递推公式。",
+      "complexity": "O(n) / 递推 O(n)",
+      "code": "queue<int> q; for(int i=1;i<=n;++i) q.push(i);\nwhile(q.size()>1){ for(int i=1;i<k;++i){q.push(q.front());q.pop();} q.pop(); }"
+    },
+    "区间调度（贪心）": {
+      "what": "按右端点排序，剪掉冲突区间。",
+      "how": "按结束时间排序，贪心选最早结束且不冲突的区间。",
+      "complexity": "O(n log n)",
+      "code": "sort(v.begin(), v.end(), [](auto&a,auto&b){return a.r<b.r;});\nint last=-1; for(auto [l,r]:v) if(l>last) ans++, last=r;"
+    },
+    "排序后取最值（基础贪心）": {
+      "what": "排序后取前缀，等价于剪掉非最优候选。",
+      "how": "先按某个维度排序，再线性扫描维护当前最优。",
+      "complexity": "O(n log n)",
+      "code": "sort(a.begin(), a.end());\nfor (int x : a) cur += x, ans = max(ans, cur);"
+    },
+    "反悔贪心（带堆维护）": {
+      "what": "用小根堆维护已选集合，允许剪枝后反悔替换。",
+      "how": "用小根堆维护已选代价，遇到更优时弹出堆顶并替换。",
+      "complexity": "O(n log n)",
+      "code": "priority_queue<int, vector<int>, greater<int>> pq;\nfor(int x: v){ if(pq.size()<k) pq.push(x); else if(x>pq.top()){ pq.pop(); pq.push(x); } }"
+    },
+    "二分查找": {
+      "what": "有序性使每次比较砍掉一半搜索空间。",
+      "how": "在有序数组上维护 [l,r)，每次比较中间位置缩小范围。",
+      "complexity": "O(log n)",
+      "code": "int l=0,r=n;\nwhile(l<r){int m=(l+r)/2; if(a[m]<x) l=m+1; else r=m;}"
+    },
+    "二分答案": {
+      "what": "把最优化问题变成可行性判定，单调性筛选。",
+      "how": "先写 check(x) 判定可行性，再在单调值域上二分。",
+      "complexity": "O(log V * check)",
+      "code": "auto ok=[&](int x){...};\nint l=0,r=1e9;\nwhile(l<r){int m=(l+r+1)/2; if(ok(m)) l=m; else r=m-1;}"
+    },
+    "归并排序求逆序对": {
+      "what": "分治归并时利用有序性一次统计跨区间贡献。",
+      "how": "归并时右半元素前放一个，就贡献左侧未合并元素个数。",
+      "complexity": "O(n log n)",
+      "code": "long long ans=0;\nvoid merge(int l,int m,int r){ /* 合并时右元素前放: ans += m-l+1-i */ }"
+    },
+    "结构体排序（重载运算符）": {
+      "what": "排序把无序序列变成有序结构，后续查询/贪心可剪枝。",
+      "how": "在 struct 内重载 operator<，按多关键字排序后直接遍历。",
+      "complexity": "O(n log n)",
+      "code": "struct Node { int a,b; bool operator<(const Node& o) const { return a<o.a || (a==o.a && b<o.b); } };"
+    },
+    "一维前缀和": {
+      "what": "把区间累计信息压缩成两个端点差值。",
+      "how": "pre[i]=pre[i-1]+a[i]，区间和 = pre[r]-pre[l-1]。",
+      "complexity": "O(n) 预处理 / O(1) 查询",
+      "code": "vector<long long> pre(n+1); for(int i=1;i<=n;++i) pre[i]=pre[i-1]+a[i];\n// [l,r] = pre[r]-pre[l-1]"
+    },
+    "二维前缀和": {
+      "what": "用容斥把子矩阵信息压缩到四个角点。",
+      "how": "用容斥：S=pre[x2][y2]-pre[x1-1][y2]-pre[x2][y1-1]+pre[x1-1][y1-1]。",
+      "complexity": "O(nm) 预处理 / O(1) 查询",
+      "code": "for i 1..n for j 1..m pre[i][j]=pre[i-1][j]+pre[i][j-1]-pre[i-1][j-1]+a[i][j];"
+    },
+    "差分数组": {
+      "what": "区间加减转为端点差分，把连续操作降维成点操作。",
+      "how": "区间 [l,r] 加 v：diff[l]+=v, diff[r+1]-=v；最后前缀和还原。",
+      "complexity": "O(n)",
+      "code": "diff[l]+=v; diff[r+1]-=v;\nfor(int i=1;i<=n;++i) diff[i]+=diff[i-1];"
+    },
+    "双指针（滑动窗口）": {
+      "what": "利用单调性线性移动指针，剪掉不可能端点。",
+      "how": "右端点前进，不满足条件时左端点收缩，维护窗口性质。",
+      "complexity": "O(n)",
+      "code": "for(int l=0,r=0; r<n; ++r){ add(a[r]); while(!ok()) del(a[l++]); ans=max(ans,r-l+1); }"
+    },
+    "构造算法": {
+      "what": "利用奇偶/模性质直接给出解，绕过搜索。",
+      "how": "先找奇偶/模数/对称等不变量，直接构造显式解。",
+      "complexity": "O(n)",
+      "code": "// 目标构造：利用奇偶/模数/对称直接输出方案，避免搜索\nfor(int i=0;i<n;++i) ans[i] = ...;"
+    },
+    "位掩码子集枚举": {
+      "what": "集合选择编码进机器字，位运算并行处理。",
+      "how": "用整数二进制位表示集合，for (s = 0; s < (1<<n); ++s) 枚举子集。",
+      "complexity": "O(2^n)",
+      "code": "for (int s = 0; s < (1<<n); ++s)\n  for (int i = 0; i < n; ++i)\n    if (s>>i & 1) ...;"
+    },
+    "状态压缩 + BFS": {
+      "what": "状态编码成二进制，BFS 沿状态图逐层扩散。",
+      "how": "把状态编码成整数，visited 用布尔/位图，BFS 求最少步。",
+      "complexity": "O(状态数 * 转移)",
+      "code": "queue<int> q; vis[st]=1; q.push(st);\nwhile(!q.empty()){ int s=q.front(); q.pop(); for(move: ...) if(!vis[ns]) vis[ns]=1, q.push(ns); }"
+    },
+    "单调栈": {
+      "what": "利用单调性弹出永远不会成为答案的候选。",
+      "how": "新元素入栈前弹出所有不优元素，栈内保持单调。",
+      "complexity": "O(n)",
+      "code": "stack<int> st;\nfor(int i=0;i<n;++i){ while(!st.empty() && a[st.top()]>=a[i]) st.pop(); st.push(i); }"
+    },
+    "栈（基础）": {
+      "what": "后进先出容器，作为括号匹配/表达式求值骨架。",
+      "how": "push/pop/top，LIFO；适合匹配、单调性、表达式求值。",
+      "complexity": "O(1) 每次",
+      "code": "stack<int> st; st.push(x); st.pop(); st.top();"
+    },
+    "单调队列（滑动窗口）": {
+      "what": "窗口内淘汰过期/劣势候选，O(n) 维护最值。",
+      "how": "队列存下标，维护窗口最值，过期下标弹出。",
+      "complexity": "O(n)",
+      "code": "deque<int> q;\nfor(int i=0;i<n;++i){ if(!q.empty() && q.front()<i-k+1) q.pop_front(); while(!q.empty() && a[q.back()]>=a[i]) q.pop_back(); q.push_back(i); }"
+    },
+    "队列（基础）": {
+      "what": "FIFO 容器，BFS/拓扑排序的信息传播通道。",
+      "how": "FIFO；BFS 层序与拓扑排序的骨架。",
+      "complexity": "O(1) 每次",
+      "code": "queue<int> q; q.push(x); q.front(); q.pop();"
+    },
+    "堆（Top-K）": {
+      "what": "只保留前 K 大，堆顶即当前最小候选。",
+      "how": "维护大小为 K 的小顶堆，新元素比堆顶大则替换。",
+      "complexity": "O(n log k)",
+      "code": "priority_queue<int,vector<int>,greater<int>> pq;\n// 小于 k 直接进，否则与堆顶比较替换"
+    },
+    "并查集 (DSU)": {
+      "what": "把连通关系用父指针压缩表示，路径压缩加速传播。",
+      "how": "父指针数组 + 路径压缩 + 按秩合并；find 返回根。",
+      "complexity": "近似 O(alpha(n))",
+      "code": "int find(int x){ return fa[x]==x?x:fa[x]=find(fa[x]); }\nvoid unite(int a,int b){ a=find(a); b=find(b); if(a!=b) fa[a]=b; }"
+    },
+    "带权并查集": {
+      "what": "父指针同时编码到根的距离，合并时传播相对权值。",
+      "how": "额外维护到父节点的权值，合并时按差/异或关系更新。",
+      "complexity": "近似 O(alpha(n))",
+      "code": "int find(int x){ if(fa[x]==x) return x; int p=fa[x]; fa[x]=find(fa[x]); w[x]+=w[p]; return fa[x]; }\n// 合并时按关系维护 w"
+    },
+    "线段树（区间和 + 懒标记）": {
+      "what": "区间信息编码到线段节点，懒标记批量传播更新。",
+      "how": "节点存区间和，pushdown 下传懒标记，build/update/query O(log n)。",
+      "complexity": "O(log n) per op",
+      "code": "void push(int p){ if(lz[p]){ add(p<<1,lz[p]); add(p<<1|1,lz[p]); lz[p]=0; } }\nvoid update(int p,int l,int r,int ql,int qr,int v){ if(ql<=l&&r<=qr){ add(p,v); return; } push(p); ... }"
+    },
+    "ST 表（静态区间最值）": {
+      "what": "倍增预处理区间最值，静态查询 O(1)。",
+      "how": "st[i][k]=区间 [i,i+2^k-1] 最值；查询取两段重叠最值。",
+      "complexity": "O(n log n) / O(1) 查询",
+      "code": "for(int i=1;i<=n;++i) st[i][0]=a[i];\nfor(int k=1;(1<<k)<=n;++k) for(int i=1;i+(1<<k)-1<=n;++i) st[i][k]=max(st[i][k-1],st[i+(1<<(k-1))][k-1]);"
+    },
+    "树状数组 (BIT)": {
+      "what": "前缀信息编码进树状数组，点改/前缀查实时传播。",
+      "how": "lowbit 维护前缀和；add 向上，sum 向下。",
+      "complexity": "O(log n) per op",
+      "code": "void add(int i,int v){ for(;i<=n;i+=i&-i) bit[i]+=v; }\nint sum(int i){ int s=0; for(;i>0;i-=i&-i) s+=bit[i]; return s; }"
+    },
+    "树状数组求逆序对": {
+      "what": "按值域树状数组统计已出现元素，边扫描边传播计数。",
+      "how": "从后往前扫，用 BIT 统计小于当前值的个数并累加。",
+      "complexity": "O(n log n)",
+      "code": "long long ans=0;\nfor(int i=n-1;i>=0;--i){ ans += sum(a[i]-1); add(a[i],1); }"
+    },
+    "FHQ Treap（无旋 Treap）": {
+      "what": "随机优先级+分裂合并，把序列操作编码成平衡树。",
+      "how": "实现要点：随机优先级+分裂合并，把序列操作编码成平衡树。",
+      "complexity": "视实现",
+      "code": "// 实现要点：随机优先级+分裂合并，把序列操作编码成平衡树。"
+    },
+    "线段树合并/分裂": {
+      "what": "多棵线段树按树形合并，把信息从叶子向上聚合。",
+      "how": "实现要点：多棵线段树按树形合并，把信息从叶子向上聚合。",
+      "complexity": "视实现",
+      "code": "// 实现要点：多棵线段树按树形合并，把信息从叶子向上聚合。"
+    },
+    "可撤销并查集": {
+      "what": "按秩合并+栈回滚，让连通信息在时间轴上可逆。",
+      "how": "实现要点：按秩合并+栈回滚，让连通信息在时间轴上可逆。",
+      "complexity": "视实现",
+      "code": "// 实现要点：按秩合并+栈回滚，让连通信息在时间轴上可逆。"
+    },
+    "Dijkstra": {
+      "what": "非负权下优先队列只扩展已确定最短路点，剪枝+传播。",
+      "how": "非负权图上用优先队列，dist[u]+w 松弛相邻点。",
+      "complexity": "O((n+m) log n)",
+      "code": "priority_queue<pair<int,int>, vector<pair<int,int>>, greater<>> pq;\ndist[s]=0; pq.push({0,s});\nwhile(!pq.empty()){ auto [d,u]=pq.top(); pq.pop(); if(d!=dist[u]) continue; for(auto [v,w]:g[u]) if(dist[v]>d+w) dist[v]=d+w, pq.push({dist[v],v}); }"
+    },
+    "Bellman-Ford": {
+      "what": "沿所有边松弛 n-1 轮，可检测负环。",
+      "how": "对每条边松弛 n-1 轮；再松弛一轮可判负环。",
+      "complexity": "O(nm)",
+      "code": "for(int i=1;i<=n-1;++i) for(auto [u,v,w]:edges) if(dist[v]>dist[u]+w) dist[v]=dist[u]+w;\n// 再跑一轮，仍能更新则有负环"
+    },
+    "Floyd-Warshall": {
+      "what": "把所有点对最短路看成逐层插入中间点的传播。",
+      "how": "三重循环 k,i,j，dp[i][j]=min(dp[i][j], dp[i][k]+dp[k][j])。",
+      "complexity": "O(n^3)",
+      "code": "for(int k=1;k<=n;++k) for(int i=1;i<=n;++i) for(int j=1;j<=n;++j) d[i][j]=min(d[i][j],d[i][k]+d[k][j]);"
+    },
+    "Kruskal": {
+      "what": "边按权排序后贪心加入，剪掉成环边。",
+      "how": "边按权排序，用 DSU 加边，加满 n-1 条即得 MST。",
+      "complexity": "O(m log m)",
+      "code": "sort(edges.begin(),edges.end(),[](auto&a,auto&b){return a.w<b.w;});\nfor(auto [u,v,w]:edges) if(dsu.unite(u,v)) ans+=w, cnt++;"
+    },
+    "Prim": {
+      "what": "从已选集合向外扩散最小割边。",
+      "how": "从任一点出发维护已选集合，每次选连接集合的最小边。",
+      "complexity": "O((n+m) log n)",
+      "code": "priority_queue<pair<int,int>,vector<pair<int,int>>,greater<>> pq;\nvis[1]=1; for(auto [v,w]:g[1]) pq.push({w,v});\nwhile(!pq.empty()){ auto [w,u]=pq.top(); pq.pop(); if(vis[u]) continue; vis[u]=1; ans+=w; ...}"
+    },
+    "Dinic 最大流": {
+      "what": "分层+BFS+增广路，在残余网络上传播流量。",
+      "how": "实现要点：分层+BFS+增广路，在残余网络上传播流量。",
+      "complexity": "视实现",
+      "code": "// 实现要点：分层+BFS+增广路，在残余网络上传播流量。"
+    },
+    "最小割建模": {
+      "what": "资源取舍转最小割，最大流=最小割对偶。",
+      "how": "实现要点：资源取舍转最小割，最大流=最小割对偶。",
+      "complexity": "视实现",
+      "code": "// 实现要点：资源取舍转最小割，最大流=最小割对偶。"
+    },
+    "Tarjan 求 SCC": {
+      "what": "dfn/low 压缩强连通块为超级点。",
+      "how": "DFS 维护 dfn/low/栈，low[u]==dfn[u] 时弹栈成强连通分量。",
+      "complexity": "O(n+m)",
+      "code": "void tarjan(int u){ dfn[u]=low[u]=++tm; stk.push(u); ins[u]=1; for(v:g[u]){ if(!dfn[v]) tarjan(v), low[u]=min(low[u],low[v]); else if(ins[v]) low[u]=min(low[u],dfn[v]); } if(low[u]==dfn[u]){ while(1){ int x=stk.top(); stk.pop(); ins[x]=0; comp[x]=cnt; if(x==u) break; } cnt++; } }"
+    },
+    "拓扑排序 (Kahn)": {
+      "what": "按入度逐层剥离，把 DAG 依赖线性化传播。",
+      "how": "入度 0 入队，弹出后减邻接入度，入度 0 再入队。",
+      "complexity": "O(n+m)",
+      "code": "queue<int> q; for(i) if(!deg[i]) q.push(i);\nwhile(!q.empty()){ int u=q.front(); q.pop(); order.push_back(u); for(v:g[u]) if(--deg[v]==0) q.push(v); }"
+    },
+    "连通块染色": {
+      "what": "DFS/BFS 沿边扩散，给连通分量编码。",
+      "how": "DFS/BFS 遍历未访问点，把所有相邻点染同色。",
+      "complexity": "O(n+m)",
+      "code": "void dfs(int u,int c){ col[u]=c; for(int v:g[u]) if(!col[v]) dfs(v,c); }"
+    },
+    "二分图染色判定": {
+      "what": "二色沿边交替传播，冲突则无解。",
+      "how": "BFS 交替染 1/2，冲突则非二分图。",
+      "complexity": "O(n+m)",
+      "code": "queue<int> q; col[s]=1; q.push(s);\nwhile(!q.empty()){ int u=q.front(); q.pop(); for(int v:g[u]) if(!col[v]) col[v]=3-col[u], q.push(v); else if(col[v]==col[u]) return false; }"
+    },
+    "简单回溯": {
+      "what": "在决策树上深度搜索并剪掉不可能分支。",
+      "how": "按状态树递归搜索，剪支无效分支，记录路径。",
+      "complexity": "指数级",
+      "code": "void dfs(int dep){ if(dep==n){ ...; return; } for(int x: cand) if(ok){ mark; dfs(dep+1); unmark; } }"
+    },
+    "割点 / 桥": {
+      "what": "DFS 树+low 值识别关键节点/边，压缩冗余环。",
+      "how": "DFS 树 + low；割点：子节点 low>=dfn[u]；桥：low[v]>dfn[u]。",
+      "complexity": "O(n+m)",
+      "code": "// 割点：若 u 是根则子数>1；否则存在子 v 满足 low[v]>=dfn[u]\n// 桥：low[v] > dfn[u]"
+    },
+    "拓扑排序 + DAG DP": {
+      "what": "按拓扑序传播状态，无后效性逐点合并。",
+      "how": "按拓扑序 DP，前驱状态推到后继。",
+      "complexity": "O(n+m)",
+      "code": "for(int u: order) for(int v: g[u]) dp[v]=max(dp[v], dp[u]+w);"
+    },
+    "二分图最大匹配（匈牙利）": {
+      "what": "增广路沿交替图传播匹配，找最大匹配。",
+      "how": "实现要点：增广路沿交替图传播匹配，找最大匹配。",
+      "complexity": "视实现",
+      "code": "// 实现要点：增广路沿交替图传播匹配，找最大匹配。"
+    },
+    "KM 算法": {
+      "what": "顶点标号+增广路找完美匹配，权值松弛。",
+      "how": "实现要点：顶点标号+增广路找完美匹配，权值松弛。",
+      "complexity": "视实现",
+      "code": "// 实现要点：顶点标号+增广路找完美匹配，权值松弛。"
+    },
+    "2-SAT": {
+      "what": "逻辑蕴含连边，SCC 判可行性。",
+      "how": "实现要点：逻辑蕴含连边，SCC 判可行性。",
+      "complexity": "视实现",
+      "code": "// 实现要点：逻辑蕴含连边，SCC 判可行性。"
+    },
+    "LCA（倍增）": {
+      "what": "祖先的 2^k 跳跃表，把树上路径查询压缩成二进制跳。",
+      "how": "预处理 up[v][k] 与深度，先对齐深度再一起上跳。",
+      "complexity": "O((n+m) log n)",
+      "code": "for(int k=1;k<LOG;++k) up[v][k]=up[up[v][k-1]][k-1];\n// 对齐深度后从高到低尝试上跳，最后答案为 up[u][0]"
+    },
+    "树上差分": {
+      "what": "路径加减转为差分标记，一次 DFS 聚合。",
+      "how": "对路径 u-v：cnt[u]++, cnt[v]++, cnt[lca]-=2；DFS 汇总。",
+      "complexity": "O(n+m)",
+      "code": "cnt[u]++, cnt[v]++, cnt[lca]--, cnt[fa[lca]]--;\nvoid dfs(u){ for(v) dfs(v), cnt[u]+=cnt[v]; }"
+    },
+    "树的直径 / 重心": {
+      "what": "两次 BFS/树形聚合找最长链与重心。",
+      "how": "直径：两次 DFS 最远点；重心：删去后最大子树最小。",
+      "complexity": "O(n)",
+      "code": "直径：两遍 DFS 找最远点；重心：dfs 维护 sz，maxPart=min(maxPart, n-sz[u], 子树sz)。"
+    },
+    "基环树 DP": {
+      "what": "断环成链后做两次树形 DP，去除循环纠缠。",
+      "how": "实现要点：断环成链后做两次树形 DP，去除循环纠缠。",
+      "complexity": "视实现",
+      "code": "// 实现要点：断环成链后做两次树形 DP，去除循环纠缠。"
+    },
+    "仙人掌 / 圆方树": {
+      "what": "把环压缩成方点，还原成树结构。",
+      "how": "实现要点：把环压缩成方点，还原成树结构。",
+      "complexity": "视实现",
+      "code": "// 实现要点：把环压缩成方点，还原成树结构。"
+    },
+    "LIS（最长上升子序列）": {
+      "what": "dp+单调序列维护，二分更新上升子序列尾。",
+      "how": "dp[i]=前缀最长；O(n log n) 用 tails 数组二分。",
+      "complexity": "O(n log n)",
+      "code": "vector<int> tails;\nfor(int x:a){ auto it=lower_bound(tails.begin(),tails.end(),x); if(it==tails.end()) tails.push_back(x); else *it=x; }"
+    },
+    "LCS（最长公共子序列）": {
+      "what": "二维 DP 沿两个序列传播匹配状态。",
+      "how": "二维 dp，a[i]==b[j] 对角+1，否则取左/上最大值。",
+      "complexity": "O(nm)",
+      "code": "for i 1..n for j 1..m dp[i][j]= (a[i]==b[j]? dp[i-1][j-1]+1 : max(dp[i-1][j],dp[i][j-1]));"
+    },
+    "0/1 背包": {
+      "what": "容量维度上的逐物品转移传播最优值。",
+      "how": "dp[j] = max(dp[j], dp[j-w]+v)，内层倒序保证每件只用一次。",
+      "complexity": "O(nW)",
+      "code": "for(int i=0;i<n;++i) for(int j=W;j>=w[i];--j) dp[j]=max(dp[j],dp[j-w[i]]+v[i]);"
+    },
+    "完全背包": {
+      "what": "正序容量循环允许同物品多次传播。",
+      "how": "dp[j] = max(dp[j], dp[j-w]+v)，内层正序。",
+      "complexity": "O(nW)",
+      "code": "for(int i=0;i<n;++i) for(int j=w[i];j<=W;++j) dp[j]=max(dp[j],dp[j-w[i]]+v[i]);"
+    },
+    "石子合并": {
+      "what": "区间 DP 从小区间向大区间聚合代价。",
+      "how": "区间 DP：dp[i][j]=min(dp[i][k]+dp[k+1][j])+sum(i,j)。",
+      "complexity": "O(n^3)",
+      "code": "for(int len=2;len<=n;++len) for(int i=1;i+len-1<=n;++i){ int j=i+len-1; dp[i][j]=1e18; for(int k=i;k<j;++k) dp[i][j]=min(dp[i][j],dp[i][k]+dp[k+1][j]+sum[i][j]); }"
+    },
+    "树上最大权独立集": {
+      "what": "子树选/不选两种状态向父节点聚合。",
+      "how": "树形 DP：选 u 则子节点不能选，不选则子节点可取可不取。",
+      "complexity": "O(n)",
+      "code": "void dfs(int u,int p){ f[u][1]=w[u]; for(int v:g[u]) if(v!=p){ dfs(v,u); f[u][0]+=max(f[v][0],f[v][1]); f[u][1]+=f[v][0]; } }"
+    },
+    "TSP（状压）": {
+      "what": "访问集合编码为 mask，逐点转移。",
+      "how": "dp[mask][i] 表示访问集合 mask 且当前在 i 的最短路径。",
+      "complexity": "O(2^n n^2)",
+      "code": "dp[1<<i][i]=0; for(mask) for(i) if(mask>>i&1) for(j) if(!(mask>>j&1)) dp[mask|1<<j][j]=min(...);"
+    },
+    "数位 DP（不含 4）": {
+      "what": "数位状态+limit/lead 编码进记忆化。",
+      "how": "dfs(pos, lim, lead) 记忆化数位状态，按位转移。",
+      "complexity": "O(位数 * 状态)",
+      "code": "long long dfs(int pos,int lim){ if(pos<0) return 1; if(!lim && memo[pos]!=-1) return memo[pos]; long long res=0; int up=lim?digit[pos]:9; for(int d=0;d<=up;++d){ if(d==4) continue; res+=dfs(pos-1,lim&&d==up); } return lim?res:memo[pos]=res; }"
+    },
+    "斜率优化（CHT）": {
+      "what": "候选转移看作直线，用凸包剔除永不优的线。",
+      "how": "实现要点：候选转移看作直线，用凸包剔除永不优的线。",
+      "complexity": "视实现",
+      "code": "// 实现要点：候选转移看作直线，用凸包剔除永不优的线。"
+    },
+    "四边形不等式优化": {
+      "what": "决策单调性使 DP 分治/单调队列剪枝。",
+      "how": "实现要点：决策单调性使 DP 分治/单调队列剪枝。",
+      "complexity": "视实现",
+      "code": "// 实现要点：决策单调性使 DP 分治/单调队列剪枝。"
+    },
+    "轮廓线 DP（简单棋盘状压）": {
+      "what": "把二维棋盘连通性压到一维轮廓线状态。",
+      "how": "逐格转移，用轮廓线掩码记录当前行/格状态。",
+      "complexity": "O(nm * 2^m)",
+      "code": "for(int i=0;i<n;++i) for(int j=0;j<m;++j) for(mask) {\n  // 用 mask 表示当前轮廓线已决策位，逐格推下一状态\n}"
+    },
+    "KMP": {
+      "what": "利用前缀对称性失配跳转，文本指针不回退。",
+      "how": "求 next 数组，匹配失败时按 next 回退，O(n+m)。",
+      "complexity": "O(n+m)",
+      "code": "for(int i=1;i<m;++i){ int j=ne[i-1]; while(j&&p[i]!=p[j]) j=ne[j-1]; if(p[i]==p[j]) ++j; ne[i]=j; }\n// 匹配时类似回退"
+    },
+    "Z-function": {
+      "what": "预处理每个后缀与整体前缀的 LCP，压缩匹配信息。",
+      "how": "Z[i]=s 与 s[i:] 的最长公共前缀，类 KMP 线性。",
+      "complexity": "O(n)",
+      "code": "vector<int> z(n); for(int i=1,l=0,r=0;i<n;++i){ if(i<=r) z[i]=min(r-i+1,z[i-l]); while(i+z[i]<n && s[z[i]]==s[i+z[i]]) ++z[i]; if(i+z[i]-1>r) l=i,r=i+z[i]-1; }"
+    },
+    "AC 自动机": {
+      "what": "多模式串前缀树+fail 跳跃，一次扫描多串命中。",
+      "how": "实现要点：多模式串前缀树+fail 跳跃，一次扫描多串命中。",
+      "complexity": "视实现",
+      "code": "// 实现要点：多模式串前缀树+fail 跳跃，一次扫描多串命中。"
+    },
+    "AC 自动机 + 矩阵快速幂": {
+      "what": "AC 自动机构造状态图，矩阵幂快速统计长串方案。",
+      "how": "实现要点：AC 自动机构造状态图，矩阵幂快速统计长串方案。",
+      "complexity": "视实现",
+      "code": "// 实现要点：AC 自动机构造状态图，矩阵幂快速统计长串方案。"
+    },
+    "后缀数组 (SA)": {
+      "what": "把所有后缀排序成数组，子串信息变为区间查询。",
+      "how": "倍增排序后缀，或用 SA-IS；配套 height 数组。",
+      "complexity": "O(n log n)",
+      "code": "// 倍增：sa[i] 按前 2^k 字符排序，rank 压缩；最终 rank 唯一确定 sa\nvector<int> sa(n), rk(n); // 用计数排序实现"
+    },
+    "Manacher": {
+      "what": "利用回文对称性扩展，线性求回文半径。",
+      "how": "维护回文半径与最右边界，线性求所有回文半径。",
+      "complexity": "O(n)",
+      "code": "for(int i=0;i<n;){ r=max(...); while(s[i-d]==s[i+d]) ++d; d[i]=d; ... }"
+    },
+    "SAM（后缀自动机）": {
+      "what": "子串等价类压缩成最小 DFA，O(n) 表示 O(n²) 信息。",
+      "how": "实现要点：子串等价类压缩成最小 DFA，O(n) 表示 O(n²) 信息。",
+      "complexity": "视实现",
+      "code": "// 实现要点：子串等价类压缩成最小 DFA，O(n) 表示 O(n²) 信息。"
+    },
+    "Trie（字典树）": {
+      "what": "公共前缀共享节点，把字符串集合压缩成树。",
+      "how": "每个节点一个字典/数组，插入查询沿字符下走。",
+      "complexity": "O(字符串长度)",
+      "code": "struct Node{ int nxt[26]; int cnt; } tr[N]; int tot;\nvoid insert(const string&s){ int u=0; for(char c:s){ if(!tr[u].nxt[c-'a']) tr[u].nxt[c-'a']=++tot; u=tr[u].nxt[c-'a']; } tr[u].cnt++; }"
+    },
+    "字符串哈希（Rolling Hash）": {
+      "what": "子串映射为整数，O(1) 比较等价信息。",
+      "how": "预处理前缀哈希与 p 的幂，区间哈希 O(1)。",
+      "complexity": "O(1) 查哈希",
+      "code": "pre[i]=(pre[i-1]*B+s[i])%M; pw[i]=pw[i-1]*B%M;\nhash(l,r)=(pre[r]-pre[l-1]*pw[r-l+1]+M)%M;"
+    },
+    "线性筛（欧拉筛）": {
+      "what": "每个合数只被最小质因子筛一次，压缩重复标记。",
+      "how": "每个合数只被最小质因子筛一次，同时维护最小质因子/欧拉函数。",
+      "complexity": "O(n)",
+      "code": "for(int i=2;i<=n;++i){ if(!vis[i]) pr.push_back(i), spf[i]=i; for(int p:pr){ if(i*p>n) break; vis[i*p]=1; spf[i*p]=p; if(i%p==0) break; } }"
+    },
+    "埃氏筛": {
+      "what": "质数的倍数批量标记，剪掉合数。",
+      "how": "从 2 开始标记倍数，O(n log log n) 得到素数表。",
+      "complexity": "O(n log log n)",
+      "code": "vector<bool> is(n+1,true); is[0]=is[1]=false;\nfor(int i=2;i<=n;++i) if(is[i]) for(int j=i*i;j<=n;j+=i) is[j]=false;"
+    },
+    "素数判定（试除法）": {
+      "what": "直接试除小因子，作为基础判定。",
+      "how": "枚举 2..sqrt(n)，能整除则非素数；注意 1 不是素数。",
+      "complexity": "O(sqrt(n))",
+      "code": "bool is_prime(long long n){ if(n<2) return false; for(long long i=2;i*i<=n;++i) if(n%i==0) return false; return true; }"
+    },
+    "欧拉函数": {
+      "what": "质因数分解后公式计算与 n 互质个数。",
+      "how": "phi(n)=n*prod(1-1/p)，线性筛可递推维护。",
+      "complexity": "O(n log log n)",
+      "code": "int phi[100]; phi[1]=1;\nfor(int i=2;i<N;++i) phi[i]=i;\nfor(int i=2;i<N;++i) if(phi[i]==i) for(int j=i;j<N;j+=i) phi[j]-=phi[j]/i;"
+    },
+    "快速幂": {
+      "what": "二进制拆解指数，幂运算从 O(b) 变 O(log b)。",
+      "how": "把指数二进制分解，base 自乘，ans *= base 当位为 1。",
+      "complexity": "O(log exp)",
+      "code": "long long qpow(long long a,long long b,long long mod){ long long r=1; for(;b;b>>=1){ if(b&1) r=r*a%mod; a=a*a%mod; } return r; }"
+    },
+    "扩展欧几里得 (exgcd)": {
+      "what": "辗转相除同时求线性组合系数。",
+      "how": "递归求 ax+by=gcd(a,b)，回溯时 x,y 互换更新。",
+      "complexity": "O(log min(a,b))",
+      "code": "long long exgcd(long long a,long long b,long long &x,long long &y){ if(!b){x=1;y=0;return a;} long long g=exgcd(b,a%b,y,x); y-=a/b*x; return g; }"
+    },
+    "费马小定理求逆元": {
+      "what": "模素数的逆元转换为快速幂。",
+      "how": "mod 为素数时 inv(x)=pow(x, mod-2, mod)。",
+      "complexity": "O(log mod)",
+      "code": "long long inv(long long x, long long mod){ return qpow(x, mod-2, mod); }"
+    },
+    "组合数（预处理阶乘）": {
+      "what": "阶乘/逆元预处理，组合数查询 O(1)。",
+      "how": "预处理 fact/invfact，C(n,k)=fact[n]*invfact[k]*invfact[n-k]。",
+      "complexity": "O(n) 预处理 / O(1) 查询",
+      "code": "fact[0]=1; for(int i=1;i<=n;++i) fact[i]=fact[i-1]*i%mod;\ninvfact[n]=qpow(fact[n],mod-2,mod); for(int i=n;i>=1;--i) invfact[i-1]=invfact[i]*i%mod;"
+    },
+    "中国剩余定理 (CRT)": {
+      "what": "同余方程组合并，剩余定理压缩模空间。",
+      "how": "实现要点：同余方程组合并，剩余定理压缩模空间。",
+      "complexity": "视实现",
+      "code": "// 实现要点：同余方程组合并，剩余定理压缩模空间。"
+    },
+    "Lucas 定理": {
+      "what": "大组合数模质数拆成 p 进制逐位计算。",
+      "how": "n,m 按 p 进制拆位，C(n,m)=prod C(ni,mi) mod p。",
+      "complexity": "O(p + log_p n * p?)",
+      "code": "long long C(int n,int k,int p){ return fact[n]*invfact[k]%p*invfact[n-k]%p; }\nlong long lucas(long long n,long long k,int p){ if(k==0) return 1; return C(n%p,k%p,p)*lucas(n/p,k/p,p)%p; }"
+    },
+    "容斥原理": {
+      "what": "并集计数转为子集交的加减，对偶转化。",
+      "how": "总方案 - 单个条件并集；用子集枚举或 Mobius 公式。",
+      "complexity": "O(2^m)",
+      "code": "long long ans=0;\nfor(int mask=1; mask<(1<<m); ++mask){ int cnt=__builtin_popcount(mask); long long cur=...; ans += (cnt&1?+cur:-cur); }"
+    },
+    "错排 / 卡特兰数": {
+      "what": "递推公式/生成函数压缩组合结构。",
+      "how": "错排 D[n]=(n-1)(D[n-1]+D[n-2])；卡特兰 C[n]=C(2n,n)/(n+1)。",
+      "complexity": "O(n)",
+      "code": "D[0]=1; D[1]=0; for(int i=2;i<=n;++i) D[i]=(i-1)*(D[i-1]+D[i-2]);\nC[n]=C(2n,n)/(n+1);"
+    },
+    "唯一分解定理": {
+      "what": "质因数分解作为数论问题的标准编码。",
+      "how": "用线性筛最小质因子，反复除得到质因数分解。",
+      "complexity": "O(log n)",
+      "code": "while(n>1){ int p=spf[n], c=0; while(n%p==0) n/=p, c++; factors.push_back({p,c}); }"
+    },
+    "高斯消元（异或方程组 bitset）": {
+      "what": "线性方程组消元，把复杂约束压缩成行阶梯。",
+      "how": "实现要点：线性方程组消元，把复杂约束压缩成行阶梯。",
+      "complexity": "视实现",
+      "code": "// 实现要点：线性方程组消元，把复杂约束压缩成行阶梯。"
+    },
+    "扩展中国剩余定理（EXCRT）": {
+      "what": "不互质同余方程逐步合并。",
+      "how": "实现要点：不互质同余方程逐步合并。",
+      "complexity": "视实现",
+      "code": "// 实现要点：不互质同余方程逐步合并。"
+    },
+    "线性基": {
+      "what": "异或组合压缩成线性无关基，去冗余。",
+      "how": "实现要点：异或组合压缩成线性无关基，去冗余。",
+      "complexity": "视实现",
+      "code": "// 实现要点：异或组合压缩成线性无关基，去冗余。"
+    },
+    "GCD / LCM": {
+      "what": "辗转相除把大数问题映射到对数步。",
+      "how": "gcd 用欧几里得；lcm = a / gcd * b，注意先除后乘防溢出。",
+      "complexity": "O(log min(a,b))",
+      "code": "int gcd(int a,int b){return b?gcd(b,a%b):a;}\nlong long lcm(long long a,long long b){return a/gcd(a,b)*b;}"
+    },
+    "矩阵快速幂优化递推": {
+      "what": "线性递推编码为矩阵，快速幂压缩时间。",
+      "how": "把线性递推写成转移矩阵，用快速幂算 M^n 再乘初始向量。",
+      "complexity": "O(k^3 log n)",
+      "code": "Mat mul(Mat a,Mat b); Mat qpow(Mat a,long long n){ Mat r=I; for(;n;n>>=1){ if(n&1) r=mul(r,a); a=mul(a,a); } return r; }"
+    },
+    "Andrew 单调链凸包": {
+      "what": "极角排序+栈维护凸壳，剔除凹点。",
+      "how": "实现要点：极角排序+栈维护凸壳，剔除凹点。",
+      "complexity": "视实现",
+      "code": "// 实现要点：极角排序+栈维护凸壳，剔除凹点。"
+    },
+    "旋转卡壳": {
+      "what": "利用凸包单调性旋转对踵点，剪枝求直径。",
+      "how": "实现要点：利用凸包单调性旋转对踵点，剪枝求直径。",
+      "complexity": "视实现",
+      "code": "// 实现要点：利用凸包单调性旋转对踵点，剪枝求直径。"
+    },
+    "最近点对（分治）": {
+      "what": "按 x 分治+按 y 剪枝，只查附近点。",
+      "how": "实现要点：按 x 分治+按 y 剪枝，只查附近点。",
+      "complexity": "视实现",
+      "code": "// 实现要点：按 x 分治+按 y 剪枝，只查附近点。"
+    },
+    "线段相交判定": {
+      "what": "叉积/点积判断方位，几何基础判定。",
+      "how": "实现要点：叉积/点积判断方位，几何基础判定。",
+      "complexity": "视实现",
+      "code": "// 实现要点：叉积/点积判断方位，几何基础判定。"
+    },
+    "叉积 / 点积判断方位": {
+      "what": "向量运算原子，作为几何判定基础。",
+      "how": "实现要点：向量运算原子，作为几何判定基础。",
+      "complexity": "视实现",
+      "code": "// 实现要点：向量运算原子，作为几何判定基础。"
+    },
+    "Nim 游戏与 SG 函数": {
+      "what": "博弈状态压缩成 SG 值，异或和判定胜负。",
+      "how": "Nim 和为 0 必败；SG(u)=mex(SG(后继))，多游戏异或。",
+      "complexity": "O(状态转移)",
+      "code": "int sg=0; for(int x:piles) sg^=x; cout << (sg ? \"First\" : \"Second\");\n// SG(u)=mex(sg[v])"
+    },
+    "期望 DP（掷骰子）": {
+      "what": "概率期望沿状态逆推传播。",
+      "how": "dp[i] 表示从状态 i 到终点的期望步数，按转移概率求期望。",
+      "complexity": "O(n)",
+      "code": "dp[i] = 1 + sum(p[j] * dp[i+j]); // 从目标反向递推，边界 dp[target]=0"
+    },
+    "莫队（区间不同数）": {
+      "what": "重排查询顺序使指针少走，离线降低移动熵。",
+      "how": "实现要点：重排查询顺序使指针少走，离线降低移动熵。",
+      "complexity": "视实现",
+      "code": "// 实现要点：重排查询顺序使指针少走，离线降低移动熵。"
+    },
+    "主席树（区间第 k 小）": {
+      "what": "持久化前缀权值线段树，按版本差分查询。",
+      "how": "实现要点：持久化前缀权值线段树，按版本差分查询。",
+      "complexity": "视实现",
+      "code": "// 实现要点：持久化前缀权值线段树，按版本差分查询。"
+    },
+    "Link-Cut Tree (LCT)": {
+      "what": "虚实链+Splay 动态剖分，让树形态实时重排。",
+      "how": "实现要点：虚实链+Splay 动态剖分，让树形态实时重排。",
+      "complexity": "视实现",
+      "code": "// 实现要点：虚实链+Splay 动态剖分，让树形态实时重排。"
+    },
+    "树链剖分 (HLD)": {
+      "what": "树压成 DFS 序区间，配合线段树动态维护。",
+      "how": "实现要点：树压成 DFS 序区间，配合线段树动态维护。",
+      "complexity": "视实现",
+      "code": "// 实现要点：树压成 DFS 序区间，配合线段树动态维护。"
+    },
+    "可持久化数据结构（主席树进阶）": {
+      "what": "每次更新新建节点保留历史版本，把时间轴编码进树。",
+      "how": "实现要点：每次更新新建节点保留历史版本，把时间轴编码进树。",
+      "complexity": "视实现",
+      "code": "// 实现要点：每次更新新建节点保留历史版本，把时间轴编码进树。"
+    },
+    "后缀自动机（SAM）进阶": {
+      "what": "parent 树拓扑序聚合 endpos，统计子串信息。",
+      "how": "实现要点：parent 树拓扑序聚合 endpos，统计子串信息。",
+      "complexity": "视实现",
+      "code": "// 实现要点：parent 树拓扑序聚合 endpos，统计子串信息。"
+    },
+    "广义 SAM": {
+      "what": "多串共用一个 SAM，压缩多串子串空间。",
+      "how": "实现要点：多串共用一个 SAM，压缩多串子串空间。",
+      "complexity": "视实现",
+      "code": "// 实现要点：多串共用一个 SAM，压缩多串子串空间。"
+    },
+    "FFT": {
+      "what": "时域卷积映射到频域点乘。",
+      "how": "实现要点：时域卷积映射到频域点乘。",
+      "complexity": "视实现",
+      "code": "// 实现要点：时域卷积映射到频域点乘。"
+    },
+    "NTT": {
+      "what": "模质数下做 NTT，避免浮点误差。",
+      "how": "实现要点：模质数下做 NTT，避免浮点误差。",
+      "complexity": "视实现",
+      "code": "// 实现要点：模质数下做 NTT，避免浮点误差。"
+    },
+    "生成函数": {
+      "what": "数列编码成形式幂级数，卷积对应组合计数。",
+      "how": "实现要点：数列编码成形式幂级数，卷积对应组合计数。",
+      "complexity": "视实现",
+      "code": "// 实现要点：数列编码成形式幂级数，卷积对应组合计数。"
+    },
+    "莫比乌斯反演": {
+      "what": "整除卷积经莫比乌斯函数反演，变换到互质计数。",
+      "how": "实现要点：整除卷积经莫比乌斯函数反演，变换到互质计数。",
+      "complexity": "视实现",
+      "code": "// 实现要点：整除卷积经莫比乌斯函数反演，变换到互质计数。"
+    },
+    "线性基进阶": {
+      "what": "区间/离线合并线性基，扩展异或空间压缩。",
+      "how": "实现要点：区间/离线合并线性基，扩展异或空间压缩。",
+      "complexity": "视实现",
+      "code": "// 实现要点：区间/离线合并线性基，扩展异或空间压缩。"
+    },
+    "半平面交": {
+      "what": "极角排序+双端队列剔除无用半平面。",
+      "how": "实现要点：极角排序+双端队列剔除无用半平面。",
+      "complexity": "视实现",
+      "code": "// 实现要点：极角排序+双端队列剔除无用半平面。"
+    },
+    "最小圆覆盖": {
+      "what": "随机增量法，期望下只处理少量关键点。",
+      "how": "实现要点：随机增量法，期望下只处理少量关键点。",
+      "complexity": "视实现",
+      "code": "// 实现要点：随机增量法，期望下只处理少量关键点。"
+    },
+    "三维凸包": {
+      "what": "增量法维护可见面，几何基础。",
+      "how": "实现要点：增量法维护可见面，几何基础。",
+      "complexity": "视实现",
+      "code": "// 实现要点：增量法维护可见面，几何基础。"
+    },
+    "支配树": {
+      "what": "有向图必经过点压缩成树，Lengauer-Tarjan 传播。",
+      "how": "实现要点：有向图必经过点压缩成树，Lengauer-Tarjan 传播。",
+      "complexity": "视实现",
+      "code": "// 实现要点：有向图必经过点压缩成树，Lengauer-Tarjan 传播。"
+    },
+    "点分治/边分治": {
+      "what": "按重心分治，把路径统计分解到经过重心的子问题。",
+      "how": "实现要点：按重心分治，把路径统计分解到经过重心的子问题。",
+      "complexity": "视实现",
+      "code": "// 实现要点：按重心分治，把路径统计分解到经过重心的子问题。"
+    },
+    "动态图连通性（离线）": {
+      "what": "时间轴线段树分治+可撤销并查集，批量处理边的生命周期。",
+      "how": "实现要点：时间轴线段树分治+可撤销并查集，批量处理边的生命周期。",
+      "complexity": "视实现",
+      "code": "// 实现要点：时间轴线段树分治+可撤销并查集，批量处理边的生命周期。"
+    },
+    "插头 DP": {
+      "what": "轮廓线状态编码二维连通性，逐格转移。",
+      "how": "实现要点：轮廓线状态编码二维连通性，逐格转移。",
+      "complexity": "视实现",
+      "code": "// 实现要点：轮廓线状态编码二维连通性，逐格转移。"
+    },
+    "DP 套 DP": {
+      "what": "内层 DP 状态作为外层状态，自动机式压缩。",
+      "how": "实现要点：内层 DP 状态作为外层状态，自动机式压缩。",
+      "complexity": "视实现",
+      "code": "// 实现要点：内层 DP 状态作为外层状态，自动机式压缩。"
+    },
+    "分治 DP": {
+      "what": "决策单调性分治，把 O(n²) 剪枝到 O(n log n)。",
+      "how": "实现要点：决策单调性分治，把 O(n²) 剪枝到 O(n log n)。",
+      "complexity": "视实现",
+      "code": "// 实现要点：决策单调性分治，把 O(n²) 剪枝到 O(n log n)。"
+    },
+    "上下界网络流": {
+      "what": "下界先流+超级源汇转换，把上下界约束转普通网络流。",
+      "how": "实现要点：下界先流+超级源汇转换，把上下界约束转普通网络流。",
+      "complexity": "视实现",
+      "code": "// 实现要点：下界先流+超级源汇转换，把上下界约束转普通网络流。"
+    },
+    "最小费用最大流": {
+      "what": "最短路增广，沿最小费用路径传播流量。",
+      "how": "实现要点：最短路增广，沿最小费用路径传播流量。",
+      "complexity": "视实现",
+      "code": "// 实现要点：最短路增广，沿最小费用路径传播流量。"
+    }
+  }
+}
