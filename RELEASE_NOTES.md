@@ -1,3 +1,13 @@
+# v1.12.0 — 高阶算法卡完整化：Tier 5-8 全部升级为 C++ 模板/核心实现
+
+- 更新 `expert_content/algorithm_cards.json`：47 个高阶算法从“实现要点”升级为真实 C++/核心代码。
+- 覆盖：Dinic/最小割、匈牙利/KM、主席树、FHQ Treap、莫队、凸包/旋转卡壳、AC 自动机、2-SAT、SAM/LCT/HLD、FFT/NTT、线性基、半平面交、点分治、插头 DP、费用流等。
+- 保留部分超复杂算法（插头 DP / 三维凸包 / DP 套 DP）为“关键步骤 + 代码骨架”，并在卡片中明确提示。
+- 生成器 `scripts/build_algorithm_cards.py` 增加 `ADV_HOW / ADV_CODE / ADV_COMPLEXITY`，可复现重生成。
+- 测试仍为 61 项全绿；继续离线、无新增运行时依赖。
+
+---
+
 # v1.11.0 — 算法卡复制 / 复盘联动 / D-WSL 记忆对齐
 
 - 档位页算法卡新增「复制代码」按钮：一键复制该知识点下全部算法的 C++ 模板。
