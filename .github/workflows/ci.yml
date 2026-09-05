@@ -56,6 +56,10 @@ jobs:
         run: |
           python scripts/validate_content.py
 
+      - name: Agent guidance proxy experiment
+        run: |
+          python scripts/agent_experiment.py
+
       - name: Regenerate mobile data
         run: |
           python export_mobile_data.py

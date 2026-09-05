@@ -16,9 +16,14 @@
 - `scripts/validate_content.py`
   - 问题必须短、是结构性问题、不出现算法名/标签黑话。
   - 每个方向必须有 `next_actions` 和 `self_questions`。
+- `scripts/agent_experiment.py`
+  - 用 11 道真实 Codeforces 题目的标签做代理实验。
+  - 门槛：真实算法 Top-10 命中率 ≥ 80%，方向命中率 ≥ 60%。
 - `scripts/engine_parity.py`
   - Python / JS 引擎输出一致。
 - 单元测试 + ruff + mypy + data schema。
+
+代理实验完整结果见 `validation/agent_experiment.md`。
 
 ## 人工验证协议
 
