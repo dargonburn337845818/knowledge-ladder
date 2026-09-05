@@ -37,6 +37,7 @@ class WallpaperManager:
 
     _LAYER_ATTRS = (
         "_video_player",
+        "_video_audio",
         "_video_widget",
         "_video_sink",
         "_video_label",
@@ -95,6 +96,12 @@ class WallpaperManager:
                 try:
                     if attr == "_video_player":
                         obj.stop()
+                        try:
+                            obj.setSource(QUrl())
+                        except Exception:
+                            pass
+                    if attr == "_video_audio":
+                        obj.stop()
                     if attr == "_gif_movie":
                         obj.stop()
                     obj.deleteLater()
@@ -136,7 +143,8 @@ class WallpaperManager:
         label.setScaledContents(True)
         label.setGeometry(self.window.centralWidget().rect())
         movie = QMovie(path)
-        movie.setCacheMode(QMovie.CacheMode.CacheAll)
+        # 不把整个 GIF 的所有帧全尺寸缓存进内存；改为按需解码，避免大壁纸卡爆内存。
+        movie.setCacheMode(QMovie.CacheMode.CacheNone)
         label.setMovie(movie)
         label.lower()
         movie.start()
@@ -181,6 +189,8 @@ class WallpaperManager:
         media.setAudioOutput(audio)
         media.setVideoOutput(item)
         media.setSource(QUrl.fromLocalFile(path))
+        # 持有音频对象引用，clear() 时才能显式释放，避免残留资源
+        self._video_audio = audio
 
         def replay(status):
             if status == QMediaPlayer.MediaStatus.EndOfMedia:

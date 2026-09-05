@@ -10,14 +10,18 @@
       for (var j = 0; j < weights.length; j++) out[j] = 1 / weights.length;
       return out;
     }
-    for (var k = 0; k < weights.length; k++) weights[k] /= total;
-    return weights;
+    // 与 Python _norm 对齐：返回新数组，绝不原地修改调用方传入的权重。
+    var result = new Array(weights.length);
+    for (var k = 0; k < weights.length; k++) result[k] = weights[k] / total;
+    return result;
   }
 
   function entropy(weights) {
+    // 与 Python EntropyEngine.entropy 对齐：先归一化再计算熵。
+    var normalized = normalize(weights);
     var h = 0;
-    for (var i = 0; i < weights.length; i++) {
-      var w = weights[i];
+    for (var i = 0; i < normalized.length; i++) {
+      var w = normalized[i];
       if (w > 0) h -= w * Math.log2(w);
     }
     return h;
@@ -209,7 +213,10 @@
       topAlgorithms: topAlgorithms,
       realtimeTop: realtimeTop,
       initialWeights: function () {
-        return algorithms.map(function (a) { return Math.max(0, a.prior_probability || 0); });
+        // 与 Python initial_weights 对齐：先取非负先验，再做归一化。
+        return normalize(algorithms.map(function (a) {
+          return Math.max(0, a.prior_probability || 0);
+        }));
       }
     };
   }

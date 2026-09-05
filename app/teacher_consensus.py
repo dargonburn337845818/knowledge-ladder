@@ -12,10 +12,10 @@
 """
 
 import json
-import os
 
-REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DEFAULT_PATH = os.path.join(REPO_ROOT, "teacher_consensus.json")
+from resource_paths import find_data
+
+DEFAULT_PATH = find_data("teacher_consensus.json")
 
 _cache = None
 

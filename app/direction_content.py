@@ -16,11 +16,11 @@
 """
 
 import json
-import os
 
-REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DEFAULT_PATH = os.path.join(REPO_ROOT, "expert_content", "direction_cards_v1.json")
-LEGACY_PATH = os.path.join(REPO_ROOT, "heuristics.json")
+from resource_paths import find_data
+
+DEFAULT_PATH = find_data("expert_content", "direction_cards_v1.json")
+LEGACY_PATH = find_data("heuristics.json")
 
 _cache = None
 _legacy_cache = None

@@ -53,6 +53,39 @@ class ProgressStoreTest(unittest.TestCase):
             self.assertEqual(reloaded.wallpaper, "sample.png")
             self.assertEqual(reloaded.card_records[0]["card"], "proof")
 
+    def test_corrupt_progress_is_non_silent_and_recovers(self):
+        with tempfile.TemporaryDirectory() as d:
+            with open(os.path.join(d, "progress.json"), "w", encoding="utf-8") as f:
+                f.write("{ not valid json")
+            store = ProgressStore(base_dir=d)
+            self.assertIsNotNone(store.load_error)
+            self.assertEqual(store.mastered, {})
+            self.assertEqual(store.style_mode, "dark")
+            self.assertEqual(store.card_records, [])
+
+            # 保存仍要能恢复，且写入的是合法 JSON
+            store.set_mastered("tag-a", True)
+            reloaded = ProgressStore(base_dir=d)
+            self.assertEqual(reloaded.mastered, {"tag-a": True})
+            self.assertIsNone(reloaded.load_error)
+
+    def test_invalid_field_types_are_sanitized_and_reported(self):
+        with tempfile.TemporaryDirectory() as d:
+            bad = {
+                "mastered": ["not", "a", "dict"],
+                "style_mode": 123,
+                "wallpaper": ["bad"],
+                "card_records": "not-a-list",
+            }
+            with open(os.path.join(d, "progress.json"), "w", encoding="utf-8") as f:
+                json.dump(bad, f, ensure_ascii=False, indent=2)
+            store = ProgressStore(base_dir=d)
+            self.assertEqual(store.mastered, {})
+            self.assertEqual(store.style_mode, "dark")
+            self.assertEqual(store.wallpaper, "")
+            self.assertEqual(store.card_records, [])
+            self.assertIsNotNone(store.load_error)
+
 
 if __name__ == "__main__":
     unittest.main()

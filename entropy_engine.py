@@ -15,10 +15,12 @@ import json
 import math
 import os
 
+from resource_paths import find_data
+
 REPO_ROOT = os.path.dirname(os.path.abspath(__file__))
-DEFAULT_PRIOR = os.path.join(REPO_ROOT, "algorithm_prior.json")
-DEFAULT_MATRIX = os.path.join(REPO_ROOT, "feature_algorithm_matrix.json")
-DEFAULT_HEURISTICS = os.path.join(REPO_ROOT, "heuristics.json")
+DEFAULT_PRIOR = find_data("algorithm_prior.json")
+DEFAULT_MATRIX = find_data("feature_algorithm_matrix.json")
+DEFAULT_HEURISTICS = find_data("heuristics.json")
 
 
 def _norm(weights):

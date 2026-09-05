@@ -4,8 +4,6 @@
 所有页面/弹窗/进度状态都封装在 app 深模块与 app.state 中。
 """
 
-import os
-
 from PySide6.QtCore import QSize, Qt
 from PySide6.QtWidgets import (
     QApplication,
@@ -24,6 +22,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from resource_paths import find_data
 from tiers_data import TIERS
 
 from .dialogs import InfoMiniDialog
@@ -476,8 +475,7 @@ class MainWindow(QMainWindow):
         if mode == STYLE_LIGHT:
             mode = STYLE_DARK
             self.store.style_mode = STYLE_DARK
-        repo_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        qss_path = os.path.join(repo_root, "style.qss")
+        qss_path = find_data("style.qss")
         qss = load_qss(qss_path)
         if self.store.wallpaper:
             qss += "\n" + WALLPAPER_QSS

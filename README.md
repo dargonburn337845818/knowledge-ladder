@@ -11,7 +11,7 @@
 
 - 机器负责基于公开题目标签做**动态二分**，每次都选当前“信息增益最大”的问题问你。
 - 人负责回答是/否/不确定，以及用“我感觉不对劲”强行打断机器。
-- 软件不直接甩答案，最终按计算概率给出**方向选择 + 方向内三层递进点拨**；移动端只专注拆题，PC端方向详情额外提供**信息论视角 / 经典模式 / 关键观察 / 证明思路 / 常见误区**的高质量算法理解。
+- 软件不直接甩答案，最终按计算概率给出**方向选择 + 方向内三层递进点拨**；移动端只专注拆题，PC端方向详情额外提供**信息论视角 / 经典模式 / 关键观察 / 证明思路 / 常见误区**的算法理解。
 
 整个过程**纯本地运行**：不调用任何云端 API、不部署大模型、不加载远程字体/分析脚本，只有 JSON 状态机 + log2 运算。
 
@@ -158,7 +158,21 @@ build_windows.bat
 
 ```text
 ├── main.py                    # 入口：只负责启动
+├── entropy_engine.py          # 桌面端熵减引擎（预计算矩阵）
+├── info_framework.py          # 信息论标签
+├── knowledge_data.py          # 120 算法名称注册表
+├── tiers_data.py              # 8 档难度数据
+├── export_mobile_data.py      # 生成 mobile/www/entropy_data.js
+├── resource_paths.py          # 数据文件定位（源码 / PyInstaller / pip 安装）
+├── algorithm_prior.json       # 多源先验与参数
+├── feature_algorithm_matrix.json
+├── heuristics.json            # 四大方向深度启发 + 教师主题引用
+├── teacher_consensus.json     # 24 条教师共识主题 + 元纪律
+├── style.qss                  # 桌面端样式
+├── requirements.txt           # 桌面端运行依赖
+├── pyproject.toml             # 项目元数据 + ruff/mypy/pytest 配置
 ├── AGENTS.md                  # 项目指南（给 AI / 新人）
+├── README.md / RELEASE_NOTES.md / VALIDATION.md
 ├── app/
 │   ├── theme.py               # 视觉常量 / QSS / 壁纸模式
 │   ├── state.py               # 本地进度持久化
@@ -166,33 +180,26 @@ build_windows.bat
 │   ├── dialogs.py             # 信息论微缩模块
 │   ├── tier_page.py           # 档位知识树 / 掌握勾选 / 分组展开
 │   ├── dissect_page.py        # 动态熵减拆题页
+│   ├── direction_content.py   # 四大方向内容数据层
 │   ├── teacher_consensus.py   # 教师共识数据层
 │   ├── wallpaper.py           # 壁纸深模块（图片/GIF/视频 + 选择器）
 │   └── window.py              # 主窗口 / 标题栏（壁纸委托给 wallpaper.py）
-├── entropy_engine.py          # 桌面端熵减引擎（预计算矩阵）
-├── algorithm_prior.json       # 多源先验与参数
-├── feature_algorithm_matrix.json
-├── heuristics.json            # 四大方向深度启发 + 教师主题引用
-├── teacher_consensus.json     # 24 条教师共识主题 + 元纪律
-├── knowledge_data.py          # 120 算法名称注册表（轻量）
-├── tiers_data.py              # 8 档难度数据
-├── info_framework.py          # 信息论标签
-├── export_mobile_data.py      # 生成 mobile/www/entropy_data.js
-├── pyproject.toml             # 项目元数据 + ruff/mypy/pytest 配置
-├── scripts/                   # 数据 schema / 引擎一致性 / release body
-├── tests/                     # 熵减引擎 / 数据完整性 / 教师共识测试
+├── expert_content/            # 版本化专家方向内容（卡片 / 分层 / 边界 + schema）
 ├── mobile/                    # PWA + Capacitor
-│   └── www/                   # 含 app.js / entropy_engine.js / card_store.js / entropy_data.js
-├── LICENSE                    # MIT
-├── SECURITY.md                # 安全与隐私政策
-├── CONTRIBUTING.md            # 贡献指南
-├── CODE_OF_CONDUCT.md
+│   └── www/                   # app.js / entropy_engine.js / card_store.js / entropy_data.js
+├── scripts/                   # 数据 schema / 引擎一致性 / release body / 内容校验
+├── tests/                     # 熵减引擎 / 数据完整性 / 教师共识 / 移动端测试
+├── validation/                # agent 实验记录（已跟踪，不属于运行时产物）
+├── build_windows.bat / start_windows.bat
+├── LICENSE / SECURITY.md / CONTRIBUTING.md / CODE_OF_CONDUCT.md
 └── .github/
     ├── workflows/             # CI / APK / Desktop EXE 自动构建
     ├── ISSUE_TEMPLATE/        # bug / feature 模板
     ├── PULL_REQUEST_TEMPLATE.md
     └── dependabot.yml         # 自动更新依赖与 Actions
 ```
+
+> `docs/`、`reports/`、`preview/`、`系统提示词.txt`、`tools/` 等是本机内部工作产物，已在 `.gitignore` 中忽略，不要提交。
 
 ---
 

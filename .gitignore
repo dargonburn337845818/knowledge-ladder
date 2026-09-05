@@ -38,6 +38,7 @@ Thumbs.db
 # 构建产物 / 编辑器
 dist/
 build/
+*.egg-info/
 *.spec
 release_body.md
 .ruff_cache/

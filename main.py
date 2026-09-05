@@ -10,20 +10,20 @@
 - app.window          主窗口
 """
 
-import os
 import sys
 
 from PySide6.QtWidgets import QApplication
 
 from app.theme import APP_NAME, ORG_NAME, load_qss
 from app.window import MainWindow
+from resource_paths import find_data
 
 
 def main():
     QApplication.setOrganizationName(ORG_NAME)
     QApplication.setApplicationName(APP_NAME)
     app = QApplication(sys.argv)
-    qss_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "style.qss")
+    qss_path = find_data("style.qss")
     app.setStyleSheet(load_qss(qss_path))
     window = MainWindow()
     window.show()
