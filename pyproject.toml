@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "knowledge-ladder"
-version = "1.10.0"
+version = "1.11.0"
 description = "Local-first entropy-based competitive programming dissection tool (PySide6 desktop + PWA/Capacitor mobile)"
 readme = "README.md"
 requires-python = ">=3.10"

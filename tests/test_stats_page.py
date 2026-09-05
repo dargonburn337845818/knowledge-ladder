@@ -46,11 +46,18 @@ class StatsPageSmokeTest(unittest.TestCase):
                 rs.write_reflection(day, f"# {day} 复盘")
                 rs.write_metrics(
                     day,
-                    {"attempts": 5 + i, "ac": 3 + i, "minutes": 60 + i * 10, "no_idea": "DP,图论" if i < 2 else ""},
+                    {
+                        "attempts": 5 + i,
+                        "ac": 3 + i,
+                        "minutes": 60 + i * 10,
+                        "no_idea": "DP,图论" if i < 2 else "",
+                        "cards": "二分答案,线段树" if i < 2 else "",
+                    },
                 )
             page = StatsPage(rs, ps)
             self.assertIn("近7天", page.summary_label.text())
             self.assertIn("AC", page.summary_label.text())
+            self.assertIn("算法卡摄入", page.summary_label.text())
             self.assertEqual(len(page.tier_bars), 8)
             self.assertIn("30 分钟无思路", page.no_idea_chart.title)
 

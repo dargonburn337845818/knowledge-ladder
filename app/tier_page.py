@@ -5,6 +5,7 @@ import html
 from PySide6.QtCore import QEasingCurve, QPropertyAnimation, Qt
 from PySide6.QtGui import QColor, QIcon, QPainter, QPixmap
 from PySide6.QtWidgets import (
+    QApplication,
     QCheckBox,
     QFrame,
     QHBoxLayout,
@@ -96,14 +97,20 @@ class TagRow(QFrame):
             cf_label.setObjectName("cfTag")
             layout.addWidget(cf_label, alignment=Qt.AlignmentFlag.AlignTop)
 
-        # 算法卡入口：有卡片时显示“算法卡”
+        # 算法卡入口：有卡片时显示“算法卡”和“复制代码”
         self.algo_btn = None
+        self.copy_btn = None
         if self.algorithm_cards:
             self.algo_btn = QPushButton("算法卡")
             self.algo_btn.setObjectName("algoBtn")
             self.algo_btn.setFixedWidth(64)
             self.algo_btn.clicked.connect(self._toggle_algo)
             layout.addWidget(self.algo_btn, alignment=Qt.AlignmentFlag.AlignTop)
+            self.copy_btn = QPushButton("复制代码")
+            self.copy_btn.setObjectName("algoBtn")
+            self.copy_btn.setFixedWidth(80)
+            self.copy_btn.clicked.connect(self._copy_codes)
+            layout.addWidget(self.copy_btn, alignment=Qt.AlignmentFlag.AlignTop)
 
         # 有详情的思维模式：显示“展开”
         self.detail_btn = None
@@ -196,6 +203,17 @@ class TagRow(QFrame):
     def _toggle_algo(self):
         if self.algo_box is not None:
             self.set_algo_visible(not self._algo_open)
+
+    def _copy_codes(self) -> None:
+        """复制本行全部算法卡的 C++ 代码到剪贴板。"""
+        parts: list[str] = []
+        for name, card in self.algorithm_cards:
+            code = str(card.get("code", "")).strip()
+            if code:
+                parts.append(f"// {name}\n{code}")
+        text = "\n\n".join(parts)
+        if text:
+            QApplication.clipboard().setText(text)
 
     def set_algo_visible(self, visible: bool):
         """统一控制算法卡展开/收起，并同步按钮文字。"""
