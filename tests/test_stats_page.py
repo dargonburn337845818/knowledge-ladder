@@ -20,6 +20,7 @@ except ImportError:  # pragma: no cover - CI 无 PySide6 时跳过
     PYSIDE_OK = False
 
 
+@unittest.skipUnless(PYSIDE_OK, "PySide6 not installed")
 class SplitTopicsTest(unittest.TestCase):
     def test_counts_chinese_separators(self):
         self.assertEqual(_split_topics(""), 0)
