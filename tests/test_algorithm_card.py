@@ -33,7 +33,7 @@ class AlgorithmCardDataTest(unittest.TestCase):
         with open(CARD_PATH, encoding="utf-8") as f:
             data = json.load(f)
         for name, card in data["cards"].items():
-            for field in ("what", "how", "complexity", "code"):
+            for field in ("what", "how", "complexity", "code", "advanced"):
                 self.assertIn(field, card, f"{name} missing {field}")
                 self.assertTrue(str(card[field]).strip(), f"{name}.{field} empty")
 

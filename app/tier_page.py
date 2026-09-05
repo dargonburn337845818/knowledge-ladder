@@ -140,22 +140,55 @@ class TagRow(QFrame):
             self.detail_box.setVisible(False)
             outer.addWidget(self.detail_box)
 
-        # 可展开算法卡：是什么 / 怎么写 / 复杂度 / C++ 代码
+        # 可展开算法卡：是什么 / 怎么写 / 复杂度 / C++ 代码；每张卡可单独复制
         self.algo_box = None
+        self.algo_sections: list[tuple[QPushButton, QLabel]] = []
         if self.algorithm_cards:
             self.algo_box = QFrame()
             self.algo_box.setObjectName("algoBox")
             algo_layout = QVBoxLayout(self.algo_box)
             algo_layout.setContentsMargins(10, 8, 10, 8)
-            algo_layout.setSpacing(4)
-            self.algo_text = QTextBrowser()
-            self.algo_text.setObjectName("algoText")
-            self.algo_text.setOpenExternalLinks(False)
-            self.algo_text.setHtml(self._build_algo_html())
-            self.algo_text.setMinimumHeight(180)
-            algo_layout.addWidget(self.algo_text)
+            algo_layout.setSpacing(8)
+
+            for name, card in self.algorithm_cards:
+                card_frame = QFrame()
+                card_frame.setObjectName("algoCardFrame")
+                card_layout = QVBoxLayout(card_frame)
+                card_layout.setContentsMargins(10, 6, 10, 6)
+                card_layout.setSpacing(4)
+
+                head = QHBoxLayout()
+                name_label = QLabel(name)
+                name_label.setObjectName("tagName")
+                head.addWidget(name_label)
+                if card.get("advanced"):
+                    adv = QLabel("高阶")
+                    adv.setObjectName("algoAdvBadge")
+                    head.addWidget(adv)
+                status_label = QLabel("未掌握")
+                status_label.setObjectName("algoStatusBadge")
+                head.addWidget(status_label)
+                one_copy_btn = QPushButton("复制")
+                one_copy_btn.setObjectName("algoBtn")
+                one_copy_btn.setFixedWidth(56)
+                one_copy_btn.clicked.connect(lambda checked=False, n=name, c=card: self._copy_one_code(n, c))
+                head.addWidget(one_copy_btn)
+                head.addStretch(1)
+                card_layout.addLayout(head)
+
+                text = QTextBrowser()
+                text.setObjectName("algoText")
+                text.setOpenExternalLinks(False)
+                text.setHtml(self._card_html(name, card))
+                text.setMinimumHeight(120)
+                card_layout.addWidget(text)
+
+                algo_layout.addWidget(card_frame)
+                self.algo_sections.append((one_copy_btn, status_label))
+
             self.algo_box.setVisible(False)
             outer.addWidget(self.algo_box)
+            self._update_algo_status()
 
         if self.checkbox.isChecked():
             self._apply_checked(True)
@@ -170,6 +203,8 @@ class TagRow(QFrame):
         self.setProperty("mastered", checked)
         self.style().unpolish(self)
         self.style().polish(self)
+        if hasattr(self, "algo_sections"):
+            self._update_algo_status()
 
     def _toggle_detail(self):
         if self.detail_box is not None:
@@ -184,20 +219,17 @@ class TagRow(QFrame):
         if self.detail_btn is not None:
             self.detail_btn.setText("收起" if self._detail_open else "展开")
 
-    def _build_algo_html(self) -> str:
+    def _card_html(self, name: str, card: dict) -> str:
         parts: list[str] = []
-        for name, card in self.algorithm_cards:
-            parts.append(f"<h4>{html.escape(name)}</h4>")
-            parts.append(f"<p><b>是什么：</b>{html.escape(str(card.get('what', '')))}</p>")
-            parts.append(f"<p><b>怎么写：</b>{html.escape(str(card.get('how', '')))}</p>")
-            parts.append(f"<p><b>复杂度：</b>{html.escape(str(card.get('complexity', '')))}</p>")
-            code = str(card.get("code", ""))
-            if code:
-                parts.append(f"<pre>{html.escape(code)}</pre>")
-            pitfall = str(card.get("pitfall", ""))
-            if pitfall:
-                parts.append(f"<p><b>常见坑：</b>{html.escape(pitfall)}</p>")
-            parts.append("<hr>")
+        parts.append(f"<p><b>是什么：</b>{html.escape(str(card.get('what', '')))}</p>")
+        parts.append(f"<p><b>怎么写：</b>{html.escape(str(card.get('how', '')))}</p>")
+        parts.append(f"<p><b>复杂度：</b>{html.escape(str(card.get('complexity', '')))}</p>")
+        code = str(card.get("code", ""))
+        if code:
+            parts.append(f"<pre>{html.escape(code)}</pre>")
+        pitfall = str(card.get("pitfall", ""))
+        if pitfall:
+            parts.append(f"<p><b>常见坑：</b>{html.escape(pitfall)}</p>")
         return "".join(parts)
 
     def _toggle_algo(self):
@@ -214,6 +246,18 @@ class TagRow(QFrame):
         text = "\n\n".join(parts)
         if text:
             QApplication.clipboard().setText(text)
+
+    def _copy_one_code(self, name: str, card: dict) -> None:
+        """复制单张算法卡的 C++ 代码到剪贴板。"""
+        code = str(card.get("code", "")).strip()
+        if code:
+            QApplication.clipboard().setText(f"// {name}\n{code}")
+
+    def _update_algo_status(self) -> None:
+        """同步该知识点下所有算法卡的状态：已掌握 / 未掌握。"""
+        mastered = self.store.is_mastered(self.tag["id"])
+        for _btn, status_label in self.algo_sections:
+            status_label.setText("已掌握" if mastered else "未掌握")
 
     def set_algo_visible(self, visible: bool):
         """统一控制算法卡展开/收起，并同步按钮文字。"""
