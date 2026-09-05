@@ -8,7 +8,7 @@ import unittest
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, REPO_ROOT)
 
-from scripts.check_data_schema import parse_generated_js
+from scripts.check_data_schema import parse_generated_js, project_mobile_direction_content
 
 
 def load(name):
@@ -24,15 +24,16 @@ class CrossEndConsistencyTest(unittest.TestCase):
         cls.generated = parse_generated_js(
             os.path.join(REPO_ROOT, "mobile", "www", "entropy_data.js")
         )
+        cls.mobile_projection = project_mobile_direction_content(cls.content)
 
     def test_generated_heuristics_matches_source(self):
         self.assertEqual(self.generated["heuristics"], self.heuristics)
 
-    def test_generated_direction_content_matches_source(self):
-        self.assertEqual(self.generated["direction_content"], self.content)
+    def test_generated_direction_content_matches_mobile_subset(self):
+        self.assertEqual(self.generated["direction_content"], self.mobile_projection)
 
     def test_direction_fields_are_identical(self):
-        src_dirs = self.content["directions"]
+        src_dirs = self.mobile_projection["directions"]
         gen_dirs = self.generated["direction_content"]["directions"]
         self.assertEqual(len(src_dirs), 4)
         self.assertEqual(len(gen_dirs), 4)

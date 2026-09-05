@@ -9,7 +9,11 @@ import unittest
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, REPO_ROOT)
 
-from scripts.check_data_schema import check_direction_content, check_mobile_sync
+from scripts.check_data_schema import (
+    check_direction_content,
+    check_mobile_sync,
+    project_mobile_direction_content,
+)
 
 
 def load(name):
@@ -69,7 +73,7 @@ class ContentSchemaTest(unittest.TestCase):
     def test_green_on_mobile_sync_match(self):
         generated = {
             "heuristics": self.heuristics,
-            "direction_content": self.content,
+            "direction_content": project_mobile_direction_content(self.content),
         }
         errors = []
         check_mobile_sync(generated, self.content, self.heuristics, errors)

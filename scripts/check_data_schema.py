@@ -77,6 +77,12 @@ def check_direction_content(schema, content, heuristics, errors):
         _check_object(d, direction_spec, f"direction[{did}]", errors)
         if "deep_dive" in d:
             _check_object(d["deep_dive"], deep_dive_spec, f"direction[{did}].deep_dive", errors)
+            refs = d["deep_dive"].get("source_refs", [])
+            if len(refs) < 3:
+                errors.append(f"direction[{did}].deep_dive.source_refs: expected at least 3 items")
+            for i, ref in enumerate(refs):
+                if not isinstance(ref, dict) or not ref.get("url") or not ref.get("title") or not ref.get("claim"):
+                    errors.append(f"direction[{did}].deep_dive.source_refs[{i}]: missing url/title/claim")
         if len(d.get("triggers", [])) < 3:
             errors.append(f"direction[{did}].triggers: expected at least 3 items")
         if len(d.get("edge_cases", [])) < 1:
@@ -120,12 +126,24 @@ def parse_generated_js(path):
     return json.loads(body)
 
 
+def project_mobile_direction_content(content):
+    """移动端载荷子集：剔除 PC 端 deep_dive。"""
+    return {
+        "meta": content.get("meta", {}),
+        "directions": [
+            {k: v for k, v in d.items() if k != "deep_dive"}
+            for d in content.get("directions", [])
+        ],
+    }
+
+
 def check_mobile_sync(generated, content, heuristics, errors):
     """移动端生成物同步门禁：内嵌 heuristics / direction_content 必须等于源 JSON。"""
     if generated.get("heuristics") != heuristics:
         errors.append("mobile entropy_data.js heuristics does not match heuristics.json")
-    if generated.get("direction_content") != content:
-        errors.append("mobile entropy_data.js direction_content does not match expert_content/direction_cards_v1.json")
+    projected = project_mobile_direction_content(content)
+    if generated.get("direction_content") != projected:
+        errors.append("mobile entropy_data.js direction_content does not match mobile subset of expert_content/direction_cards_v1.json")
 
 
 def main():

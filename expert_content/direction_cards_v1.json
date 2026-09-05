@@ -403,7 +403,7 @@
       ],
       "source_refs": [
         "https://github.com/mtuann/competitive-programming-cpp/blob/main/topics/dp/foundations/README.md",
-        "http://homes.di.unimi.it/righini/Didattica/OttimizzazioneCombinatoria/MaterialeOC/13%20-%20Dynamic%20programming.pdf",
+        "https://cp-algorithms.com/dynamic_programming/intro-to-dp.html",
         "https://codeforces.com/topic/155700/en1"
       ],
       "layers": {
@@ -456,7 +456,7 @@
           ],
           "source_refs": [
             "https://github.com/mtuann/competitive-programming-cpp/blob/main/topics/dp/foundations/README.md",
-            "http://homes.di.unimi.it/righini/Didattica/OttimizzazioneCombinatoria/MaterialeOC/13%20-%20Dynamic%20programming.pdf"
+            "https://cp-algorithms.com/dynamic_programming/intro-to-dp.html"
           ]
         },
         {

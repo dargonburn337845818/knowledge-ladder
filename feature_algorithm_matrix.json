@@ -33,7 +33,7 @@
     {
       "id": "metric_sum",
       "dimension": "规则",
-      "question": "合并/转移时是用加法、最值、还是路径权值？",
+      "question": "合并/转移是否按加法、最值或路径权值这类聚合规则进行？",
       "kind": "base"
     },
     {

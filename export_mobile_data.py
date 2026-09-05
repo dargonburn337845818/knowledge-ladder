@@ -1,4 +1,4 @@
-"""导出移动端熵减数据：只导出运行所需的最小字段 + 教师共识 + 专家方向内容。"""
+"""导出移动端熵减数据：只导出运行所需的最小字段 + 教师共识 + 移动端拆题子集。"""
 import json
 import os
 
@@ -17,12 +17,26 @@ with open(os.path.join(ROOT, "teacher_consensus.json"), encoding="utf-8") as f:
 with open(os.path.join(ROOT, "expert_content", "direction_cards_v1.json"), encoding="utf-8") as f:
     direction_content = json.load(f)
 
+
+def mobile_direction_subset(content):
+    """移动端只保留拆题所需字段，剔除 PC 端算法理解深挖（deep_dive）。"""
+    return {
+        "meta": content.get("meta", {}),
+        "directions": [
+            {k: v for k, v in d.items() if k != "deep_dive"}
+            for d in content.get("directions", [])
+        ],
+    }
+
+
+mobile_direction_content = mobile_direction_subset(direction_content)
+
 entropy = {
     "params": prior.get("params", {}),
     "features": matrix.get("features", []),
     "directions": matrix.get("directions", []),
     "heuristics": heuristics,
-    "direction_content": direction_content,
+    "direction_content": mobile_direction_content,
     "teacher_consensus": teacher_consensus,
     "algorithms": [
         {
@@ -62,13 +76,13 @@ def _parse_generated(path):
     return json.loads(body)
 
 
-# 自动一致性比较：生成文件中的 heuristics / direction_content 必须等于源 JSON
+# 自动一致性比较：生成文件中的 heuristics 与移动端拆题子集必须等于源
 generated = _parse_generated(entropy_path)
 if generated.get("heuristics") != heuristics:
     raise SystemExit("MOBILE SYNC FAILED: heuristics mismatch")
-if generated.get("direction_content") != direction_content:
+if generated.get("direction_content") != mobile_direction_content:
     raise SystemExit("MOBILE SYNC FAILED: direction_content mismatch")
 
 print(f"Written: {entropy_path}")
 print(f"MOBILE DATA SYNC OK: heuristics={heuristics.get('meta', {}).get('version')}, "
-      f"direction_content={direction_content.get('meta', {}).get('version')}")
+      f"direction_content={direction_content.get('meta', {}).get('version')} (mobile subset)")
