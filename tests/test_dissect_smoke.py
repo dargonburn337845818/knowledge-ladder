@@ -6,10 +6,18 @@ import unittest
 
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
-from PySide6.QtWidgets import QApplication, QLabel, QPushButton
+try:
+    from PySide6.QtWidgets import QApplication, QLabel, QPushButton
 
-from app.dissect_page import DissectPage
-from app.state import ProgressStore
+    from app.dissect_page import DissectPage
+    from app.state import ProgressStore
+
+    PYSIDE_OK = True
+except ImportError:  # pragma: no cover - CI 无 PySide6 时跳过
+    QApplication = QLabel = QPushButton = None
+    DissectPage = None
+    ProgressStore = None
+    PYSIDE_OK = False
 
 FORBIDDEN = [
     "前缀和", "线段树", "字符串哈希", "随机哈希", "二分", "三分", "差分",
@@ -19,6 +27,7 @@ FORBIDDEN = [
 ]
 
 
+@unittest.skipUnless(PYSIDE_OK, "PySide6 not installed")
 class DissectSmokeTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):

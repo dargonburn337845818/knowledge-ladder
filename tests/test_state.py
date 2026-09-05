@@ -5,9 +5,16 @@ import os
 import tempfile
 import unittest
 
-from app.state import ProgressStore
+try:
+    from app.state import ProgressStore
+
+    PYSIDE_OK = True
+except ImportError:  # pragma: no cover - CI 无 PySide6 时跳过
+    ProgressStore = None
+    PYSIDE_OK = False
 
 
+@unittest.skipUnless(PYSIDE_OK, "PySide6 not installed")
 class ProgressStoreTest(unittest.TestCase):
     def test_card_records_persist_and_count(self):
         with tempfile.TemporaryDirectory() as d:
