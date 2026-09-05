@@ -115,16 +115,14 @@
     stepCount.textContent = "基线";
     stage.innerHTML = `
       <div class="card">
-        <div class="card-title">先想暴力方案</div>
-        <div class="card-hint">先写一个最直接的暴力/模拟方案，再继续。</div>
-        <div style="font-size:18px;margin-bottom:18px;">你已经想好最直接的暴力做法了吗？</div>
+        <div class="card-title">先写暴力</div>
+        <div style="font-size:18px;margin-bottom:18px;">写一个最直接的暴力/模拟方案</div>
         <div class="options">
-          <button class="option" data-answer="yes">是 <small>我已经有最直接的做法</small></button>
-          <button class="option" data-answer="no">否 <small>我还没写/想暴力方案</small></button>
-          <button class="option" data-answer="uncertain">不确定 <small>介于两者之间</small></button>
+          <button class="option" data-answer="yes">写好了</button>
+          <button class="option" data-answer="no">还没写</button>
         </div>
         <div id="baselineWarn" class="warn-text" style="display:none;margin-top:14px;">
-          请先写一个最直接的暴力/模拟方案，再继续拆题。
+          先写，再继续。
         </div>
       </div>
     `;
@@ -161,24 +159,23 @@
     }
     state.currentQuestion = next.id;
     stepCount.style.display = "";
-    stepCount.textContent = "熵减";
+    stepCount.textContent = "拆题";
 
     const hasBack = state.history.length > 0;
     stage.innerHTML = `
       <div class="card">
-        <div class="card-title">下一步</div>
-        <div class="card-hint">这个问题符合你的题吗？</div>
+        <div class="card-title">这个问题符合吗？</div>
         <div class="question-text">${questionText(next.id)}</div>
         <div class="options">
           <button class="option" data-answer="yes">是</button>
           <button class="option" data-answer="no">否</button>
           <button class="option" data-answer="uncertain">不确定</button>
         </div>
-        <button class="action-btn" id="detectorBtn" style="width:100%;margin-top:4px;">我感觉不对劲</button>
+        <button class="action-btn" id="detectorBtn" style="width:100%;margin-top:4px;">不像？再想想</button>
         <div id="detectorHint" class="warn-text" style="display:none;margin-top:10px;">
-          先再回答 1–2 个问题，让范围收小；如果仍然觉得不对，再点“我感觉不对劲”。
+          先回答一两个，再想。
         </div>
-        ${state.anomalyFlag ? '<div class="muted-text" style="margin-top:10px;">刚才的回答有点反直觉，你可以持续留意。</div>' : ""}
+        ${state.anomalyFlag ? '<div class="muted-text" style="margin-top:10px;">刚才有点反常。</div>' : ""}
         <div style="display:flex;gap:8px;margin-top:16px;">
           ${hasBack ? '<button class="think-back" id="backBtn" style="flex:1;">‹ 上一步</button>' : ""}
           <button class="restart-btn" id="restartBtn" style="flex:1;margin-top:0;">重新开始</button>

@@ -174,13 +174,11 @@ class DissectPage(QWidget):
     # ---------- Baseline ----------
     def _render_baseline(self):
         self.step_label.setText("基线")
-        self._add_title("先想暴力方案")
-        self._add_hint("先写一个最直接的暴力/模拟方案，再继续。")
-        self._add_body("你已经想好最直接的暴力做法了吗？")
-        self._add_button("是（已经想了）", lambda: self._baseline_answer(True))
-        self._add_button("否（还没想）", lambda: self._baseline_answer(False))
-        self._add_button("不确定", lambda: self._baseline_answer(False))
-        self._baseline_warning = QLabel("请先写一个最直接的暴力/模拟方案，再继续拆题。")
+        self._add_title("先写暴力")
+        self._add_body("写一个最直接的暴力/模拟方案")
+        self._add_button("写好了", lambda: self._baseline_answer(True))
+        self._add_button("还没写", lambda: self._baseline_answer(False))
+        self._baseline_warning = QLabel("先写，再继续。")
         self._baseline_warning.setObjectName("dissectHint")
         self._baseline_warning.setWordWrap(True)
         self._baseline_warning.hide()
@@ -209,21 +207,20 @@ class DissectPage(QWidget):
             return
         self.current_question = fid
         feature = self.engine.feature_by_id(fid)
-        self.step_label.setText("熵减")
-        self._add_title("下一步")
-        self._add_hint("这个问题符合你的题吗？")
+        self.step_label.setText("拆题")
+        self._add_title("这个问题符合吗？")
         self._add_body(feature["question"] if feature else fid)
         self._add_button("是", lambda: self._handle_answer("yes"))
         self._add_button("否", lambda: self._handle_answer("no"))
         self._add_button("不确定", lambda: self._handle_answer("uncertain"))
-        self._add_button("我感觉不对劲", self._handle_detector, "opPill")
+        self._add_button("不像？再想想", self._handle_detector, "opPill")
         self._detector_hint = QLabel("")
         self._detector_hint.setObjectName("dissectHint")
         self._detector_hint.setWordWrap(True)
         self._detector_hint.hide()
         self.content_layout.addWidget(self._detector_hint)
         if self.anomaly_flag:
-            note = QLabel("刚才的回答有点反直觉，你可以持续留意。")
+            note = QLabel("刚才有点反常。")
             note.setObjectName("dissectHint")
             note.setWordWrap(True)
             self.content_layout.addWidget(note)
@@ -257,7 +254,7 @@ class DissectPage(QWidget):
             self._render()
             return
         if hasattr(self, "_detector_hint"):
-            self._detector_hint.setText("先再回答 1–2 个问题，让范围收小；如果仍然觉得不对，再点“我感觉不对劲”。")
+            self._detector_hint.setText("先回答一两个，再想。")
             self._detector_hint.show()
 
     # ---------- Finish ----------
