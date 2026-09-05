@@ -226,6 +226,10 @@
     stepCount.style.display = "none";
     const probs = engine.directionProbs(state.weights);
     const dirs = Object.keys(probs).sort((a, b) => probs[b] - probs[a]);
+    if (dirs.length) {
+      renderDirection(dirs[0]);
+      return;
+    }
     const algos = engine.topAlgorithms(state.weights);
     stage.innerHTML = `
       <div class="card">
@@ -273,19 +277,24 @@
     const signal = dirThemes.length && dirThemes[0]
       ? `如果 ${dirThemes[0].trigger || ""}，就试 ${dirThemes[0].action || ""}`
       : "";
+    const probs = engine.directionProbs(state.weights);
+    const others = Object.keys(probs).sort((a, b) => probs[b] - probs[a]).filter(x => x !== dir).slice(0, 2);
     stage.innerHTML = `
       <div class="card">
-        <div class="card-title">${dir}</div>
+        <div class="card-title">最可能：${dir}</div>
         <div class="card-hint">先做一句</div>
         ${firstAction ? `<div class="direction-body">${firstAction}</div>` : ""}
         ${signal ? `<div class="muted-text" style="margin-top:12px;">${signal}</div>` : ""}
         <div style="display:flex;gap:8px;margin-top:16px;">
-          <button class="think-back" id="backBtn" style="flex:1;">‹ 返回方向</button>
+          ${others.map(o => `<button class="think-back" id="other-${o}" style="flex:1;">看别的：${o}</button>`).join("")}
           <button class="restart-btn" id="restartBtn" style="flex:1;margin-top:0;">重新开始</button>
         </div>
       </div>
     `;
-    document.getElementById("backBtn").addEventListener("click", goBack);
+    others.forEach(o => {
+      const btn = document.getElementById("other-" + o);
+      if (btn) btn.addEventListener("click", () => renderDirection(o));
+    });
     document.getElementById("restartBtn").addEventListener("click", restart);
   }
 

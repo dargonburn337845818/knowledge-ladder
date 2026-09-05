@@ -264,26 +264,15 @@ class DissectPage(QWidget):
     def _render_finish(self):
         self.mode = "finished"
         self.step_label.setText("")
-        self._add_title("最可能的方向")
-        self._add_hint("选一个最像的方向")
         probs = self.engine.direction_probs(self.weights)
         top = sorted(probs.items(), key=lambda kv: kv[1], reverse=True)
-        for name, prob in top:
-            btn = QPushButton(f"{name}    {prob * 100:.0f}%")
-            btn.setObjectName("opPill")
-            btn.clicked.connect(lambda checked=False, d=name: self._open_direction(d))
-            self.content_layout.addWidget(btn)
-        # 主流程不再展示算法概率/长解释；算法线索只在“诊断”里。
-        self._add_button("重新开始", self._reset, "dissectRestart")
-        if self.history:
-            self._add_button("‹ 上一步", self._go_back, "dissectBack")
-        self._add_button("诊断", self._toggle_debug, "dissectBack")
-        self._debug_label = QLabel("")
-        self._debug_label.setObjectName("dissectHint")
-        self._debug_label.setWordWrap(True)
-        self._debug_label.hide()
-        self.content_layout.addWidget(self._debug_label)
-        self.content_layout.addStretch(1)
+        if not top:
+            self._add_body("暂时没有收敛方向，重新开始。")
+            self._add_button("重新开始", self._reset, "dissectRestart")
+            return
+        # 机器根据熵/方向概率自动给出最可能方向，不再让用户“选”。
+        self._current_direction = top[0][0]
+        self._render_direction()
 
     def _toggle_debug(self):
         if not hasattr(self, "_debug_label"):
@@ -362,7 +351,7 @@ class DissectPage(QWidget):
     def _render_direction(self):
         direction = getattr(self, "_current_direction", "编码压缩")
         self.step_label.setText("")
-        self._add_title(direction)
+        self._add_title(f"最可能：{direction}")
         self._add_hint("先做一句")
         h = self.engine.heuristic_direction(direction)
         if h:
@@ -380,6 +369,19 @@ class DissectPage(QWidget):
             signal = f"如果 {t.get('trigger', '')}，就试 {t.get('action', '')}"
             self._add_body(signal)
 
-        self._add_button("‹ 返回方向", self._go_back, "dissectBack")
+        probs = self.engine.direction_probs(self.weights)
+        others = [name for name, _ in sorted(probs.items(), key=lambda kv: kv[1], reverse=True) if name != direction][:2]
+        for other in others:
+            btn = QPushButton(f"看别的：{other}")
+            btn.setObjectName("dissectBack")
+            btn.clicked.connect(lambda checked=False, o=other: self._open_direction(o))
+            self.content_layout.addWidget(btn)
+
+        self._add_button("诊断", self._toggle_debug, "dissectBack")
+        self._debug_label = QLabel("")
+        self._debug_label.setObjectName("dissectHint")
+        self._debug_label.setWordWrap(True)
+        self._debug_label.hide()
+        self.content_layout.addWidget(self._debug_label)
         self._add_button("重新开始", self._reset, "dissectRestart")
         self.content_layout.addStretch(1)
