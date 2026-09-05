@@ -174,9 +174,9 @@ class DissectPage(QWidget):
     # ---------- Baseline ----------
     def _render_baseline(self):
         self.step_label.setText("基线")
-        self._add_title("先确认基线暴力")
-        self._add_hint("这一步不看方向，只看你现在的朴素方案")
-        self._add_body("你已经先想了一个暴力/模拟方案吗？")
+        self._add_title("先想暴力方案")
+        self._add_hint("先写一个最直接的暴力/模拟方案，再继续。")
+        self._add_body("你已经想好最直接的暴力做法了吗？")
         self._add_button("是（已经想了）", lambda: self._baseline_answer(True))
         self._add_button("否（还没想）", lambda: self._baseline_answer(False))
         self._add_button("不确定", lambda: self._baseline_answer(False))
@@ -210,12 +210,12 @@ class DissectPage(QWidget):
         self.current_question = fid
         feature = self.engine.feature_by_id(fid)
         self.step_label.setText("熵减")
-        self._add_title("动态拆题")
-        self._add_hint("只回答一个问题，机器会选最值得问的")
+        self._add_title("下一步")
+        self._add_hint("这个问题符合你的题吗？")
         self._add_body(feature["question"] if feature else fid)
         top3 = self.engine.realtime_top(self.weights)
         if top3:
-            rt = QLabel("当前候选： " + "   ".join(f"{a['algorithm_name']} {a['weight']*100:.1f}%" for a in top3))
+            rt = QLabel("目前更像： " + "   ".join(f"{a['algorithm_name']} {a['weight']*100:.1f}%" for a in top3))
             rt.setObjectName("dissectHint")
             rt.setWordWrap(True)
             self.content_layout.addWidget(rt)
@@ -270,8 +270,8 @@ class DissectPage(QWidget):
     def _render_finish(self):
         self.mode = "finished"
         self.step_label.setText("")
-        self._add_title("四个方向")
-        self._add_hint("机器已收敛；选一个你直觉最强的方向")
+        self._add_title("最可能的方向")
+        self._add_hint("选一个最像的方向")
         probs = self.engine.direction_probs(self.weights)
         top = sorted(probs.items(), key=lambda kv: kv[1], reverse=True)
         for name, prob in top:
@@ -281,7 +281,7 @@ class DissectPage(QWidget):
             self.content_layout.addWidget(btn)
         algos = self.engine.top_algorithms(self.weights)
         if algos:
-            algo_label = QLabel("候选算法权重\n" + "\n".join(f"{a['algorithm_name']}  {a['weight']*100:.1f}%" for a in algos))
+            algo_label = QLabel("更像哪类解法\n" + "\n".join(f"{a['algorithm_name']}  {a['weight']*100:.1f}%" for a in algos))
             algo_label.setObjectName("dissectFinal")
             algo_label.setWordWrap(True)
             self.content_layout.addWidget(algo_label)
@@ -289,7 +289,7 @@ class DissectPage(QWidget):
         self._add_button("重新开始", self._reset, "dissectRestart")
         if self.history:
             self._add_button("‹ 上一步", self._go_back, "dissectBack")
-        self._add_button("调试信息", self._toggle_debug, "dissectBack")
+        self._add_button("诊断", self._toggle_debug, "dissectBack")
         self._debug_label = QLabel("")
         self._debug_label.setObjectName("dissectHint")
         self._debug_label.setWordWrap(True)
@@ -306,7 +306,7 @@ class DissectPage(QWidget):
             self._debug_label.setText(
                 f"当前熵：{self.engine.entropy(self.weights):.3f}\n"
                 f"已问问题：{len(self.asked)}\n"
-                f"候选算法：{len(self.weights)}"
+                f"候选数：{len(self.weights)}"
             )
             self._debug_label.show()
 
@@ -320,16 +320,16 @@ class DissectPage(QWidget):
         if not tpl:
             return ""
         names = [a["algorithm_name"] for a in top]
-        return (tpl.replace("{top1}", names[0] if names else "当前候选")
+        return (tpl.replace("{top1}", names[0] if names else "更像这类")
                     .replace("{top2}", names[1] if len(names) > 1 else "后续候选")
                     .replace("{top3}", names[2] if len(names) > 2 else "另一个候选"))
 
     def _add_top_teacher_themes(self):
-        """在最终页追加跨方向评分最高的教师共识线索。"""
+        """在最终页追加跨方向评分最高的这类题常想的点。"""
         themes = top_themes(self.engine.direction_probs(self.weights), n=2)
         if not themes:
             return
-        title = QLabel("教师共识线索")
+        title = QLabel("这类题常想的点")
         title.setObjectName("dissectTitle")
         self.content_layout.addWidget(title)
         for theme in themes:
@@ -346,11 +346,11 @@ class DissectPage(QWidget):
             self.content_layout.addWidget(card)
 
     def _add_teacher_themes(self, direction):
-        """在方向页追加教师共识线索：只展示触发条件、动作与失效边界。"""
+        """在方向页追加这类题常想的点：只展示触发条件、动作与失效边界。"""
         themes = themes_for_direction(direction)
         if not themes:
             return
-        title = QLabel("教师共识线索")
+        title = QLabel("这类题常想的点")
         title.setObjectName("dissectTitle")
         self.content_layout.addWidget(title)
         for theme in themes[:3]:
@@ -370,7 +370,7 @@ class DissectPage(QWidget):
         direction = getattr(self, "_current_direction", "编码压缩")
         self.step_label.setText("")
         self._add_title(direction)
-        self._add_hint("顺着这个方向想，但别急着背名字")
+        self._add_hint("按这个方向想，先不背名字")
         h = self.engine.heuristic_direction(direction)
         top = self.engine.realtime_top(self.weights)
         if h:
@@ -379,7 +379,7 @@ class DissectPage(QWidget):
             self._add_body(text)
             questions = h.get("self_questions", [])
             if questions:
-                q_label = QLabel("该问自己：\n" + "\n".join(f"· {q}" for q in questions))
+                q_label = QLabel("问自己：\n" + "\n".join(f"· {q}" for q in questions))
                 q_label.setObjectName("dissectHint")
                 q_label.setWordWrap(True)
                 self.content_layout.addWidget(q_label)

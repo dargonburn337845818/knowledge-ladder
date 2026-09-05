@@ -57,7 +57,7 @@
     if (!tpl) return "";
     const names = top.map(t => t.algorithm_name);
     return tpl
-      .replace(/\{top1\}/g, names[0] || "当前候选")
+      .replace(/\{top1\}/g, names[0] || "目前更像")
       .replace(/\{top2\}/g, names[1] || "后续候选")
       .replace(/\{top3\}/g, names[2] || "另一个候选");
   }
@@ -115,9 +115,9 @@
     stepCount.textContent = "基线";
     stage.innerHTML = `
       <div class="card">
-        <div class="card-title">先确认基线暴力</div>
-        <div class="card-hint">这一步不看方向，只看你现在的朴素方案</div>
-        <div style="font-size:18px;margin-bottom:18px;">你已经先想了一个暴力/模拟方案吗？</div>
+        <div class="card-title">先想暴力方案</div>
+        <div class="card-hint">先写一个最直接的暴力/模拟方案，再继续。</div>
+        <div style="font-size:18px;margin-bottom:18px;">你已经想好最直接的暴力做法了吗？</div>
         <div class="options">
           <button class="option" data-answer="yes">是 <small>我已经有最直接的做法</small></button>
           <button class="option" data-answer="no">否 <small>我还没写/想暴力方案</small></button>
@@ -167,11 +167,11 @@
     const top3 = engine.realtimeTop(state.weights);
     stage.innerHTML = `
       <div class="card">
-        <div class="card-title">动态拆题</div>
-        <div class="card-hint">只回答一个问题，机器会选最值得问的</div>
+        <div class="card-title">下一步</div>
+        <div class="card-hint">这个问题符合你的题吗？</div>
         <div class="question-text">${questionText(next.id)}</div>
         <div class="realtime-algos">
-          <div class="realtime-label">当前候选</div>
+          <div class="realtime-label">目前更像</div>
           ${top3.map(t => `<span class="algo-chip">${t.algorithm_name} <b>${(t.weight * 100).toFixed(1)}%</b></span>`).join("")}
         </div>
         <div class="options">
@@ -236,7 +236,7 @@
     stage.innerHTML = `
       <div class="card">
         <div class="card-title">四个方向</div>
-        <div class="card-hint">机器已收敛；选一个你直觉最强的方向</div>
+        <div class="card-hint">选一个最像的方向</div>
         <div class="options">
           ${dirs.map(d => `
             <button class="option direction-option" data-dir="${d}">
@@ -246,14 +246,14 @@
           `).join("")}
         </div>
         <div class="algo-list">
-          <div class="algo-list-title">候选算法权重</div>
+          <div class="algo-list-title">更像哪类解法</div>
           ${algos.length ? algos.map(a => `
             <div class="algo-row"><span>${a.algorithm_name}</span><b>${(a.weight * 100).toFixed(1)}%</b></div>
-          `).join("") : '<div class="muted-text">当前候选都低于阈值，请点击方向继续。</div>'}
+          `).join("") : '<div class="muted-text">目前更像都低于阈值，请点击方向继续。</div>'}
         </div>
         ${topThemes.length ? `
           <div class="heuristic-block">
-            <div class="algo-list-title">教师共识线索</div>
+            <div class="algo-list-title">这类题常想的点</div>
             ${topThemes.map(t => `
               <div style="margin-top:8px;border-top:1px solid rgba(255,255,255,0.08);padding-top:6px;">
                 <div style="font-weight:600;">${t.name}</div>
@@ -266,13 +266,13 @@
         ` : ""}
         <div style="display:flex;gap:8px;margin-top:8px;">
           ${state.history.length ? '<button class="think-back" id="backBtn" style="flex:1;">‹ 上一步</button>' : ""}
-          <button class="think-back" id="debugBtn" style="flex:1;">调试信息</button>
+          <button class="think-back" id="debugBtn" style="flex:1;">诊断</button>
           <button class="restart-btn" id="restartBtn" style="flex:1;margin-top:0;">重新开始</button>
         </div>
         <div id="debugPanel" class="debug-text" style="display:none;margin-top:12px;">
           当前熵：${entropy().toFixed(3)}<br>
           已问问题：${state.asked.length}<br>
-          候选算法：${state.weights.length}
+          候选数：${state.weights.length}
         </div>
       </div>
     `;
@@ -300,17 +300,17 @@
     stage.innerHTML = `
       <div class="card">
         <div class="card-title">${dir}</div>
-        <div class="card-hint">顺着这个方向想，但别急着背名字</div>
+        <div class="card-hint">按这个方向想，先不背名字</div>
         <div class="direction-body">${body}</div>
         ${questions.length ? `
           <div class="heuristic-block">
-            <div class="algo-list-title">该问自己</div>
+            <div class="algo-list-title">问自己</div>
             ${questions.map(q => `<div class="muted-text" style="margin-top:4px;">· ${q}</div>`).join("")}
           </div>
         ` : ""}
         ${dirThemes.length ? `
           <div class="heuristic-block">
-            <div class="algo-list-title">教师共识线索</div>
+            <div class="algo-list-title">这类题常想的点</div>
             ${dirThemes.map(t => `
               <div style="margin-top:8px;border-top:1px solid rgba(255,255,255,0.08);padding-top:6px;">
                 <div style="font-weight:600;">${t.name}</div>
@@ -339,36 +339,5 @@
     else if (state.mode === "direction") renderDirection("编码压缩");
   }
 
-  // ---------- 风格切换：保留原有 ----------
-  const THEME_KEY = "kl_mobile_theme";
-  const themeToggle = document.getElementById("themeToggle");
-  if (themeToggle) {
-    if (localStorage.getItem(THEME_KEY) === "editorial") {
-      document.body.classList.add("theme-editorial");
-    }
-    themeToggle.addEventListener("click", () => {
-      const on = document.body.classList.toggle("theme-editorial");
-      localStorage.setItem(THEME_KEY, on ? "editorial" : "glass");
-    });
-  }
-
   renderBaseline();
 })();
-
-/* ---------- parallax editorial rAF ---------- */
-let peTicking = false;
-function peOnScroll() {
-  if (peTicking) return;
-  peTicking = true;
-  requestAnimationFrame(() => {
-    const y = window.scrollY || 0;
-    document.querySelectorAll("[data-parallax]").forEach(el => {
-      const rate = parseFloat(el.dataset.parallax || "0");
-      el.style.setProperty("--pe-y", `${-y * rate}px`);
-    });
-    peTicking = false;
-  });
-}
-window.addEventListener("scroll", peOnScroll, { passive: true });
-window.addEventListener("resize", peOnScroll);
-peOnScroll();
