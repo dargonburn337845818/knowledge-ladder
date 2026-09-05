@@ -344,6 +344,7 @@ for name in ALGORITHM_NAMES:
         "how": how,
         "complexity": complexity,
         "code": code,
+        "advanced": name not in CORE,
     }
 
 out = {

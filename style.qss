@@ -104,6 +104,30 @@ QFrame#algoBox {
     margin: 4px 0;
 }
 
+QFrame#algoCardFrame {
+    background: rgba(24,27,33,0.72);
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 8px;
+}
+
+QLabel#algoAdvBadge {
+    background: rgba(198,120,221,0.14);
+    border: 1px solid rgba(198,120,221,0.35);
+    border-radius: 6px;
+    color: #E6B8F0;
+    font-size: 10px;
+    padding: 2px 8px;
+}
+
+QLabel#algoStatusBadge {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.10);
+    border-radius: 6px;
+    color: rgba(255,255,255,0.75);
+    font-size: 10px;
+    padding: 2px 8px;
+}
+
 QTextBrowser#algoText {
     background: rgba(14,16,20,0.90);
     color: #E8EAED;
