@@ -26,9 +26,12 @@ maximizing question at a time and converges to four directions.
 | `knowledge_data.py` | 120 algorithm name registry |
 | `tiers_data.py` | 8-tier knowledge tree |
 | `teacher_consensus.json` | Uncalibrated teacher guidance (display only) |
-| `app/` | PySide6 deep modules: theme/state/utils/dialogs/tier/dissect/window |
+| `app/` | PySide6 deep modules: theme/state/utils/dialogs/tier/dissect/window/wallpaper |
 | `mobile/www/` | Offline-capable PWA and Capacitor web assets |
-| `.github/workflows/` | CI, Android APK, Desktop EXE, Wallpaper EXE |
+| `scripts/` | Dev/CI tools: data schema, engine parity, release body |
+| `pyproject.toml` | Project metadata + ruff/mypy/pytest config |
+| `.github/workflows/` | CI, Android APK, Desktop EXE |
+| `wallpaper-export` repo | Wallpaper Engine export tool (independent repo) |
 
 ## Hard constraints
 
@@ -46,9 +49,15 @@ maximizing question at a time and converges to four directions.
 
 ```bash
 python -m unittest discover -s tests -v
+ruff check .
+mypy --ignore-missing-imports entropy_engine.py info_framework.py knowledge_data.py \
+  tiers_data.py export_mobile_data.py app/teacher_consensus.py
+python scripts/check_data_schema.py
 python export_mobile_data.py                            # keep data in sync
+python scripts/engine_parity.py
 node --check mobile/www/entropy_engine.js
 node --check mobile/www/app.js
+node --check mobile/www/sw.js
 QT_QPA_PLATFORM=offscreen python -c "...MainWindow smoke..."
 ```
 

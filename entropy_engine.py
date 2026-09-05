@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """动态熵减决策引擎（纯本地 Python 实现）。
 
 数据来源：
@@ -127,7 +126,7 @@ class EntropyEngine:
             decay = self.params.get("uncertain_decay", 0.5)
             wy = self._posterior_from_normalized(w, fid_idx, "yes")
             wn = self._posterior_from_normalized(w, fid_idx, "no")
-            return self.normalize([decay * a + (1.0 - decay) * b for a, b in zip(wy, wn)])
+            return self.normalize([decay * a + (1.0 - decay) * b for a, b in zip(wy, wn, strict=False)])
         column = self._profile_columns[fid_idx]
         out = []
         if answer == "yes":

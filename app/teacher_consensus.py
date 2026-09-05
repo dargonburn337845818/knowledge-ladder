@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """教师共识数据层：加载 teacher-consensus-skill 蒸馏出的 24 条主题。
 
 用途：
@@ -21,7 +20,7 @@ DEFAULT_PATH = os.path.join(REPO_ROOT, "teacher_consensus.json")
 _cache = None
 
 
-def load(path: str = None) -> dict:
+def load(path: str | None = None) -> dict:
     """加载教师共识 JSON，按进程缓存。"""
     global _cache
     if _cache is not None:

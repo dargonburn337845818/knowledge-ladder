@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """导出移动端熵减数据：只导出运行所需的最小字段 + 教师共识。"""
 import json
 import os
@@ -34,8 +33,15 @@ entropy = {
 }
 
 entropy_path = os.path.join(OUT_DIR, "entropy_data.js")
+versions = {
+    "prior": prior.get("meta", {}).get("version", "?"),
+    "matrix": matrix.get("meta", {}).get("version", "?"),
+    "heuristics": heuristics.get("meta", {}).get("version", "?"),
+    "teacher": teacher_consensus.get("meta", {}).get("version", "?"),
+}
 with open(entropy_path, "w", encoding="utf-8") as f:
     f.write("// 由 export_mobile_data.py 自动生成，请勿手改。\n")
+    f.write("// data versions: " + ", ".join(f"{k}={v}" for k, v in versions.items()) + "\n")
     f.write("window.ENTROPY_DATA = ")
     json.dump(entropy, f, ensure_ascii=False, separators=(",", ":"))
     f.write(";\n")

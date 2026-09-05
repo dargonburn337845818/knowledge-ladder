@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """桌面端信息论微缩模块对话框。"""
 
 from PySide6.QtCore import Qt
@@ -14,6 +13,7 @@ from PySide6.QtWidgets import (
 from info_framework import INFO_OPS, PHASES
 
 from .teacher_consensus import meta_disciplines, themes
+
 
 class InfoMiniDialog(QDialog):
     """信息论微缩模块：四操作、四阶段、数据规模、教师共识。"""

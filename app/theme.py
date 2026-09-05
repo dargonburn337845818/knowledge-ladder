@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """视觉主题层：常量、QSS 加载与壁纸模式。
 
 这个模块不依赖具体业务数据，只负责“长什么样”。
@@ -8,8 +7,8 @@ import os
 import sys
 
 try:
-    from PySide6.QtMultimedia import QAudioOutput, QMediaPlayer, QVideoSink
-    from PySide6.QtMultimediaWidgets import QGraphicsVideoItem
+    from PySide6.QtMultimedia import QAudioOutput, QMediaPlayer, QVideoSink  # noqa: F401
+    from PySide6.QtMultimediaWidgets import QGraphicsVideoItem  # noqa: F401
     HAS_MEDIA = True
 except ImportError:
     HAS_MEDIA = False

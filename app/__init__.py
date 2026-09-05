@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Knowledge Ladder 桌面端应用包。
 
 深模块拆分：

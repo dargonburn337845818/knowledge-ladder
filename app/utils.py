@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """纯数据工具：标签聚合、去重排序、总量常量。"""
 
 from info_framework import (

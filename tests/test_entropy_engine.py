@@ -1,7 +1,5 @@
-# -*- coding: utf-8 -*-
 """熵减引擎的公开接口测试：初始化、更新、信息增益、停止条件。"""
 
-import math
 import os
 import sys
 import unittest

@@ -165,7 +165,8 @@ build_windows.bat
 │   ├── tier_page.py           # 档位知识树 / 掌握勾选 / 分组展开
 │   ├── dissect_page.py        # 动态熵减拆题页
 │   ├── teacher_consensus.py   # 教师共识数据层
-│   └── window.py              # 主窗口 / 标题栏 / 壁纸集成
+│   ├── wallpaper.py           # 壁纸深模块（图片/GIF/视频 + 选择器）
+│   └── window.py              # 主窗口 / 标题栏（壁纸委托给 wallpaper.py）
 ├── entropy_engine.py          # 桌面端熵减引擎（预计算矩阵）
 ├── algorithm_prior.json       # 多源先验与参数
 ├── feature_algorithm_matrix.json
@@ -175,6 +176,8 @@ build_windows.bat
 ├── tiers_data.py              # 8 档难度数据
 ├── info_framework.py          # 信息论标签
 ├── export_mobile_data.py      # 生成 mobile/www/entropy_data.js
+├── pyproject.toml             # 项目元数据 + ruff/mypy/pytest 配置
+├── scripts/                   # 数据 schema / 引擎一致性 / release body
 ├── tests/                     # 熵减引擎 / 数据完整性 / 教师共识测试
 ├── mobile/                    # PWA + Capacitor
 │   └── www/
@@ -203,6 +206,10 @@ build_windows.bat
 - 贡献流程见 [CONTRIBUTING.md](CONTRIBUTING.md)。
 - 漏洞 / 隐私问题上报见 [SECURITY.md](SECURITY.md)。
 - 代码行为约定见 [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)。
+
+## 相关仓库
+
+- [wallpaper-export](https://github.com/dargonburn337845818/wallpaper-export)：Wallpaper Engine 高清导出工具，已独立维护。
 
 ---
 

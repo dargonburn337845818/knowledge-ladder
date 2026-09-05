@@ -24,6 +24,13 @@ python main.py
 # Tests
 python -m unittest discover -s tests -v
 
+# Quality gates (also run in CI)
+ruff check .
+mypy --ignore-missing-imports entropy_engine.py info_framework.py knowledge_data.py \
+  tiers_data.py export_mobile_data.py app/teacher_consensus.py
+python scripts/check_data_schema.py
+python scripts/engine_parity.py
+
 # Regenerate mobile data after data changes
 python export_mobile_data.py
 ```

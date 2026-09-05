@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """本地进度存储：使用系统 AppData 目录。"""
 
 import json

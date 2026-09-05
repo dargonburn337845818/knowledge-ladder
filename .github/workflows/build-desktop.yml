@@ -17,10 +17,10 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
 
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
         with:
           python-version: '3.11'
 
@@ -35,7 +35,7 @@ jobs:
           python -m PyInstaller --noconfirm --onefile --windowed --name KnowledgeLadder --collect-all PySide6 --add-data "style.qss;." --add-data "algorithm_prior.json;." --add-data "feature_algorithm_matrix.json;." --add-data "heuristics.json;." --add-data "teacher_consensus.json;." main.py
 
       - name: Upload EXE artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: KnowledgeLadder-Windows-EXE
           path: dist/KnowledgeLadder.exe
@@ -49,16 +49,25 @@ jobs:
       contents: write
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - name: Setup Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.11'
+
+      - name: Generate release body
+        run: |
+          python scripts/build_release_body.py
 
       - name: Download EXE
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
         with:
           name: KnowledgeLadder-Windows-EXE
           path: .
 
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65
         with:
           files: KnowledgeLadder.exe
-          body_path: RELEASE_NOTES.md
+          body_path: release_body.md

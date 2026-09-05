@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """桌面端动态熵减拆题页：基线暴力 → 单一问题流 → 四方向引导。"""
 
 from PySide6.QtCore import Qt
@@ -15,6 +14,7 @@ from PySide6.QtWidgets import (
 from entropy_engine import EntropyEngine
 
 from .teacher_consensus import themes_for_direction, top_themes
+
 
 class DissectPage(QWidget):
     """桌面端动态熵减拆题页：基线暴力 -> 单一问题流 -> 四方向引导。"""
@@ -177,9 +177,9 @@ class DissectPage(QWidget):
         self._add_title("先确认基线暴力")
         self._add_hint("这一步不看方向，只看你现在的朴素方案")
         self._add_body("你已经先想了一个暴力/模拟方案吗？")
-        yes = self._add_button("是（已经想了）", lambda: self._baseline_answer(True))
-        no = self._add_button("否（还没想）", lambda: self._baseline_answer(False))
-        un = self._add_button("不确定", lambda: self._baseline_answer(False))
+        self._add_button("是（已经想了）", lambda: self._baseline_answer(True))
+        self._add_button("否（还没想）", lambda: self._baseline_answer(False))
+        self._add_button("不确定", lambda: self._baseline_answer(False))
         self._baseline_warning = QLabel("请先写一个最直接的暴力/模拟方案，再继续拆题。")
         self._baseline_warning.setObjectName("dissectHint")
         self._baseline_warning.setWordWrap(True)
@@ -222,7 +222,7 @@ class DissectPage(QWidget):
         self._add_button("是", lambda: self._handle_answer("yes"))
         self._add_button("否", lambda: self._handle_answer("no"))
         self._add_button("不确定", lambda: self._handle_answer("uncertain"))
-        detector = self._add_button("我感觉不对劲", self._handle_detector, "opPill")
+        self._add_button("我感觉不对劲", self._handle_detector, "opPill")
         self._detector_hint = QLabel("")
         self._detector_hint.setObjectName("dissectHint")
         self._detector_hint.setWordWrap(True)
@@ -234,8 +234,8 @@ class DissectPage(QWidget):
             note.setWordWrap(True)
             self.content_layout.addWidget(note)
         if self.history:
-            back = self._add_button("‹ 上一步", self._go_back, "dissectBack")
-        restart = self._add_button("重新开始", self._reset, "dissectRestart")
+            self._add_button("‹ 上一步", self._go_back, "dissectBack")
+        self._add_button("重新开始", self._reset, "dissectRestart")
         self.content_layout.addStretch(1)
 
     def _handle_answer(self, answer):
@@ -286,10 +286,10 @@ class DissectPage(QWidget):
             algo_label.setWordWrap(True)
             self.content_layout.addWidget(algo_label)
         self._add_top_teacher_themes()
-        restart = self._add_button("重新开始", self._reset, "dissectRestart")
+        self._add_button("重新开始", self._reset, "dissectRestart")
         if self.history:
-            back = self._add_button("‹ 上一步", self._go_back, "dissectBack")
-        debug_btn = self._add_button("调试信息", self._toggle_debug, "dissectBack")
+            self._add_button("‹ 上一步", self._go_back, "dissectBack")
+        self._add_button("调试信息", self._toggle_debug, "dissectBack")
         self._debug_label = QLabel("")
         self._debug_label.setObjectName("dissectHint")
         self._debug_label.setWordWrap(True)
@@ -386,6 +386,6 @@ class DissectPage(QWidget):
         else:
             self._add_body(self.VAGUE_TEXT.get(direction, ""))
         self._add_teacher_themes(direction)
-        back = self._add_button("‹ 返回方向", self._go_back, "dissectBack")
-        restart = self._add_button("重新开始", self._reset, "dissectRestart")
+        self._add_button("‹ 返回方向", self._go_back, "dissectBack")
+        self._add_button("重新开始", self._reset, "dissectRestart")
         self.content_layout.addStretch(1)

@@ -4,7 +4,12 @@
 - 熵减引擎改为列优先预计算，减少运行时属性查找与重复归一化。
 - 移动端 `entropy_engine.js` 同步预计算 profile / direction 矩阵；`app.js` 消除重复教师主题计算。
 - 移动端移除 Google Fonts 外链，保持纯本地 / 离线 / 无第三方请求。
-- GitHub Actions 重构：最小权限、并发取消、APK/Desktop/Export EXE 统一构建与 tag 自动发布。
+- 壁纸逻辑拆为 `app/wallpaper.py` 深模块，主窗口只保留委托接口。
+- 新增 `pyproject.toml`（项目元数据 + ruff / mypy / pytest 配置）。
+- CI 增加 ruff、mypy、JS 语法检查、Python↔JS 引擎一致性和数据 schema 校验。
+- GitHub Actions 重构：最小权限、并发取消、APK/Desktop 统一构建与 tag 自动发布；第三方 action 全部 pin 到 full SHA。
+- Release 自动只提取 `RELEASE_NOTES.md` 最新版本段落。
+- Wallpaper Engine 导出工具移出主仓库，独立为 [wallpaper-export](https://github.com/dargonburn337845818/wallpaper-export)。
 - 新增 LICENSE、SECURITY.md、CONTRIBUTING.md、CODE_OF_CONDUCT.md、issue/PR 模板与 Dependabot。
 - 隐私基线：加强 `.gitignore`，历史作者邮箱改为 GitHub noreply。
 

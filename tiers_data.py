@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Codeforces 难度阶梯 · 8 档知识树数据。"""
 
 TIERS = [

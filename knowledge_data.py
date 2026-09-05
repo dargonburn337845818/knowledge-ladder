@@ -1,9 +1,10 @@
-# -*- coding: utf-8 -*-
 """算法注册表：120 个算法名称 + 信息论标签（轻量名称索引）。
 
 算法之间的概率关系在 feature_algorithm_matrix.json；
 信息论标签在 info_framework.py，统一由本注册表挂载。
 """
+
+from typing import Any
 
 from info_framework import get_alg_info
 
@@ -130,7 +131,7 @@ ALGORITHM_NAMES = [
     "最小费用最大流"
 ]
 
-ALGORITHMS = [{"name": name} for name in ALGORITHM_NAMES]
+ALGORITHMS: list[dict[str, Any]] = [{"name": name} for name in ALGORITHM_NAMES]
 for _algorithm in ALGORITHMS:
     _algorithm["info"] = get_alg_info(_algorithm["name"])
 

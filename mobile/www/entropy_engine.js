@@ -142,7 +142,7 @@
     }
 
     function shouldStop(weights, asked) {
-      var h = entropy(weights);
+      var h = entropy(normalize(weights.slice()));
       var paramsStop = params.entropy_stop_threshold == null ? 0.45 : params.entropy_stop_threshold;
       if (h < paramsStop) return { stop: true, reason: "entropy" };
       var maxQ = params.max_questions == null ? 12 : params.max_questions;

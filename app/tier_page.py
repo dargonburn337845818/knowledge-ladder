@@ -1,7 +1,6 @@
-# -*- coding: utf-8 -*-
 """档位知识树页面：掌握勾选、信息论徽章、操作过滤与分组展开。"""
 
-from PySide6.QtCore import QEasingCurve, QPropertyAnimation, QSize, Qt
+from PySide6.QtCore import QEasingCurve, QPropertyAnimation, Qt
 from PySide6.QtGui import QColor, QIcon, QPainter, QPixmap
 from PySide6.QtWidgets import (
     QCheckBox,
@@ -16,9 +15,11 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from info_framework import INFO_OPS, INFO_OP_COLORS
-from .theme import ANIM_OFF, ANIM_LIGHT
+from info_framework import INFO_OP_COLORS, INFO_OPS
+
+from .theme import ANIM_LIGHT, ANIM_OFF
 from .utils import aggregate_tag_info
+
 
 class TagRow(QFrame):
     """单个知识点行：勾选 + 名称 + 描述 + 可展开详情。
