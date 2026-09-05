@@ -213,12 +213,6 @@ class DissectPage(QWidget):
         self._add_title("下一步")
         self._add_hint("这个问题符合你的题吗？")
         self._add_body(feature["question"] if feature else fid)
-        top3 = self.engine.realtime_top(self.weights)
-        if top3:
-            rt = QLabel("目前更像： " + "   ".join(f"{a['algorithm_name']} {a['weight']*100:.1f}%" for a in top3))
-            rt.setObjectName("dissectHint")
-            rt.setWordWrap(True)
-            self.content_layout.addWidget(rt)
         self._add_button("是", lambda: self._handle_answer("yes"))
         self._add_button("否", lambda: self._handle_answer("no"))
         self._add_button("不确定", lambda: self._handle_answer("uncertain"))
@@ -279,9 +273,7 @@ class DissectPage(QWidget):
             btn.setObjectName("opPill")
             btn.clicked.connect(lambda checked=False, d=name: self._open_direction(d))
             self.content_layout.addWidget(btn)
-        # 主流程不再展示“算法概率排名”，避免把它当成答案。
-        # 算法线索只保留在“诊断”里，作为进阶参考。
-        self._add_top_teacher_themes()
+        # 主流程不再展示算法概率/长解释；算法线索只在“诊断”里。
         self._add_button("重新开始", self._reset, "dissectRestart")
         if self.history:
             self._add_button("‹ 上一步", self._go_back, "dissectBack")
@@ -371,24 +363,23 @@ class DissectPage(QWidget):
         direction = getattr(self, "_current_direction", "编码压缩")
         self.step_label.setText("")
         self._add_title(direction)
-        self._add_hint("先做这一步，再往下想")
+        self._add_hint("先做一句")
         h = self.engine.heuristic_direction(direction)
         if h:
             actions = h.get("next_actions", [])
             if actions:
-                action_label = QLabel("下一步验证：\n" + "\n".join(f"· {a}" for a in actions))
-                action_label.setObjectName("dissectThinkCard")
-                action_label.setWordWrap(True)
-                self.content_layout.addWidget(action_label)
-            questions = h.get("self_questions", [])
-            if questions:
-                q_label = QLabel("问自己：\n" + "\n".join(f"· {q}" for q in questions))
-                q_label.setObjectName("dissectHint")
-                q_label.setWordWrap(True)
-                self.content_layout.addWidget(q_label)
+                self._add_body(f"先做：{actions[0]}")
+            else:
+                self._add_body(self.VAGUE_TEXT.get(direction, ""))
         else:
             self._add_body(self.VAGUE_TEXT.get(direction, ""))
-        self._add_teacher_themes(direction)
+
+        themes = themes_for_direction(direction)
+        if themes:
+            t = themes[0]
+            signal = f"如果 {t.get('trigger', '')}，就试 {t.get('action', '')}"
+            self._add_body(signal)
+
         self._add_button("‹ 返回方向", self._go_back, "dissectBack")
         self._add_button("重新开始", self._reset, "dissectRestart")
         self.content_layout.addStretch(1)

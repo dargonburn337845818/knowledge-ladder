@@ -164,20 +164,15 @@
     stepCount.textContent = "熵减";
 
     const hasBack = state.history.length > 0;
-    const top3 = engine.realtimeTop(state.weights);
     stage.innerHTML = `
       <div class="card">
         <div class="card-title">下一步</div>
         <div class="card-hint">这个问题符合你的题吗？</div>
         <div class="question-text">${questionText(next.id)}</div>
-        <div class="realtime-algos">
-          <div class="realtime-label">目前更像</div>
-          ${top3.map(t => `<span class="algo-chip">${t.algorithm_name} <b>${(t.weight * 100).toFixed(1)}%</b></span>`).join("")}
-        </div>
         <div class="options">
-          <button class="option" data-answer="yes">是 <small>符合这个特征</small></button>
-          <button class="option" data-answer="no">否 <small>不符合这个特征</small></button>
-          <button class="option" data-answer="uncertain">不确定 <small>弱证据，各算一半</small></button>
+          <button class="option" data-answer="yes">是</button>
+          <button class="option" data-answer="no">否</button>
+          <button class="option" data-answer="uncertain">不确定</button>
         </div>
         <button class="action-btn" id="detectorBtn" style="width:100%;margin-top:4px;">我感觉不对劲</button>
         <div id="detectorHint" class="warn-text" style="display:none;margin-top:10px;">
@@ -232,7 +227,6 @@
     const probs = engine.directionProbs(state.weights);
     const dirs = Object.keys(probs).sort((a, b) => probs[b] - probs[a]);
     const algos = engine.topAlgorithms(state.weights);
-    const topThemes = topTeacherThemes(2);
     stage.innerHTML = `
       <div class="card">
         <div class="card-title">最可能的方向</div>
@@ -241,23 +235,9 @@
           ${dirs.map(d => `
             <button class="option direction-option" data-dir="${d}">
               ${d}
-              <small>${(probs[d] * 100).toFixed(0)}% 方向权重</small>
             </button>
           `).join("")}
         </div>
-        ${topThemes.length ? `
-          <div class="heuristic-block">
-            <div class="algo-list-title">验证点</div>
-            ${topThemes.map(t => `
-              <div style="margin-top:8px;border-top:1px solid rgba(255,255,255,0.08);padding-top:6px;">
-                <div style="font-weight:600;">验证：${t.name}</div>
-                <div class="muted-text">如果：${t.trigger || ""}</div>
-                <div class="muted-text">就试：${t.action || ""}</div>
-                ${t.counterexample ? `<div class="muted-text">反例：${t.counterexample}</div>` : ""}
-              </div>
-            `).join("")}
-          </div>
-        ` : ""}
         <div style="display:flex;gap:8px;margin-top:8px;">
           ${state.history.length ? '<button class="think-back" id="backBtn" style="flex:1;">‹ 上一步</button>' : ""}
           <button class="think-back" id="debugBtn" style="flex:1;">诊断</button>
@@ -288,38 +268,17 @@
     state.mode = "direction";
     stepCount.style.display = "none";
     const h = heuristicObj(dir);
-    const actions = h ? h.next_actions || [] : [];
-    const questions = h ? h.self_questions || [] : [];
+    const firstAction = h && h.next_actions && h.next_actions[0] ? h.next_actions[0] : "";
     const dirThemes = teacherThemesForDirection(dir);
+    const signal = dirThemes.length && dirThemes[0]
+      ? `如果 ${dirThemes[0].trigger || ""}，就试 ${dirThemes[0].action || ""}`
+      : "";
     stage.innerHTML = `
       <div class="card">
         <div class="card-title">${dir}</div>
-        <div class="card-hint">按这个方向想，先不背名字</div>
-        ${actions.length ? `
-          <div class="heuristic-block">
-            <div class="algo-list-title">下一步验证</div>
-            ${actions.map(a => `<div class="muted-text" style="margin-top:4px;">· ${a}</div>`).join("")}
-          </div>
-        ` : ""}
-        ${questions.length ? `
-          <div class="heuristic-block">
-            <div class="algo-list-title">问自己</div>
-            ${questions.map(q => `<div class="muted-text" style="margin-top:4px;">· ${q}</div>`).join("")}
-          </div>
-        ` : ""}
-        ${dirThemes.length ? `
-          <div class="heuristic-block">
-            <div class="algo-list-title">验证点</div>
-            ${dirThemes.map(t => `
-              <div style="margin-top:8px;border-top:1px solid rgba(255,255,255,0.08);padding-top:6px;">
-                <div style="font-weight:600;">验证：${t.name}</div>
-                <div class="muted-text">如果：${t.trigger || ""}</div>
-                <div class="muted-text">就试：${t.action || ""}</div>
-                ${t.counterexample ? `<div class="muted-text">反例：${t.counterexample}</div>` : ""}
-              </div>
-            `).join("")}
-          </div>
-        ` : ""}
+        <div class="card-hint">先做一句</div>
+        ${firstAction ? `<div class="direction-body">${firstAction}</div>` : ""}
+        ${signal ? `<div class="muted-text" style="margin-top:12px;">${signal}</div>` : ""}
         <div style="display:flex;gap:8px;margin-top:16px;">
           <button class="think-back" id="backBtn" style="flex:1;">‹ 返回方向</button>
           <button class="restart-btn" id="restartBtn" style="flex:1;margin-top:0;">重新开始</button>
@@ -329,6 +288,8 @@
     document.getElementById("backBtn").addEventListener("click", goBack);
     document.getElementById("restartBtn").addEventListener("click", restart);
   }
+
+
 
   function render() {
     if (!engine) return showError("未加载熵减引擎");
