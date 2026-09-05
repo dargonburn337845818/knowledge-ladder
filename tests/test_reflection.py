@@ -67,23 +67,25 @@ class ReflectionStoreTest(unittest.TestCase):
     def test_write_and_read_metrics(self):
         self.store.write_metrics(
             self.today,
-            {"attempts": 6, "ac": 4, "minutes": 90, "no_idea": "区间DP,树上差分"},
+            {"attempts": 6, "ac": 4, "minutes": 90, "no_idea": "区间DP,树上差分", "cards": "二分答案,线段树"},
         )
         metrics = self.store.read_metrics(self.today)
         self.assertEqual(metrics["attempts"], 6)
         self.assertEqual(metrics["ac"], 4)
         self.assertEqual(metrics["minutes"], 90)
         self.assertEqual(metrics["no_idea"], "区间DP,树上差分")
+        self.assertEqual(metrics["cards"], "二分答案,线段树")
 
     def test_write_metrics_filters_invalid_fields(self):
         clean = self.store.write_metrics(
             self.today,
-            {"attempts": "3", "ac": "bad", "unknown": 1, "no_idea": "构造"},
+            {"attempts": "3", "ac": "bad", "unknown": 1, "no_idea": "构造", "cards": "Dijkstra"},
         )
-        self.assertEqual(clean, {"attempts": 3, "no_idea": "构造"})
+        self.assertEqual(clean, {"attempts": 3, "no_idea": "构造", "cards": "Dijkstra"})
         reloaded = self.store.read_metrics(self.today)
         self.assertEqual(reloaded["attempts"], 3)
         self.assertEqual(reloaded["no_idea"], "构造")
+        self.assertEqual(reloaded["cards"], "Dijkstra")
 
     def test_list_dates_sorted_and_all_metrics(self):
         d1 = date(2026, 9, 3)

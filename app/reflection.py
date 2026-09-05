@@ -35,7 +35,7 @@ from PySide6.QtWidgets import (
 
 
 def default_storage_root() -> str:
-    """返回默认记忆本目录：Windows 用 D:\\algorithm-coaching，其他平台用用户目录。
+    """返回默认记忆本目录：Windows 优先 D 盘链接，否则落到 WSL 真实记忆目录。
 
     可通过环境变量 ``KNOWLEDGE_LADDER_COACHING_ROOT`` 覆盖（测试/便携场景）。
     """
@@ -43,7 +43,13 @@ def default_storage_root() -> str:
     if env:
         return env
     if platform.system() == "Windows":
-        return r"D:\algorithm-coaching"
+        d_path = r"D:\algorithm-coaching"
+        try:
+            if os.path.isdir(d_path):
+                return d_path
+        except OSError:
+            pass
+        return r"\\wsl.localhost\Ubuntu\home\ru\work\algorithm-coaching"
     return str(Path.home() / ".knowledge-ladder-coaching")
 
 
@@ -164,12 +170,12 @@ class ReflectionStore:
         """保存当天量化指标（只保留合法字段），并确保当天目录存在。"""
         day = self.day_dir(d)
         os.makedirs(day, exist_ok=True)
-        allowed = {"attempts", "ac", "minutes", "no_idea"}
+        allowed = {"attempts", "ac", "minutes", "no_idea", "cards"}
         clean: dict = {}
         for k, v in metrics.items():
             if k not in allowed:
                 continue
-            if k == "no_idea":
+            if k in ("no_idea", "cards"):
                 clean[k] = str(v)
             else:
                 try:
@@ -306,6 +312,11 @@ class ReflectionPage(QWidget):
 
         content_layout.addLayout(metric_row)
 
+        self.cards_edit = QLineEdit()
+        self.cards_edit.setPlaceholderText("今天看的算法卡（逗号分隔，如：二分答案,线段树）")
+        self.cards_edit.setObjectName("reflectionMetricInput")
+        content_layout.addWidget(self.cards_edit)
+
         buttons = QHBoxLayout()
         self.save_btn = QPushButton("保存并标记待点评")
         self.save_btn.setObjectName("dissectNext")
@@ -354,6 +365,7 @@ class ReflectionPage(QWidget):
             self.ac_spin.setValue(int(metrics.get("ac", 0)))
             self.minutes_spin.setValue(int(metrics.get("minutes", 0)))
             self.no_idea_edit.setText(str(metrics.get("no_idea", "")))
+            self.cards_edit.setText(str(metrics.get("cards", "")))
         self._refresh_status()
 
     def _save(self) -> None:
@@ -369,6 +381,7 @@ class ReflectionPage(QWidget):
                 "ac": self.ac_spin.value(),
                 "minutes": self.minutes_spin.value(),
                 "no_idea": self.no_idea_edit.text().strip(),
+                "cards": self.cards_edit.text().strip(),
             },
         )
         self._refresh_status()
