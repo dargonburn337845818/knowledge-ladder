@@ -31,7 +31,6 @@ class DissectPage(QWidget):
         self.store = store
         self.engine = EntropyEngine()
         self.mode = "question"
-        self._layer_unlocked = 1
         self.weights = self.engine.initial_weights()
         self.asked = []
         self.history = []
@@ -245,7 +244,7 @@ class DissectPage(QWidget):
         self.mode = "finished"
         self.step_label.setText("选择")
         self._add_title("选一个方向")
-        self._add_hint("按当前信息的最可能程度排序；点进去看三层点拨。")
+        self._add_hint("按当前信息的最可能程度排序；点进去看方向点拨。")
         probs = self.engine.direction_probs(self.weights)
         ordered = sorted(probs.items(), key=lambda kv: kv[1], reverse=True)
         if not ordered:
@@ -280,18 +279,7 @@ class DissectPage(QWidget):
     def _open_direction(self, direction):
         self.mode = "direction"
         self._current_direction = direction
-        self._layer_unlocked = 1
         self._render()
-
-    def _next_layer(self):
-        if self._layer_unlocked < 3:
-            self._layer_unlocked += 1
-            self._render()
-
-    def _prev_layer(self):
-        if self._layer_unlocked > 1:
-            self._layer_unlocked -= 1
-            self._render()
 
     # ---------- Direction ----------
     def _render_direction(self):
@@ -307,29 +295,6 @@ class DissectPage(QWidget):
             keywords = direction_data.get("signal_keywords", [])
             if keywords:
                 self._add_hint("常见信号：" + "、".join(keywords[:3]))
-            self._add_title("三层点拨")
-            layer_progress = QLabel(f"第 {self._layer_unlocked}/3 层")
-            layer_progress.setObjectName("layerProgress")
-            self.content_layout.addWidget(layer_progress)
-            layers = direction_data.get("layers", {})
-            layer_items = [
-                ("layerCondition", "条件", layers.get("condition", "")),
-                ("layerAction", "动作", layers.get("action", "")),
-                ("layerSelfQuestion", "自问", layers.get("self_question", "")),
-            ]
-            self._layer_labels = []
-            for i, (obj_name, prefix, text) in enumerate(layer_items):
-                label = QLabel(f"{prefix}：{text}")
-                label.setObjectName(obj_name)
-                label.setWordWrap(True)
-                label.setVisible(i < self._layer_unlocked)
-                self._layer_labels.append(label)
-                self.content_layout.addWidget(label)
-            if self._layer_unlocked < 3:
-                self._add_button("下一步", self._next_layer, "dissectBack")
-            if self._layer_unlocked > 1:
-                self._add_button("‹ 上一层", self._prev_layer, "dissectBack")
-
             deep = direction_data.get("deep_dive", {})
             if deep:
                 self._add_title("算法理解")

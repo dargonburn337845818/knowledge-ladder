@@ -45,17 +45,18 @@ class DissectFlowStaticTest(unittest.TestCase):
         self.assertNotIn("directionCard", src)
         self.assertIn("_open_direction", src)
 
-    def test_source_has_three_layer_unlock(self):
+    def test_source_has_no_three_layer_unlock(self):
         path = os.path.join(REPO_ROOT, "app", "dissect_page.py")
         with open(path, encoding="utf-8") as f:
             src = f.read()
-        self.assertIn("_layer_unlocked", src)
-        self.assertIn("_next_layer", src)
-        self.assertIn("_prev_layer", src)
-        self.assertIn("layerCondition", src)
-        self.assertIn("layerAction", src)
-        self.assertIn("layerSelfQuestion", src)
-        self.assertIn("下一步", src)
+        self.assertNotIn("_layer_unlocked", src)
+        self.assertNotIn("_next_layer", src)
+        self.assertNotIn("_prev_layer", src)
+        self.assertNotIn("layerCondition", src)
+        self.assertNotIn("layerAction", src)
+        self.assertNotIn("layerSelfQuestion", src)
+        self.assertNotIn("下一步", src)
+        self.assertNotIn("三层点拨", src)
 
 
 @unittest.skipUnless(PYSIDE_OK, "PySide6 not installed")
@@ -99,41 +100,19 @@ class DissectFlowBehaviorTest(unittest.TestCase):
         self.assertFalse(any("看别的" in b.text() for b in page.findChildren(QPushButton)))
         self.assertFalse(any("卡点自查" == b.text() for b in page.findChildren(QPushButton)))
 
-    def test_three_layer_progressive_unlock(self):
+    def test_direction_detail_has_no_three_layer(self):
         page = DissectPage()
         page.mode = "direction"
         page._current_direction = "编码压缩"
-        page._layer_unlocked = 1
         page._render()
-        # 用最近一次渲染的 _layer_labels，避免 deleteLater 旧控件干扰
-        cond, action, question = page._layer_labels
-        self.assertFalse(cond.isHidden())
-        self.assertTrue(action.isHidden())
-        self.assertTrue(question.isHidden())
-        progress = next(label for label in page.findChildren(QLabel) if label.objectName() == "layerProgress")
-        self.assertIn("第 1/3 层", progress.text())
-
-        next_btn = next(b for b in page.findChildren(QPushButton) if b.text() == "下一步")
-        next_btn.click()
-        QApplication.processEvents()
-        _, action, question = page._layer_labels
-        self.assertFalse(action.isHidden())
-        self.assertTrue(question.isHidden())
-        progress = next(label for label in page.findChildren(QLabel) if label.objectName() == "layerProgress")
-        self.assertIn("第 2/3 层", progress.text())
-
-        next_btn = next(b for b in page.findChildren(QPushButton) if b.text() == "下一步")
-        next_btn.click()
-        QApplication.processEvents()
-        _, _, question = page._layer_labels
-        self.assertFalse(question.isHidden())
-        self.assertFalse(any(b.text() == "下一步" for b in page.findChildren(QPushButton)))
-
-        prev_btn = next(b for b in page.findChildren(QPushButton) if b.text() == "‹ 上一层")
-        prev_btn.click()
-        QApplication.processEvents()
-        _, _, question = page._layer_labels
-        self.assertTrue(question.isHidden())
+        labels = page.findChildren(QLabel)
+        self.assertFalse(any("三层点拨" in label.text() for label in labels))
+        self.assertFalse(any("第 1/3 层" in label.text() for label in labels))
+        buttons = page.findChildren(QPushButton)
+        self.assertFalse(any(b.text() == "下一步" for b in buttons))
+        self.assertFalse(any(b.text() == "‹ 上一层" for b in buttons))
+        self.assertFalse(hasattr(page, "_layer_labels"))
+        self.assertTrue(any("常见信号" in label.text() for label in labels))
 
 
 if __name__ == "__main__":

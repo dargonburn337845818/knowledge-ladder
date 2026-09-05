@@ -161,7 +161,7 @@ class ProgressStore:
             with os.fdopen(fd, "w", encoding="utf-8") as f:
                 json.dump(data, f, ensure_ascii=False, indent=2)
                 f.flush()
-                os.fsync(f.fileno())
+            # 原子替换已保证不会出现半写文件；去掉每次 fsync，勾选进度时手感更跟手。
             os.replace(tmp_path, self.path)
         except Exception as exc:  # noqa: BLE001 - 持久化失败必须可见，不能静默吞掉
             self.save_error = f"保存失败：{exc}"

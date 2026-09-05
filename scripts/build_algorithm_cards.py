@@ -1,8 +1,9 @@
-"""生成 expert_content/algorithm_cards.json：120 个算法卡。
+"""生成 expert_content/algorithm_cards.json：120 个基础算法卡 + 7 张专家补充卡。
 
 - what 来自 info_framework.ALGORITHM_INFO（专家蒸馏的信息论视角）。
 - how/code/complexity 对 Tier 1-4 高频算法手工编写 C++ 要点；
-  其余算法用“实现要点”兜底，保证字段非空、JSON 合法。
+  其余算法用“实现要点/思路框架”兜底，保证字段非空、JSON 合法。
+- SUPPLEMENT_CARDS 补充评审后确定的高频算法（不进熵引擎候选池）。
 """
 
 import json
@@ -324,6 +325,180 @@ ADV_COMPLEXITY = {
     "最小费用最大流": "O(F E log V) / O(VE * SPFA)",
 }
 
+# ── 专家评审补充：高频但原先缺失的算法卡（不进入 120 熵引擎候选池） ──
+SUPPLEMENT_CARDS = {
+    "坐标离散化": {
+        "what": "只保留相对顺序，把大值域压成小下标。",
+        "how": "排序 + 去重，然后用 lower_bound 把原值换成排名；需要相对顺序时注意去重与按原数组排序。",
+        "complexity": "O(n log n)",
+        "code": "vector<long long> v(a.begin(), a.end()); sort(v.begin(), v.end());\nv.erase(unique(v.begin(), v.end()), v.end());\nfor (auto &x : a) x = lower_bound(v.begin(), v.end(), x) - v.begin() + 1;",
+        "advanced": False, "priority": "core",
+        "signals": ["值域大但只用相对大小", "多次下标/去重后位置", "静态数组映射到 1..m"],
+        "key_insight": "先排序去重，再用排名代替原值。",
+    },
+    "扫描线": {
+        "what": "把二维/区间事件按时间顺序扫过，用数据结构维护当前状态。",
+        "how": "把矩形/区间切成进入/离开事件，按 x/位置排序；用线段树/树状数组维护当前 active 集合，边扫边统计。",
+        "complexity": "O((n+m) log n)",
+        "code": "// 矩形面积并：事件 [l,r,+1/-1]，按 x 排序；线段树维护覆盖长度\n// 核心：当前有效区间在扫描线上的总长度 × 下一个 x 差。",
+        "advanced": True, "priority": "common",
+        "signals": ["矩形面积/周长并", "区间加入/删除", "离线按轴扫描"],
+        "key_insight": "把静态二维问题变成按轴的事件序列。",
+    },
+    "差分约束": {
+        "what": "把一组不等式看成最短路/最长路约束，用 SPFA/Bellman-Ford 判可行。",
+        "how": "x_i - x_j ≤ c 建边 j→i 权 c；x_i - x_j ≥ c 等价 x_j - x_i ≤ -c；跑最短路，负环则无解。",
+        "complexity": "O(nm)",
+        "code": "// edge j->i weight c：x_i <= x_j + c\nif (dist[v] > dist[u] + w) dist[v] = dist[u] + w;\n// 若第 n 轮仍松弛 => 负环 => 无解",
+        "advanced": False, "priority": "common",
+        "signals": ["形如 x≤y+c 的不等式", "变量有上下界/相对约束", "需要判无解（负环）"],
+        "key_insight": "不等式就是边，最短路就是可行解。",
+    },
+    "树形背包": {
+        "what": "树上选点/依赖容量问题，用 DFS 后做背包合并。",
+        "how": "树形 DP：f[u][j] 表示子树 u 选 j 个；先处理子节点，再用分组背包合并，注意当前节点容量与父依赖。",
+        "complexity": "O(n * W^2) 常见（合并可优化到 O(n^2)）",
+        "code": "void dfs(int u){ f[u][1]=w[u];\n for(v:g[u]){ dfs(v);\n  for(int j=cap;j>=1;--j)\n   for(int k=1;k<j;++k) f[u][j]=max(f[u][j], f[u][j-k]+f[v][k]); } }",
+        "advanced": True, "priority": "common",
+        "signals": ["树上选点/分组容量", "依赖关系呈树形", "子节点选多少影响父节点"],
+        "key_insight": "父节点是背包的“必须先选”约束。",
+    },
+    "树上启发式合并 (DSU on tree)": {
+        "what": "保留重儿子信息，轻儿子暴力合并，把子树统计做到 O(n log n)。",
+        "how": "先处理轻儿子并清空；再处理重儿子保留；最后暴力加入轻儿子子树，维护全局计数；回答子树问题。",
+        "complexity": "O(n log n)",
+        "code": "void dfs(int u,int keep){\n for(v!=son) dfs(v,0);\n if(son) dfs(son,1);\n for(v!=son) add_subtree(v);\n ans[u]=cur;\n if(!keep) clear(u); }",
+        "advanced": True, "priority": "common",
+        "signals": ["每个子树统计出现次数/颜色", "树上离线查询", "需要 O(n log n) 且不方便莫队"],
+        "key_insight": "重儿子的答案直接复用，轻儿子只算一次。",
+    },
+    "整体二分": {
+        "what": "把多个二分答案一起做，用一次分治批量检查 mid。",
+        "how": "solve(l,r,queries)：对查询的 mid 分组，用数据结构按当前左半贡献更新，再递归左右。",
+        "complexity": "O((n+q) log V * log n)",
+        "code": "void solve(int l,int r, vector<int> q){\n if(l==r){ for(id:q) ans[id]=l; return; }\n int mid=(l+r)/2; /* 处理 [l,mid] 的贡献，划分 q */\n solve(l,mid,L); solve(mid+1,r,R); }",
+        "advanced": True, "priority": "aware",
+        "signals": ["多个查询都要求答案", "答案可二分", "修改/查询可按时间贡献"],
+        "key_insight": "所有二分一起走，数据结构只扫一遍。",
+    },
+    "CDQ 分治": {
+        "what": "按时间/下标分治，用前半段贡献更新后半段，离线处理多维偏序与动态问题。",
+        "how": "solve(l,r)：递归左；用左半更新右半（如排序+树状数组）；递归右。核心是统计跨中点的贡献。",
+        "complexity": "O(n log^2 n)",
+        "code": "void solve(int l,int r){\n if(l==r) return; int m=(l+r)/2; solve(l,m);\n /* 统计 [l,m] 对 [m+1,r] 的贡献：按第二维排序 + BIT */\n solve(m+1,r); }",
+        "advanced": True, "priority": "aware",
+        "signals": ["三维/多维偏序", "动态修改+查询离线", "统计跨中点贡献"],
+        "key_insight": "递归左、更新右、再递归右：跨中点贡献只算一次。",
+    },
+}
+
+# ── 优先级：按首次出现在阶梯里的位置分档，再用专家评审微调 ──
+PRIORITY_OVERRIDES = {
+    "数位 DP（不含 4）": "common",
+    "轮廓线 DP（简单棋盘状压）": "common",
+    "中国剩余定理 (CRT)": "common",
+    "Lucas 定理": "common",
+    "后缀数组 (SA)": "common",
+    "AC 自动机 + 矩阵快速幂": "aware",
+    "线段树合并/分裂": "aware",
+    "仙人掌 / 圆方树": "aware",
+    "SAM（后缀自动机）": "aware",
+    "广义 SAM": "aware",
+    "可持久化数据结构（主席树进阶）": "aware",
+    "生成函数": "aware",
+    "线性基进阶": "aware",
+    "动态图连通性（离线）": "aware",
+    "DP 套 DP": "aware",
+    "插头 DP": "aware",
+    "三维凸包": "aware",
+    "支配树": "aware",
+}
+
+
+def tier_priority(name: str) -> str:
+    for tier in TIERS:
+        if any(name in tag.get("algorithms", []) for tag in tier["tags"]):
+            if tier["id"] <= 4:
+                return "core"
+            if tier["id"] <= 6:
+                return "common"
+            return "aware"
+    return "aware"
+
+
+# ── 题感信号：高频/核心算法手工维护；没有信号时 UI 不显示这一行 ──
+SIGNALS = {
+    "暴力枚举": ["状态空间有限", "n 很小", "先确认能枚举再考虑优化"],
+    "二分查找": ["数组有序", "一次比较砍一半", "查找/定位边界"],
+    "二分答案": ["答案可判可行", "答案单调", "最值/可行性转化"],
+    "一维前缀和": ["静态数组区间查询", "多次查询", "预处理换 O(1) 查询"],
+    "二维前缀和": ["静态子矩阵求和", "矩形查询", "容斥预处理"],
+    "差分数组": ["区间加减", "单点查最终值", "离线批量修改"],
+    "双指针（滑动窗口）": ["子数组满足某条件", "窗口维护信息", "单调性使指针只前进"],
+    "单调栈": ["找左侧/右侧第一个更大/更小", "矩形最大面积", "单调性淘汰"],
+    "单调队列（滑动窗口）": ["固定窗口最值/DP 优化", "滑动窗口", "队首过期"],
+    "并查集 (DSU)": ["连通性/合并查询", "离线加边", "最小生成树"],
+    "带权并查集": ["维护相对关系", "种类并查集", "路径权值传递"],
+    "Dijkstra": ["非负权最短路", "单源最短路", "优先队列扩展"],
+    "Bellman-Ford": ["负权最短路", "判负环", "边数少/有边数限制"],
+    "Floyd-Warshall": ["全源最短路", "n≤500", "传递闭包"],
+    "Kruskal": ["最小生成树", "边排序 + DSU", "加边不连通则选"],
+    "Prim": ["稠密图最小生成树", "点扩展", "维护已选集合"],
+    "拓扑排序 (Kahn)": ["DAG 依赖顺序", "入度剥离", "判环/合法顺序"],
+    "拓扑排序 + DAG DP": ["DAG 上最长路/方案数", "依赖前驱", "按拓扑序推"],
+    "LCA（倍增）": ["树上两点最近公共祖先", "多次树上路径查询", "预处理 up 表"],
+    "树上差分": ["路径整体加/统计", "离线一次 DFS 汇总", "边/点计数"],
+    "线段树（区间和 + 懒标记）": ["区间修改 + 区间查询", "动态更新", "懒标记"],
+    "树状数组 (BIT)": ["单点修改前缀查询", "逆序对", "动态维护前缀和"],
+    "ST 表（静态区间最值）": ["静态区间最值", "O(1) 查询", "无修改"],
+    "0/1 背包": ["容量有限/每件一次", "选或不选", "倒序 DP"],
+    "完全背包": ["物品无限用", "正序 DP", "容量与状态递推"],
+    "LIS（最长上升子序列）": ["最长上升/非降子序列", "O(n log n) 贪心", "严格/非严格边界"],
+    "LCS（最长公共子序列）": ["两个序列最长公共", "二维 DP", "字符串/数组对齐"],
+    "石子合并": ["区间合并代价", "区间 DP", "枚举断点"],
+    "KMP": ["单模式匹配", "前缀函数", "O(n+m) 回退"],
+    "Trie（字典树）": ["多字符串前缀", "统计/查找", "字符集小"],
+    "字符串哈希（Rolling Hash）": ["子串比较", "预处理哈希", "双哈希防碰撞"],
+    "Tarjan 求 SCC": ["强连通分量", "有向图缩点", "dfn/low/栈"],
+    "二分图染色判定": ["二分图判定", "奇环检测", "交替染色"],
+    "简单回溯": ["子集/排列/搜索", "剪枝", "状态恢复"],
+    "矩阵快速幂优化递推": ["线性递推", "n 很大", "转移矩阵幂"],
+    "树上最大权独立集": ["树上选点不相邻", "树形 DP", "选/不选"],
+    "Nim 游戏与 SG 函数": ["博弈", "Nim 和", "SG 函数组合"],
+    "期望 DP（掷骰子）": ["概率期望", "状态到终点", "反向递推/方程组"],
+    "FFT": ["多项式卷积/大数乘法", "n log n", "点值域相乘"],
+    "NTT": ["模意义卷积", "998244353", "整数精确"],
+    "莫队（区间不同数）": ["离线区间查询", "排序块", "移动端点维护计数"],
+    "主席树（区间第 k 小）": ["静态区间第 k 小", "可持久化", "值域线段树差分"],
+    "FHQ Treap（无旋 Treap）": ["平衡树/区间操作", "split/merge", "随机优先级"],
+    "AC 自动机": ["多模式匹配", "fail 指针", "文本扫描"],
+    "Manacher": ["回文半径", "线性", "中心扩展"],
+    "Z-function": ["字符串匹配前缀", "线性", "Z 数组"],
+    "后缀数组 (SA)": ["后缀排序", "height 数组", "子串/重复统计"],
+    "线性基": ["异或空间", "最大异或和", "线性无关"],
+    "Dinic 最大流": ["最大流", "分层图", "当前弧优化"],
+    "二分图最大匹配（匈牙利）": ["二分图匹配", "增广路", "左部点尝试"],
+    "2-SAT": ["布尔变量约束", "蕴含图", "SCC 判定"],
+    "斜率优化（CHT）": ["DP 转移呈 y=kx+b", "单调队列/凸壳", "决策单调"],
+    "四边形不等式优化": ["区间 DP 决策单调", "缩小断点范围", "O(n^2) 优化"],
+    "点分治/边分治": ["树上统计所有路径", "重心分治", "跨重心路径"],
+    "树链剖分 (HLD)": ["树上路径修改/查询", "链映射到线段树", "重链"],
+    "Link-Cut Tree (LCT)": ["动态树连边/断边", "路径信息维护", "splay+access"],
+    "最小费用最大流": ["带费用最大流", "最短增广路", "费用流模板"],
+    "半平面交": ["求平面交集", "凸多边形区域", "极角排序+deque"],
+}
+
+# ── 占位/注释代码卡：UI 明确标注“思路框架”，不伪装成完整模板 ──
+SKELETON_NAMES = {
+    "归并排序求逆序对", "构造算法", "最小割建模", "KM 算法", "2-SAT",
+    "割点 / 桥", "基环树 DP", "仙人掌 / 圆方树", "可持久化数据结构（主席树进阶）",
+    "后缀自动机（SAM）进阶", "生成函数", "线性基进阶", "半平面交", "三维凸包",
+    "支配树", "动态图连通性（离线）", "插头 DP", "DP 套 DP", "上下界网络流",
+    "AC 自动机 + 矩阵快速幂", "中国剩余定理 (CRT)", "轮廓线 DP（简单棋盘状压）",
+    "莫比乌斯反演", "树形背包", "树上启发式合并 (DSU on tree)", "整体二分", "CDQ 分治",
+    "动态开点线段树",
+}
+
 cards: dict[str, dict] = {}
 for name in ALGORITHM_NAMES:
     info = get_alg_info(name)
@@ -339,19 +514,31 @@ for name in ALGORITHM_NAMES:
         how = f"实现要点：{info.get('why', '按常规建模与实现。')}"
     if not code:
         code = f"// 实现要点：{info.get('why', '按常规建模与实现。')}"
+    priority = PRIORITY_OVERRIDES.get(name, tier_priority(name))
     cards[name] = {
         "what": info.get("why", ""),
         "how": how,
         "complexity": complexity,
         "code": code,
         "advanced": name not in CORE,
+        "priority": priority,
+        "signals": SIGNALS.get(name, []),
+        "key_insight": info.get("why", ""),
+        "template_quality": "skeleton" if name in SKELETON_NAMES else "template",
     }
+
+# 补充专家评审新增的高频算法卡（不进熵引擎候选池，只进 PC 阶梯）
+for name, sc in SUPPLEMENT_CARDS.items():
+    sc.setdefault("signals", [])
+    sc.setdefault("key_insight", sc.get("what", ""))
+    sc.setdefault("template_quality", "skeleton" if name in SKELETON_NAMES else "template")
+    cards[name] = sc
 
 out = {
     "meta": {
-        "version": "0.1.0",
-        "description": "PC 阶梯算法卡：是什么/怎么写/复杂度/C++ 代码",
-        "sources": ["CP-Algorithms", "OI Wiki", "USACO Guide", "teacher-consensus-skill"],
+        "version": "1.1.0",
+        "description": "PC 阶梯算法卡：一句本质/题感信号/复杂度/C++ 代码，含 7 张专家补充卡；高阶占位明确标为思路框架",
+        "sources": ["CP-Algorithms", "OI Wiki", "USACO Guide", "teacher-consensus-skill", "algorithm-expert-round-2026"],
     },
     "cards": cards,
 }
@@ -362,9 +549,15 @@ with open(target, "w", encoding="utf-8") as f:
 
 # 校验
 loaded = json.load(open(target, encoding="utf-8"))
-assert len(loaded["cards"]) == len(ALGORITHM_NAMES) == 120
-assert set(loaded["cards"].keys()) == set(ALGORITHM_NAMES)
+expected = len(ALGORITHM_NAMES) + len(SUPPLEMENT_CARDS)
+assert len(loaded["cards"]) == expected, (len(loaded["cards"]), expected)
+assert set(ALGORITHM_NAMES).issubset(set(loaded["cards"].keys()))
 for n, c in loaded["cards"].items():
-    for field in ("what", "how", "complexity", "code"):
-        assert str(c.get(field, "")).strip(), f"{n}.{field} empty"
-print(f"OK cards={len(loaded['cards'])} path={target}")
+    for field in ("what", "how", "complexity", "code", "priority", "signals", "key_insight", "template_quality"):
+        if field == "signals":
+            assert isinstance(c.get(field), list), f"{n}.signals not list"
+        else:
+            assert str(c.get(field, "")).strip(), f"{n}.{field} empty"
+    assert c["priority"] in ("core", "common", "aware"), f"{n}.priority invalid"
+    assert c["template_quality"] in ("template", "skeleton"), f"{n}.template_quality invalid"
+print(f"OK cards={len(loaded['cards'])} (base={len(ALGORITHM_NAMES)}, supplement={len(SUPPLEMENT_CARDS)}) path={target}")

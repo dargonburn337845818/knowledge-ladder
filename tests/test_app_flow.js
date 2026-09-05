@@ -1,20 +1,22 @@
-/* Node VM 小脚本：验证移动端主流程无 baseline、概率选择、三层递进解锁。 */
+/* Node VM 小脚本：验证移动端主流程无 baseline、概率选择、方向点拨。 */
 const fs = require("fs");
 const vm = require("vm");
 const assert = require("assert");
 
 const code = fs.readFileSync("mobile/www/app.js", "utf8");
 
-// 静态断言：主流程无 baseline，且存在概率选择/三层实现，无卡点自查/看别的
+// 静态断言：主流程无 baseline、无三层递进，且存在概率选择/动态点拨，无卡点自查/看别的
 assert(!/baseline|renderBaseline|先写暴力|基线/.test(code), "mobile app.js still contains baseline flow");
 assert(code.includes('mode: "question"'), "initial state is not question");
 assert(code.includes("renderQuestion();"), "initial call is not renderQuestion");
 assert(code.includes("direction-choice"), "missing probability choice implementation");
 assert(!/卡点自查|看别的/.test(code), "card self-check or see-other still present");
-assert(code.includes("layerUnlocked"), "missing layer state");
-assert(code.includes("layerCondition"), "missing condition layer");
-assert(code.includes("nextLayerBtn"), "missing next layer button");
-assert(code.includes("prevLayerBtn"), "missing prev layer button");
+assert(!/layerUnlocked|layerCondition|layerAction|layerSelfQuestion|nextLayerBtn|prevLayerBtn/.test(code), "mobile app.js still contains three-layer UI");
+assert(!code.includes("三层点拨"), "mobile app.js still contains three-layer title");
+assert(code.includes("nudge-text"), "missing one-line nudge rendering");
+assert(code.includes("DYNAMIC_INSIGHTS"), "missing dynamic insights loader");
+assert(code.includes("insight-text"), "missing dynamic insight rendering");
+assert(code.includes("深入点拨"), "missing deep direction insight rendering");
 
 // --- 最小 DOM / 引擎桩 ---
 function fakeEl() {
@@ -85,6 +87,7 @@ const fourDirs = [
   {
     title: "编码压缩",
     value: "重复信息只算一次，把慢查询变成快查询。",
+    nudge: "重复的信息只算一次；先问：哪个量会被反复查？",
     triggers: ["触发1", "触发2"],
     card_triggers: ["安全触发1", "安全触发2"],
     layers: { condition: "条件1", action: "动作1", self_question: "自问1" },
@@ -117,6 +120,10 @@ const context = {
     ENTROPY_DATA: {
       heuristics: { directions: [], card_points: [] },
       direction_content: { directions: fourDirs },
+      dynamic_insights: {
+        features: {},
+        directions: { 编码压缩: "编码压缩的本质是把被反复消费的信息只算一次；边界是数据静态且查询关心可压缩性质。" },
+      },
     },
     EntropyEngine: {
       create() {
@@ -141,31 +148,13 @@ assert(elements.stage.innerHTML.includes("%"), "probability percent not shown");
 // 点击第一个选择进入详情
 directionChoices[0].click();
 let html = elements.stage.innerHTML;
-assert(/id="layerCondition"[^>]*display:block;/.test(html), "condition layer not visible initially");
-assert(/id="layerAction"[^>]*display:none;/.test(html), "action layer visible initially");
-assert(html.includes("第 1/3 层"), "layer progress not shown initially");
+assert(!html.includes("三层点拨"), "three-layer title still shown");
+assert(!html.includes("第 1/3 层"), "layer progress still shown");
+assert(!html.includes("nextLayerBtn"), "next layer button still shown");
+assert(!html.includes("prevLayerBtn"), "prev layer button still shown");
 assert(html.includes("常见信号"), "common signal keywords not shown");
+assert(html.includes("一句话点拨"), "one-line nudge not shown");
+assert(html.includes("深入点拨"), "deep direction insight not shown");
 assert(!/算法理解|信息论视角|经典模式|关键观察/.test(html), "mobile should stay lean without desktop deep understanding");
-assert(/id="layerSelfQuestion"[^>]*display:none;/.test(html), "self-question layer visible initially");
-
-// 下一步 -> 动作层出现
-getEl("nextLayerBtn").click();
-html = elements.stage.innerHTML;
-assert(/id="layerAction"[^>]*display:block;/.test(html), "action layer not revealed after next");
-assert(html.includes("第 2/3 层"), "layer progress not updated after next");
-assert(/id="layerSelfQuestion"[^>]*display:none;/.test(html), "self-question revealed too early");
-
-// 再下一步 -> 自问层出现，且不再有“下一步”
-getEl("nextLayerBtn").click();
-html = elements.stage.innerHTML;
-assert(/id="layerSelfQuestion"[^>]*display:block;/.test(html), "self-question not revealed after 2nd next");
-assert(html.includes("第 3/3 层"), "layer progress not updated after 2nd next");
-assert(!html.includes("nextLayerBtn"), "next button should disappear after full unlock");
-
-// 上一层 -> 自问层重新隐藏
-getEl("prevLayerBtn").click();
-html = elements.stage.innerHTML;
-assert(html.includes("第 2/3 层"), "layer progress should go back after prev");
-assert(/id="layerSelfQuestion"[^>]*display:none;/.test(html), "self-question should hide after prev");
 
 console.log("APP_FLOW NODE TEST OK");

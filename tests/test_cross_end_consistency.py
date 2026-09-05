@@ -21,6 +21,7 @@ class CrossEndConsistencyTest(unittest.TestCase):
     def setUpClass(cls):
         cls.heuristics = load("heuristics.json")
         cls.content = load("expert_content/direction_cards_v1.json")
+        cls.dynamic_insights = load("expert_content/dynamic_insights.json")
         cls.generated = parse_generated_js(
             os.path.join(REPO_ROOT, "mobile", "www", "entropy_data.js")
         )
@@ -31,6 +32,9 @@ class CrossEndConsistencyTest(unittest.TestCase):
 
     def test_generated_direction_content_matches_mobile_subset(self):
         self.assertEqual(self.generated["direction_content"], self.mobile_projection)
+
+    def test_generated_dynamic_insights_matches_source(self):
+        self.assertEqual(self.generated["dynamic_insights"], self.dynamic_insights)
 
     def test_direction_fields_are_identical(self):
         src_dirs = self.mobile_projection["directions"]
