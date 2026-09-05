@@ -1,18 +1,20 @@
-name: Release Desktop EXE
+name: Build Desktop EXE
 
 on:
-  workflow_dispatch:
   push:
-    branches:
-      - main
-    tags:
-      - 'v*'
+    tags: [ 'v*' ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: desktop-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build:
     runs-on: windows-latest
-    permissions:
-      contents: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -37,10 +39,26 @@ jobs:
         with:
           name: KnowledgeLadder-Windows-EXE
           path: dist/KnowledgeLadder.exe
+          if-no-files-found: error
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download EXE
+        uses: actions/download-artifact@v4
+        with:
+          name: KnowledgeLadder-Windows-EXE
+          path: .
 
       - name: Create GitHub Release
-        if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
         with:
-          files: dist/KnowledgeLadder.exe
+          files: KnowledgeLadder.exe
           body_path: RELEASE_NOTES.md

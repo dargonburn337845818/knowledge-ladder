@@ -27,61 +27,112 @@
     var features = data.features || [];
     var algorithms = data.algorithms || [];
     var params = data.params || {};
+    var directions = data.directions || [];
 
-    function profile(algIndex, fid) {
-      var p = (algorithms[algIndex].profile || {})[fid];
-      return (typeof p === "number") ? p : 0.5;
+    var featureIds = features.map(function (f) { return f.id; });
+    var featureIndex = {};
+    for (var fi = 0; fi < featureIds.length; fi++) featureIndex[featureIds[fi]] = fi;
+
+    // 列优先预计算：避免每次回答都在 120×20 个对象上做属性查找。
+    var profileColumns = [];
+    for (var fIdx = 0; fIdx < featureIds.length; fIdx++) {
+      var fid = featureIds[fIdx];
+      var col = [];
+      for (var aIdx = 0; aIdx < algorithms.length; aIdx++) {
+        var p = (algorithms[aIdx].profile || {})[fid];
+        col.push(typeof p === "number" ? p : 0.5);
+      }
+      profileColumns.push(col);
     }
 
-    function answerProbability(weights, fid, answer) {
-      var w = normalize(weights.slice());
-      var s = 0;
-      if (answer === "yes") {
-        for (var i = 0; i < w.length; i++) s += w[i] * profile(i, fid);
-      } else if (answer === "no") {
-        for (var j = 0; j < w.length; j++) s += w[j] * (1 - profile(j, fid));
-      } else {
+    var directionColumns = {};
+    for (var dIdx = 0; dIdx < directions.length; dIdx++) {
+      var dName = directions[dIdx];
+      var dCol = [];
+      for (var a2 = 0; a2 < algorithms.length; a2++) {
+        dCol.push((algorithms[a2].direction_weights || {})[dName] || 0);
+      }
+      directionColumns[dName] = dCol;
+    }
+
+    function profile(algIndex, fid) {
+      var idx = featureIndex[fid];
+      if (idx == null) return 0.5;
+      return profileColumns[idx][algIndex];
+    }
+
+    function answerProbabilityNorm(w, fidIdx, answer) {
+      if (answer === "uncertain") {
         var decay = params.uncertain_decay == null ? 0.5 : params.uncertain_decay;
-        s = decay * answerProbability(w, fid, "yes") + (1 - decay) * answerProbability(w, fid, "no");
+        return decay * answerProbabilityNorm(w, fidIdx, "yes")
+          + (1 - decay) * answerProbabilityNorm(w, fidIdx, "no");
+      }
+      var s = 0;
+      var col = profileColumns[fidIdx];
+      if (answer === "yes") {
+        for (var i = 0; i < w.length; i++) s += w[i] * col[i];
+      } else {
+        for (var j = 0; j < w.length; j++) s += w[j] * (1 - col[j]);
       }
       return s;
     }
 
-    function posterior(weights, fid, answer) {
-      var w = normalize(weights.slice());
+    function posteriorNorm(w, fidIdx, answer) {
       if (answer === "uncertain") {
         var decay = params.uncertain_decay == null ? 0.5 : params.uncertain_decay;
-        var wy = posterior(w, fid, "yes");
-        var wn = posterior(w, fid, "no");
+        var wy = posteriorNorm(w, fidIdx, "yes");
+        var wn = posteriorNorm(w, fidIdx, "no");
         var mix = [];
         for (var m = 0; m < wy.length; m++) mix.push(decay * wy[m] + (1 - decay) * wn[m]);
         return normalize(mix);
       }
+      var col = profileColumns[fidIdx];
       var out = [];
       for (var i = 0; i < w.length; i++) {
-        var p = answer === "yes" ? profile(i, fid) : (1 - profile(i, fid));
+        var p = answer === "yes" ? col[i] : (1 - col[i]);
         out.push(w[i] * p);
       }
       return normalize(out);
     }
 
+    function answerProbability(weights, fid, answer) {
+      var idx = featureIndex[fid];
+      if (idx == null) return 1;
+      return answerProbabilityNorm(normalize(weights.slice()), idx, answer);
+    }
+
+    function posterior(weights, fid, answer) {
+      var idx = featureIndex[fid];
+      if (idx == null) return normalize(weights.slice());
+      return posteriorNorm(normalize(weights.slice()), idx, answer);
+    }
+
     function informationGain(weights, fid) {
+      var idx = featureIndex[fid];
+      if (idx == null) return 0;
       var w = normalize(weights.slice());
-      var py = answerProbability(w, fid, "yes");
+      var py = answerProbabilityNorm(w, idx, "yes");
       var pn = 1 - py;
       if (py <= 0 || pn <= 0) return 0;
-      var hy = entropy(posterior(w, fid, "yes"));
-      var hn = entropy(posterior(w, fid, "no"));
+      var hy = entropy(posteriorNorm(w, idx, "yes"));
+      var hn = entropy(posteriorNorm(w, idx, "no"));
       return entropy(w) - (py * hy + pn * hn);
     }
 
     function chooseNext(weights, asked) {
       var bestId = null;
       var bestIg = -1;
-      for (var i = 0; i < features.length; i++) {
-        var fid = features[i].id;
+      var w = normalize(weights.slice());
+      var wEntropy = entropy(w);
+      for (var i = 0; i < featureIds.length; i++) {
+        var fid = featureIds[i];
         if (asked.indexOf(fid) >= 0) continue;
-        var ig = informationGain(weights, fid);
+        var py = answerProbabilityNorm(w, i, "yes");
+        var pn = 1 - py;
+        if (py <= 0 || pn <= 0) continue;
+        var hy = entropy(posteriorNorm(w, i, "yes"));
+        var hn = entropy(posteriorNorm(w, i, "no"));
+        var ig = wEntropy - (py * hy + pn * hn);
         if (ig > bestIg) {
           bestIg = ig;
           bestId = fid;
@@ -105,15 +156,13 @@
 
     function directionProbs(weights) {
       var w = normalize(weights.slice());
-      var dirs = data.directions || [];
       var out = {};
       var total = 0;
-      for (var d = 0; d < dirs.length; d++) {
-        var name = dirs[d];
+      for (var d = 0; d < directions.length; d++) {
+        var name = directions[d];
+        var column = directionColumns[name];
         var s = 0;
-        for (var i = 0; i < w.length; i++) {
-          s += w[i] * ((algorithms[i].direction_weights || {})[name] || 0);
-        }
+        for (var i = 0; i < w.length; i++) s += w[i] * column[i];
         out[name] = s;
         total += s;
       }
@@ -121,7 +170,6 @@
       for (var key in out) out[key] = out[key] / total;
       return out;
     }
-
 
     function topAlgorithms(weights, threshold, limit) {
       if (threshold == null) threshold = params.algorithm_weight_threshold == null ? 0.02 : params.algorithm_weight_threshold;

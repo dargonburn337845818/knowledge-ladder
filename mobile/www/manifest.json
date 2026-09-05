@@ -1,7 +1,7 @@
 {
   "name": "知识阶梯 · 信息论版",
   "short_name": "知识阶梯",
-  "description": "Codeforces 知识阶梯移动端：四操作、四阶段、解剖四步。",
+  "description": "Codeforces 知识阶梯移动端：动态熵减拆题、四大方向与教师共识引导。",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#141519",

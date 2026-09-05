@@ -13,7 +13,7 @@
 - 人负责回答是/否/不确定，以及用“我感觉不对劲”强行打断机器。
 - 软件不直接甩答案，最终只给**四大方向**和当前候选算法权重，引导你自己收敛。
 
-整个过程**纯本地运行**：不调用任何云端 API，不部署大模型，只有 JSON 状态机 + log2 运算。
+整个过程**纯本地运行**：不调用任何云端 API、不部署大模型、不加载远程字体/分析脚本，只有 JSON 状态机 + log2 运算。
 
 ---
 
@@ -47,7 +47,7 @@
 数据全部清洗成静态 JSON：
 
 - `algorithm_prior.json`：先验概率、难度区间、组合频次、可调参数
-- `feature_algorithm_matrix.json`：29 个特征问题（20 基础 + 9 教师共识）× 120 算法条件概率
+- `feature_algorithm_matrix.json`：20 个基础特征问题 × 120 算法条件概率（教师共识不作概率矩阵，只作未校准线索）
 - `heuristics.json`：四大方向的深度启发话术
 - `teacher_consensus.json`：`teacher-consensus-skill` 蒸馏出的 24 条教师共识主题 + 元纪律
 
@@ -156,6 +156,7 @@ build_windows.bat
 
 ```text
 ├── main.py                    # 入口：只负责启动
+├── AGENTS.md                  # 项目指南（给 AI / 新人）
 ├── app/
 │   ├── theme.py               # 视觉常量 / QSS / 壁纸模式
 │   ├── state.py               # 本地进度持久化
@@ -177,8 +178,31 @@ build_windows.bat
 ├── tests/                     # 熵减引擎 / 数据完整性 / 教师共识测试
 ├── mobile/                    # PWA + Capacitor
 │   └── www/
-└── .github/workflows/         # CI / APK / EXE 自动构建
+├── LICENSE                    # MIT
+├── SECURITY.md                # 安全与隐私政策
+├── CONTRIBUTING.md            # 贡献指南
+├── CODE_OF_CONDUCT.md
+└── .github/
+    ├── workflows/             # CI / APK / Desktop EXE 自动构建
+    ├── ISSUE_TEMPLATE/        # bug / feature 模板
+    ├── PULL_REQUEST_TEMPLATE.md
+    └── dependabot.yml         # 自动更新依赖与 Actions
 ```
+
+---
+
+## 隐私与离线承诺
+
+- 运行时无远程 API / 大模型 / 分析脚本；移动端不加载外部字体或第三方资源。
+- 本地进度保存在系统 AppData，不写入仓库。
+- `docs/`、`reports/`、`preview/`、`系统提示词.txt` 等内部资料请勿提交，已在 `.gitignore` 中忽略。
+- 公开 issue / PR 不要贴个人路径、密钥或真实账号信息。
+
+## 贡献与安全
+
+- 贡献流程见 [CONTRIBUTING.md](CONTRIBUTING.md)。
+- 漏洞 / 隐私问题上报见 [SECURITY.md](SECURITY.md)。
+- 代码行为约定见 [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)。
 
 ---
 

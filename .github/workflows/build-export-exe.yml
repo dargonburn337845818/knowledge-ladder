@@ -6,11 +6,16 @@ on:
     tags:
       - 'v*'
 
+permissions:
+  contents: read
+
+concurrency:
+  group: export-exe-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: windows-latest
-    permissions:
-      contents: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -32,10 +37,26 @@ jobs:
         with:
           name: WallpaperExport-Windows
           path: dist/WallpaperExport.exe
+          if-no-files-found: error
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download EXE
+        uses: actions/download-artifact@v4
+        with:
+          name: WallpaperExport-Windows
+          path: .
 
       - name: Create GitHub Release
-        if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
         with:
-          files: dist/WallpaperExport.exe
+          files: WallpaperExport.exe
           body_path: RELEASE_NOTES.md

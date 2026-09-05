@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 """桌面端动态熵减拆题页：基线暴力 → 单一问题流 → 四方向引导。"""
 
+from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QFrame,
+    QHBoxLayout,
     QLabel,
     QPushButton,
     QScrollArea,

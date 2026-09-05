@@ -232,6 +232,7 @@
     const probs = engine.directionProbs(state.weights);
     const dirs = Object.keys(probs).sort((a, b) => probs[b] - probs[a]);
     const algos = engine.topAlgorithms(state.weights);
+    const topThemes = topTeacherThemes(2);
     stage.innerHTML = `
       <div class="card">
         <div class="card-title">四个方向</div>
@@ -250,10 +251,10 @@
             <div class="algo-row"><span>${a.algorithm_name}</span><b>${(a.weight * 100).toFixed(1)}%</b></div>
           `).join("") : '<div class="muted-text">当前候选都低于阈值，请点击方向继续。</div>'}
         </div>
-        ${topTeacherThemes(2).length ? `
+        ${topThemes.length ? `
           <div class="heuristic-block">
             <div class="algo-list-title">教师共识线索</div>
-            ${topTeacherThemes(2).map(t => `
+            ${topThemes.map(t => `
               <div style="margin-top:8px;border-top:1px solid rgba(255,255,255,0.08);padding-top:6px;">
                 <div style="font-weight:600;">${t.name}</div>
                 <div class="muted-text">触发：${t.trigger || ""}</div>
@@ -295,6 +296,7 @@
     const dynamic = fillTemplate(h ? h.dynamic_template : "", top);
     const body = h ? `${h.heuristic}<br><br>${dynamic}` : (DIRECTION_TEXT[dir] || "");
     const questions = h ? h.self_questions || [] : [];
+    const dirThemes = teacherThemesForDirection(dir);
     stage.innerHTML = `
       <div class="card">
         <div class="card-title">${dir}</div>
@@ -306,10 +308,10 @@
             ${questions.map(q => `<div class="muted-text" style="margin-top:4px;">· ${q}</div>`).join("")}
           </div>
         ` : ""}
-        ${teacherThemesForDirection(dir).length ? `
+        ${dirThemes.length ? `
           <div class="heuristic-block">
             <div class="algo-list-title">教师共识线索</div>
-            ${teacherThemesForDirection(dir).map(t => `
+            ${dirThemes.map(t => `
               <div style="margin-top:8px;border-top:1px solid rgba(255,255,255,0.08);padding-top:6px;">
                 <div style="font-weight:600;">${t.name}</div>
                 <div class="muted-text">触发：${t.trigger || ""}</div>

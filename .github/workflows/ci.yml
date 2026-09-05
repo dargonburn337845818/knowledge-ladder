@@ -7,6 +7,13 @@ on:
     branches: [ main ]
   workflow_dispatch:
 
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   python-check:
     runs-on: ubuntu-latest
@@ -27,6 +34,7 @@ jobs:
         run: |
           python export_mobile_data.py
           test -f mobile/www/entropy_data.js
+          git diff --exit-code -- mobile/www/entropy_data.js
 
       - name: Unit tests
         run: |

@@ -50,13 +50,13 @@ mobile/android/app/build/outputs/apk/debug/app-debug.apk
 
 ## 云构建（不装 Android Studio）
 
-仓库根目录已配置 `.github/workflows/build-apk.yml`。提交并推送到 GitHub 后，Actions 会自动：
+仓库根目录已配置 `.github/workflows/build-android.yml`。提交并推送到 GitHub 后，Actions 会自动：
 
 1. 重新生成 `mobile/www/entropy_data.js`
 2. 安装 Capacitor
 3. 生成 Android 工程
 4. 构建 `app-debug.apk`
-5. 上传为 artifact
+5. 上传为 artifact（tag `v*` 还会自动创建 GitHub Release）
 
 在 GitHub 仓库的 **Actions** 页面运行 `Build Knowledge Ladder APK`，下载 `knowledge-ladder-apk` 即可。
 
@@ -74,6 +74,5 @@ mobile/
 │   ├── sw.js           # 离线缓存
 │   └── icon.svg
 ├── capacitor.config.json
-├── package.json
-└── build-apk.yml       # GitHub Actions 云构建模板
+└── package.json
 ```

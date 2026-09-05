@@ -20,3 +20,26 @@ mobile/node_modules/
 /preview/
 /tools/build_algorithm_prior.py
 /tools/build_feature_matrix.py
+
+# 隐私 / 密钥 / 本地数据
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+*.p12
+*.pfx
+.secrets*
+credentials*
+*.log
+.DS_Store
+Thumbs.db
+
+# 构建产物 / 编辑器
+dist/
+build/
+*.spec
+__pycache__/
+*.pyc
+.idea/
+.vscode/

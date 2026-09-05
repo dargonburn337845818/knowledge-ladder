@@ -1,4 +1,4 @@
-const CACHE = "knowledge-ladder-v4";
+const CACHE = "knowledge-ladder-v5";
 const ASSETS = [
   "./",
   "./index.html",
@@ -25,13 +25,19 @@ self.addEventListener("activate", (event) => {
 
 self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
+  // Stale-while-revalidate：缓存命中先返回，后台再更新，离线/重复访问更快。
   event.respondWith(
-    fetch(event.request)
-      .then((res) => {
-        const copy = res.clone();
-        caches.open(CACHE).then((cache) => cache.put(event.request, copy));
-        return res;
-      })
-      .catch(() => caches.match(event.request).then((hit) => hit || caches.match("./index.html")))
+    caches.match(event.request).then((cached) => {
+      const network = fetch(event.request)
+        .then((res) => {
+          if (res && res.ok) {
+            const copy = res.clone();
+            caches.open(CACHE).then((cache) => cache.put(event.request, copy));
+          }
+          return res;
+        })
+        .catch(() => cached || caches.match("./index.html"));
+      return cached || network;
+    })
   );
 });

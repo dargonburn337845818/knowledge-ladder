@@ -1,3 +1,15 @@
+# v1.5.0 — 性能、隐私与开源仓库整理
+
+- 修复桌面端 `DissectPage` 缺失 `Qt` / `QHBoxLayout` 导入导致的启动崩溃。
+- 熵减引擎改为列优先预计算，减少运行时属性查找与重复归一化。
+- 移动端 `entropy_engine.js` 同步预计算 profile / direction 矩阵；`app.js` 消除重复教师主题计算。
+- 移动端移除 Google Fonts 外链，保持纯本地 / 离线 / 无第三方请求。
+- GitHub Actions 重构：最小权限、并发取消、APK/Desktop/Export EXE 统一构建与 tag 自动发布。
+- 新增 LICENSE、SECURITY.md、CONTRIBUTING.md、CODE_OF_CONDUCT.md、issue/PR 模板与 Dependabot。
+- 隐私基线：加强 `.gitignore`，历史作者邮箱改为 GitHub noreply。
+
+---
+
 # v1.4.0 — 减法重构：只留经过验证的教师路径
 
 ## 教师模型视角的删改

@@ -1,0 +1,25 @@
+name: Feature request
+description: Suggest an improvement for Knowledge Ladder
+title: "[Feature] "
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or motivation
+      description: What are you trying to do and why?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: Describe the idea or desired behavior.
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: Privacy constraint
+      description: This project must stay local-first and offline.
+      options:
+        - label: This feature does not add network calls, telemetry, or secrets.
+          required: true

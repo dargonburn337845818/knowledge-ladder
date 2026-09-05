@@ -61,15 +61,17 @@ class EntropyEngine:
 
         # ---- 预计算矩阵：让每次更新只做乘法，不做 dict 查找 ----
         self._feature_index = {f["id"]: i for i, f in enumerate(self.features)}
-        self._profile_matrix = [
-            [float(alg.get("profile", {}).get(fid, 0.5)) for fid in self._feature_index]
-            for alg in self.algorithms
+        self._feature_ids = [f["id"] for f in self.features]
+        # 列优先存储：每个特征一列 P(feature | algorithm)，
+        # 避免遍历“算法 × 特征”时反复跨行访问。
+        self._profile_columns = [
+            [float(alg.get("profile", {}).get(fid, 0.5)) for alg in self.algorithms]
+            for fid in self._feature_ids
         ]
-        self._direction_matrix = [
-            [float(alg.get("direction_weights", {}).get(d, 0.0)) for d in self.directions]
-            for alg in self.algorithms
-        ]
-        self._weights_cache = None
+        self._direction_columns = {
+            d: [float(alg.get("direction_weights", {}).get(d, 0.0)) for alg in self.algorithms]
+            for d in self.directions
+        }
 
     # ---------- 基础工具 ----------
     def initial_weights(self):
@@ -89,7 +91,7 @@ class EntropyEngine:
         idx = self._feature_index.get(fid)
         if idx is None:
             return 0.5
-        return self._profile_matrix[alg_index][idx]
+        return self._profile_columns[idx][alg_index]
 
     def entropy(self, weights):
         return _entropy(_norm(weights))
@@ -99,9 +101,10 @@ class EntropyEngine:
 
     def _py(self, fid_idx, w):
         """P(yes | feature) 对已归一化权重求和。"""
+        column = self._profile_columns[fid_idx]
         total = 0.0
         for i, wi in enumerate(w):
-            total += wi * self._profile_matrix[i][fid_idx]
+            total += wi * column[i]
         return total
 
     def answer_probability(self, weights, fid, answer):
@@ -125,13 +128,14 @@ class EntropyEngine:
             wy = self._posterior_from_normalized(w, fid_idx, "yes")
             wn = self._posterior_from_normalized(w, fid_idx, "no")
             return self.normalize([decay * a + (1.0 - decay) * b for a, b in zip(wy, wn)])
+        column = self._profile_columns[fid_idx]
         out = []
         if answer == "yes":
             for i, wi in enumerate(w):
-                out.append(wi * self._profile_matrix[i][fid_idx])
+                out.append(wi * column[i])
         else:
             for i, wi in enumerate(w):
-                out.append(wi * (1.0 - self._profile_matrix[i][fid_idx]))
+                out.append(wi * (1.0 - column[i]))
         return self.normalize(out)
 
     def posterior(self, weights, fid, answer):
@@ -160,12 +164,8 @@ class EntropyEngine:
         best_ig = -1.0
         w = self.normalize(weights)
         w_entropy = _entropy(w)
-        for f in self.features:
-            fid = f["id"]
+        for fid_idx, fid in enumerate(self._feature_ids):
             if fid in asked:
-                continue
-            fid_idx = self._feature_index.get(fid)
-            if fid_idx is None:
                 continue
             py = self._py(fid_idx, w)
             pn = 1.0 - py
@@ -236,10 +236,10 @@ class EntropyEngine:
     def direction_probs(self, weights):
         w = self.normalize(weights)
         out = {}
-        for di, d in enumerate(self.directions):
+        for d, column in self._direction_columns.items():
             total = 0.0
             for i, wi in enumerate(w):
-                total += wi * self._direction_matrix[i][di]
+                total += wi * column[i]
             out[d] = total
         # 归一化，方便展示
         s = sum(out.values()) or 1.0
