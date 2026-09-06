@@ -2,6 +2,8 @@
 
 > 本地优先的算法拆题工具：一次问一个问题，用信息增益逐步收敛到四大方向。包含 PySide6 桌面端与 Capacitor/PWA 移动端。
 
+**中文** | [English](README.en.md)
+
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 ## 简介
@@ -142,10 +144,6 @@ python scripts/engine_parity.py
 - 贡献流程：[CONTRIBUTING.md](CONTRIBUTING.md)
 - 安全与隐私上报：[SECURITY.md](SECURITY.md)
 - 社区行为：[CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)
-
-## 相关仓库
-
-- [wallpaper-export](https://github.com/dargonburn337845818/wallpaper-export)：Wallpaper Engine 高清导出工具。
 
 ## 许可证
 
